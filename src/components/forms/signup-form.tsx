@@ -28,14 +28,18 @@ import { GlobalState } from "@/contexts/globalState";
 import { useContext } from "react";
 
 // 1. Zod schema
-const signupSchema = z.object({
-  name: z.string().min(2, { message: "Tên phải có ít nhất 2 ký tự" }),
-  email: z.string().email({ message: "Email không hợp lệ" }),
-  password: z.string().min(6, { message: "Mật khẩu phải ít nhất 6 ký tự" }),
-  confirmPassword: z.string().min(6, { message: "Mật khẩu phải ít nhất 6 ký tự" }),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Mật khẩu không khớp",
-});
+const signupSchema = z
+  .object({
+    name: z.string().min(2, { message: "Tên phải có ít nhất 2 ký tự" }),
+    email: z.string().email({ message: "Email không hợp lệ" }),
+    password: z.string().min(6, { message: "Mật khẩu phải ít nhất 6 ký tự" }),
+    confirmPassword: z
+      .string()
+      .min(6, { message: "Mật khẩu phải ít nhất 6 ký tự" }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Mật khẩu không khớp",
+  });
 
 type SignUpFormValues = z.infer<typeof signupSchema>;
 
@@ -67,11 +71,9 @@ export function SignUpForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader className="flex flex-col items-center">
-          <img src='/Logo.png' alt="Logo" className="w-20 h-20" />
+          <img src="/Logo.png" alt="Logo" className="w-20 h-20" />
           <CardTitle className="text-2xl">Đăng ký</CardTitle>
-          <CardDescription>
-            Chào mừng bạn đến với PowerCard!
-          </CardDescription>
+          <CardDescription>Chào mừng bạn đến với PowerCard!</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -140,9 +142,10 @@ export function SignUpForm({
               </Button>
               <div className="text-center text-sm">
                 Bạn đã có tài khoản?{" "}
-                <div className="underline inline cursor-pointer" onClick={() => 
-                  NextPageReplace("/sign-in")
-                }>
+                <div
+                  className="underline inline cursor-pointer"
+                  onClick={() => NextPageReplace("/sign-in")}
+                >
                   Đăng nhập
                 </div>
               </div>
