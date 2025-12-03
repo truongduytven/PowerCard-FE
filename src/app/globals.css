@@ -141,7 +141,7 @@
 
   /* BORDER & INPUT */
   --border: oklch(0.32 0 0 / 40%);
-  --input: oklch(0.32 0 0 / 30%);
+  --input: oklch(52.78% 0.00006 271.152 / 0.3);
   --ring: oklch(0.82 0.27 320);
 
   /* CHART COLORS */
