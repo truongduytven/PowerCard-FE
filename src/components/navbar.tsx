@@ -11,7 +11,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
 
   const links = [
-    ["home", "Home"],
+    ["/", "Home"],
     ["decks", "Decks"],
     ["create", "Create"],
     ["study", "Study"],
@@ -22,7 +22,7 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 backdrop-blur border-b overflow-x-hidden">
       <div className="container-6xl flex h-16 items-center justify-between px-4 md:px-20">
         <a
-          href="#home"
+          href="/"
           className="hover:opacity-80 transition-opacity duration-200 h-16 flex items-center"
         >
           <Image
@@ -38,7 +38,7 @@ export default function Navbar() {
           {links.map(([href, label]) => (
             <a
               key={href}
-              href={`#${href}`}
+              href={`${href}`}
               className="hover:opacity-80 transition-all duration-200 hover:scale-105"
             >
               {label}
