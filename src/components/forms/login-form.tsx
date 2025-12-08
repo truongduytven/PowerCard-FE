@@ -55,7 +55,7 @@ export function LoginForm({
     await signIn(email, password);
     if (!error) {
       form.reset();
-      NextPageReplace("/");
+      NextPageReplace("/home");
     }
   };
 
