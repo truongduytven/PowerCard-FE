@@ -98,7 +98,7 @@ export default function FlipCard({ flashcards, activeStar, handelStarClick }: Fl
                         </div>
                         <div className={`${imageUrl ? "flex-1" : "hidden"} flex items-center justify-center`}>
                           <img
-                            src={imageUrl || ""}
+                            src={imageUrl || undefined} 
                             alt="Ảnh"
                             className="w-full max-w-[250px] md:max-w-none h-auto md:object-cover object-contain rounded-lg md:w-[80%] md:h-[80%]"
                           />

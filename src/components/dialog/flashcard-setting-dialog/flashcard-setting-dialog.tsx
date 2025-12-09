@@ -85,9 +85,16 @@ export default function FlashcardSettingDialog({
                                         </div>
                                         <Input type="number" id="hard" placeholder="Hard" />
                                     </div>
+                                    <div className='space-y-1.5'>
+                                        <div className='flex gap-x-0.5'>
+                                            <Label htmlFor="hard">Very Hard</Label>
+                                            <span>(minutes)</span>
+                                        </div>
+                                        <Input type="number" id="hard" placeholder="Hard" />
+                                    </div>
                                 </div>
                                 <div className='flex justify-between items-center'>
-                                    <h1>Font</h1>
+                                    <h1 className='font-medium'>Font</h1>
                                     <div className='relative'>
                                         <label
                                             className={`
