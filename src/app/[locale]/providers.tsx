@@ -16,7 +16,6 @@ export default function Providers({
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-        <Navbar />
         {children}
       </ThemeProvider>
     </NextIntlClientProvider>
