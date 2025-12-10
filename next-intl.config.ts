@@ -2,6 +2,6 @@ import { locales } from './i18n';
 
 export default {
   locales,
-  defaultLocale: 'en',
+  defaultLocale: 'vi',
   timeZone: 'UTC'
 };

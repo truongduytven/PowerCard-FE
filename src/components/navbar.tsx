@@ -17,15 +17,25 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import logo from "../../public/Logo.png";
+import { locales } from "../../i18n";
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+
+  const localeMatch = pathname?.match(/^\/(en|vi)(?:\/|$)/);
+  const currentLocale = localeMatch ? localeMatch[1] : "vi";
+  const basePath = pathname
+    ? localeMatch
+      ? pathname.replace(new RegExp(`^/${currentLocale}`), "") || "/"
+      : pathname
+    : "/";
 
   useEffect(() => {
     const handleScroll = () => {
@@ -72,9 +82,9 @@ export default function Navbar() {
   // Hàm kiểm tra active link
   const isActiveLink = (href: string) => {
     if (href === "/") {
-      return pathname === "/";
+      return basePath === "/";
     }
-    return pathname.startsWith(href);
+    return basePath.startsWith(href);
   };
 
   const gradientColors = {
@@ -107,7 +117,10 @@ export default function Navbar() {
     >
       <div className="max-w-8xl mx-auto flex h-16 items-center justify-between px-4 md:px-8 lg:px-20">
         <div className="flex items-center gap-8 lg:gap-12">
-          <a href="/" className="flex items-center gap-3 group h-16">
+          <a
+            href={`/${currentLocale}`}
+            className="flex items-center gap-3 group h-16"
+          >
             <div className="h-full flex items-center justify-center px-2">
               <div className="relative h-full flex items-center justify-center min-w-[60px]">
                 <div
@@ -143,10 +156,13 @@ export default function Navbar() {
           <div className="hidden lg:flex items-center gap-1">
             {links.map((link) => {
               const isActive = isActiveLink(link.href);
+              const linkHref = `/${currentLocale}${
+                link.href === "/" ? "" : link.href
+              }`;
               return (
                 <a
                   key={link.id}
-                  href={link.href}
+                  href={linkHref}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 relative group
                     ${
                       isActive
@@ -201,6 +217,36 @@ export default function Navbar() {
             <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           </Button>
+          {/* Locale select */}
+          <div className="hidden sm:flex items-center">
+            <label htmlFor="locale-select" className="sr-only">
+              Choose language
+            </label>
+            <select
+              id="locale-select"
+              value={(() => {
+                const m = pathname?.match(/^\/(en|vi)(?:\/|$)/);
+                return m ? m[1] : "vi";
+              })()}
+              onChange={(e) => {
+                const newLocale = e.target.value;
+                let newPath = pathname || "/";
+                if (/^\/(en|vi)(?:\/|$)/.test(newPath)) {
+                  newPath = newPath.replace(/^\/(en|vi)/, `/${newLocale}`);
+                } else {
+                  newPath = `/${newLocale}${newPath === "/" ? "" : newPath}`;
+                }
+                router.push(newPath);
+              }}
+              className="h-9 pl-2 pr-6 rounded-md border border-gray-200 dark:border-gray-700 bg-white/0 text-sm text-gray-700 dark:text-gray-200"
+            >
+              {locales.map((loc) => (
+                <option key={loc} value={loc}>
+                  {loc.toUpperCase()}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="hidden md:flex items-center gap-3">
             <div className="h-9 w-px bg-gray-200 dark:bg-gray-700" />
             <Button
@@ -240,10 +286,13 @@ export default function Navbar() {
             <div className="space-y-2">
               {links.map((link) => {
                 const isActive = isActiveLink(link.href);
+                const linkHref = `/${currentLocale}${
+                  link.href === "/" ? "" : link.href
+                }`;
                 return (
                   <a
                     key={link.id}
-                    href={link.href}
+                    href={linkHref}
                     onClick={() => setOpen(false)}
                     className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all duration-300 group
                       ${
