@@ -7,12 +7,12 @@ import Navbar from "@/components/navbar";
 
 export default function LayoutUser(props: { children: React.ReactNode }) {
   return (
-      <GlobalProvider>
-        <Toaster position="top-right" richColors />
-        <ProtectedRoute>
-          <Navbar />
-          {props.children}
-        </ProtectedRoute>
-      </GlobalProvider>
+    <GlobalProvider>
+      <Toaster position="top-right" richColors />
+      {/* <ProtectedRoute> */}
+      <Navbar />
+      {props.children}
+      {/* </ProtectedRoute> */}
+    </GlobalProvider>
   );
 }
