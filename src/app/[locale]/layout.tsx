@@ -3,6 +3,8 @@ import Providers from "./providers";
 import { notFound } from "next/navigation";
 import "./globals.css";
 import { geistSans, geistMono } from "../fonts";
+import fs from "fs/promises";
+import path from "path";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -19,10 +21,30 @@ export default async function LocaleLayout({
   const { locale } = await params;
 
   // Load messages
-  let messages;
+  let messages: Record<string, any> = {};
   try {
-    messages = (await import(`../../../messages/${locale}.json`)).default;
-  } catch {
+    const messagesDir = path.join(process.cwd(), "messages", locale);
+    const entries = await fs.readdir(messagesDir);
+    for (const entry of entries) {
+      if (entry.endsWith(".json")) {
+        try {
+          const content = await fs.readFile(
+            path.join(messagesDir, entry),
+            "utf8"
+          );
+          const parsed = JSON.parse(content);
+          Object.assign(messages, parsed);
+        } catch (e) {
+          // skip invalid file
+        }
+      }
+    }
+    // if no messages were loaded, fallback to single-file load
+    if (Object.keys(messages).length === 0) {
+      // try legacy single file
+      messages = (await import(`../../../messages/${locale}.json`)).default;
+    }
+  } catch (e) {
     notFound();
   }
 
