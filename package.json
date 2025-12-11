@@ -30,6 +30,7 @@
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-switch": "^1.2.6",
     "@radix-ui/react-tooltip": "^1.2.8",
+    "@radix-ui/react-visually-hidden": "^1.2.4",
     "@react-three/fiber": "^9.0.0-alpha.8",
     "@tsparticles/engine": "^3.9.1",
     "@tsparticles/react": "^3.0.0",

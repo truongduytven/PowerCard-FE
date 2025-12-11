@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/carousel"
 import { FiEdit } from "react-icons/fi";
 import FlashcardEdit from "../../dialog/flashcard-edit/flashcard-edit";
+import Zoom from "@/components/dialog/zoom/zoom";
 
 export interface Flashcard {
   id: number;
@@ -22,20 +23,23 @@ export interface Flashcard {
   term: string;
   imageUrl: string;
 }
-
 interface FlipCardProps {
   flashcards: Flashcard[];
   activeStar: { [id: string]: boolean };
+  showSettingsDialog: boolean;
+  setShowSettingsDialog: React.Dispatch<React.SetStateAction<boolean>>;
   handelStarClick: (id: number) => void;
 }
 
-export default function FlipCard({ flashcards, activeStar, handelStarClick }: FlipCardProps) {
+export default function FlipCard({ flashcards, activeStar, showSettingsDialog, setShowSettingsDialog, handelStarClick }: FlipCardProps) {
   const [flipped, setFlipped] = useState(false);
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showDialogZoom, setShowDialogZoom] = useState(false);
   const [tempImageUrl, setTempImageUrl] = useState("");
   const [card, setCard] = useState<Flashcard[]>(flashcards);
   const [editingId, setEditingId] = useState<number | null>(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
 
   const button = `flex flex-1 justify-center items-center px-4 py-2 rounded-md border transition duration-200 bg-white text-black border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transform hover:-translate-y-1 dark:bg-[#0F172B] dark:text-white dark:border-slate-400 dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255)]`
 
@@ -44,9 +48,11 @@ export default function FlipCard({ flashcards, activeStar, handelStarClick }: Fl
     const handleSelect = () => {
       setFlipped(false);
     };
+    setCurrentIndex(api.selectedScrollSnap());
     api.on("select", handleSelect);
     return () => {
       api.off("select", handleSelect);
+      setCurrentIndex(api.selectedScrollSnap());
     };
   }, [api])
 
@@ -98,7 +104,7 @@ export default function FlipCard({ flashcards, activeStar, handelStarClick }: Fl
                         </div>
                         <div className={`${imageUrl ? "flex-1" : "hidden"} flex items-center justify-center`}>
                           <img
-                            src={imageUrl || undefined} 
+                            src={imageUrl || undefined}
                             alt="Ảnh"
                             className="w-full max-w-[250px] md:max-w-none h-auto md:object-cover object-contain rounded-lg md:w-[80%] md:h-[80%]"
                           />
@@ -153,21 +159,23 @@ export default function FlipCard({ flashcards, activeStar, handelStarClick }: Fl
       </Carousel>
 
       <div className="py-8 flex justify-between items-center gap-4 flex-wrap">
-        <button className={`${button} whitespace-nowrap`}>
+        <button className={`${button} whitespace-nowrap border border-gray-300`}>
           Dễ
         </button>
 
-        <button className={`${button} whitespace-nowrap`}>
+        <button className={`${button} whitespace-nowrap border border-gray-300`}>
           Trung bình
         </button>
 
-        <button className={`${button} whitespace-nowrap`}>
+        <button className={`${button} whitespace-nowrap border border-gray-300`}>
           Khó
         </button>
 
-        <button className={`${button} whitespace-nowrap`}>
+        <button className={`${button} whitespace-nowrap border border-gray-300`}>
           Rất khó
         </button>
+
+        <img src="/zoom-in.gif" alt="" className="w-10 h-10 cursor-pointer dark:invert dark:saturate-0" onClick={() => setShowDialogZoom(true)} />
       </div>
 
       <FlashcardEdit
@@ -188,6 +196,26 @@ export default function FlipCard({ flashcards, activeStar, handelStarClick }: Fl
           );
           setShowEditDialog(false);
         }}
+      />
+
+      <Zoom
+        showDialogZoom={showDialogZoom}
+        setShowDialogZoom={setShowDialogZoom}
+        setShowSettingsDialog={setShowSettingsDialog}
+        flashcard={card[currentIndex]}
+        currentIndex={currentIndex}
+        flipped={flipped}
+        setFlipped={setFlipped}
+        activeStar={activeStar}
+        handelStarClick={handelStarClick}
+        setTempImageUrl={setTempImageUrl}
+        card={card}
+        setCard={setCard}
+        setApi={setApi}
+        setCurrentIndex={setCurrentIndex}
+        editingId={editingId}
+        setEditingId={setEditingId}
+        setShowEditDialog={setShowEditDialog}
       />
     </>
   );

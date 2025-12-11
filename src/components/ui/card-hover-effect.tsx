@@ -56,10 +56,10 @@ export const HoverEffect = ({
                 className={cn("w-12 h-12 rounded-full border-2", item.borderColor)}
               />
               <div>
-                <p className="font-bold text-slate-500">{item.title}</p>
+                <p className="font-bold text-slate-500 dark:text-slate-300">{item.title}</p>
               </div>
             </div>
-            <p className="mt-4 text-slate-500 leading-relaxed">{item.description}</p>
+            <p className="mt-4 text-slate-500 dark:text-slate-300 leading-relaxed">{item.description}</p>
           </Card>
         </a>
       ))}
@@ -77,7 +77,7 @@ export const Card = ({
   return (
     <div
       className={cn(
-        "rounded-2xl h-full w-full p-4 overflow-hidden bg-[#F8FAFC] border border-transparent group-hover:border-slate-700 relative z-20",
+        "rounded-2xl h-full w-full p-4 overflow-hidden bg-[#F8FAFC] dark:bg-[#1E293B] border border-transparent group-hover:border-slate-700 relative z-20",
         className
       )}
     >
