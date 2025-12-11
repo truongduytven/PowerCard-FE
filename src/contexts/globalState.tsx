@@ -19,15 +19,16 @@ export const GlobalState = createContext<GlobalStateType>({
 export default function GlobalProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [locale] = pathname.split("/").filter(Boolean);
 
   const NextPage = (path: string) => {
     window.scrollTo(0, 0);
-    router.push(path);
+    router.push(`/${locale}${path}`);
   };
 
   const NextPageReplace = (path: string) => {
     window.scrollTo(0, 0);
-    router.replace(path);
+    router.replace(`/${locale}${path}`);
   };
 
   return (

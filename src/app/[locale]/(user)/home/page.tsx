@@ -24,6 +24,7 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -159,9 +160,14 @@ export default function HomePage() {
     "Create your own decks",
   ];
   const words = `Welcome back, John`;
+  const t = useTranslations("Home");
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-fuchsia-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-fuchsia-950/20">
       <BackgroundBeams />
+      <div>
+        <h1>{t("title")}</h1>
+        <p>{t("desc")}</p>
+      </div>
       <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8 relative">
           <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-600/0 via-fuchsia-600/5 to-fuchsia-600/0 blur-xl" />
