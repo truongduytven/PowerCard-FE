@@ -27,7 +27,7 @@ const ProtectedSignRoute = ({ children }: ProtectedSignRouteProps) => {
 
   useEffect(() => {
     if (!started && accessToken) {
-      router.replace('/');
+      router.replace('/home');
     }
   }, [started, accessToken, router]);
 
