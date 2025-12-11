@@ -17,20 +17,20 @@ import {
 } from "lucide-react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import logo from "../../public/Logo.png";
 import { locales } from "../../i18n";
+import { useLocale } from "@/hooks/useLocale";
 
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
+  const { currentLocale, changeLocale } = useLocale();
 
   const localeMatch = pathname?.match(/^\/(en|vi)(?:\/|$)/);
-  const currentLocale = localeMatch ? localeMatch[1] : "vi";
   const basePath = pathname
     ? localeMatch
       ? pathname.replace(new RegExp(`^/${currentLocale}`), "") || "/"
@@ -224,20 +224,8 @@ export default function Navbar() {
             </label>
             <select
               id="locale-select"
-              value={(() => {
-                const m = pathname?.match(/^\/(en|vi)(?:\/|$)/);
-                return m ? m[1] : "vi";
-              })()}
-              onChange={(e) => {
-                const newLocale = e.target.value;
-                let newPath = pathname || "/";
-                if (/^\/(en|vi)(?:\/|$)/.test(newPath)) {
-                  newPath = newPath.replace(/^\/(en|vi)/, `/${newLocale}`);
-                } else {
-                  newPath = `/${newLocale}${newPath === "/" ? "" : newPath}`;
-                }
-                router.push(newPath);
-              }}
+              value={currentLocale}
+              onChange={(e) => changeLocale(e.target.value)}
               className="h-9 pl-2 pr-6 rounded-md border border-gray-200 dark:border-gray-700 bg-white/0 text-sm text-gray-700 dark:text-gray-200"
             >
               {locales.map((loc) => (
