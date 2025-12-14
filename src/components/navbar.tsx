@@ -67,24 +67,12 @@ export default function Navbar() {
     },
     {
       id: 3,
-      href: "/create",
-      label: "Create",
-      icon: <PlusCircle className="h-4 w-4" />,
-    },
-    {
-      id: 4,
-      href: "/study",
-      label: "Study",
-      icon: <BookOpen className="h-4 w-4" />,
-    },
-    {
-      id: 5,
       href: "/explore",
       label: "Explore",
       icon: <Compass className="h-4 w-4" />,
     },
     {
-      id: 6,
+      id: 4,
       href: "/overview",
       label: "Overview",
       icon: <GraduationCap className="h-4 w-4" />,
