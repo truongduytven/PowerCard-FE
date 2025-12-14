@@ -9,10 +9,16 @@ import FolderCard from "@/components/decks/FolderCard";
 import SearchBar from "@/components/decks/SearchBar";
 import SectionHeader from "@/components/decks/SectionHeader";
 import ViewModeToggle from "@/components/decks/ViewModeToggle";
-import { categories, decks, folders } from "@/lib/mock/home";
+import {
+  categories,
+  folders,
+  personalDecks,
+  recentDecks,
+} from "@/lib/mock/home";
 import { ViewMode } from "@/types/decks";
-import { History, Folder } from "lucide-react";
+import { Compass, Folder, History } from "lucide-react";
 import { useState } from "react";
+
 export default function MyDecksPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
@@ -26,14 +32,8 @@ export default function MyDecksPage() {
     // Add your create logic here
   };
 
-  // Filter logic
-  const filteredFolders = folders.filter(
-    (folder) =>
-      folder.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      folder.description?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const filteredDecks = decks.filter((deck) => {
+  // Filter logic cho recent decks (đã học)
+  const filteredRecentDecks = recentDecks.filter((deck) => {
     const matchesSearch =
       deck.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       deck.description?.toLowerCase().includes(searchQuery.toLowerCase());
@@ -41,6 +41,24 @@ export default function MyDecksPage() {
       selectedCategory === "all" || deck.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
+
+  // Filter logic cho personal decks (của người dùng)
+  const filteredPersonalDecks = personalDecks.filter((deck) => {
+    const matchesSearch =
+      deck.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      deck.description?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory =
+      selectedCategory === "all" || deck.category === selectedCategory;
+    return matchesSearch && matchesCategory;
+  });
+
+  // Filter folders
+  const filteredFolders = folders.filter(
+    (folder) =>
+      folder.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      folder.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   const handleStudyDeck = (deckId: number) => {
     console.log("Study deck:", deckId);
     // Add study logic
@@ -50,6 +68,7 @@ export default function MyDecksPage() {
     console.log("Edit deck:", deckId);
     // Add edit logic
   };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-fuchsia-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-fuchsia-950/20">
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
@@ -88,12 +107,13 @@ export default function MyDecksPage() {
             <ViewModeToggle value={viewMode} onChange={setViewMode} />
           </div>
         </div>
-        {/* Reecent Section */}
-        <div>
+
+        {/* Recent Section - Decks đã học (cả của mình và người khác) */}
+        <div className="mb-8">
           <SectionHeader
             title="Recent"
-            subtitle={`${filteredDecks.length} deck${
-              filteredDecks.length !== 1 ? "s" : ""
+            subtitle={`${filteredRecentDecks.length} active deck${
+              filteredRecentDecks.length !== 1 ? "s" : ""
             }`}
             icon={
               <History className="h-6 w-6 text-fuchsia-600 dark:text-fuchsia-400" />
@@ -110,24 +130,54 @@ export default function MyDecksPage() {
                   : "space-y-3"
               }
             >
-              {filteredDecks.length > 0 ? (
-                filteredDecks.map((deck) => (
-                  <DeckCard key={deck.id} deck={deck} viewMode={viewMode} />
-                ))
+              {filteredRecentDecks.length > 0 ? (
+                filteredRecentDecks.map((deck) => {
+                  // Kiểm tra xem deck có phải của người dùng không
+                  // Dựa vào deckType hoặc author để xác định
+                  const isOwner = deck.deckType === "personal" || !deck.author;
+
+                  return (
+                    <DeckCard
+                      key={deck.id}
+                      deck={deck}
+                      viewMode={viewMode}
+                      isOwner={isOwner}
+                      onStudy={() => handleStudyDeck(deck.id)}
+                      onTest={() => console.log("Test deck:", deck.id)}
+                      onEdit={() =>
+                        isOwner && console.log("Edit deck:", deck.id)
+                      }
+                      onDelete={() =>
+                        isOwner && console.log("Delete deck:", deck.id)
+                      }
+                    />
+                  );
+                })
               ) : (
-                <EmptyState
-                  type="deck"
-                  searchQuery={searchQuery}
-                  onCreate={() => handleCreate("deck")}
-                />
+                <div className="col-span-full py-12 text-center">
+                  <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gradient-to-br from-fuchsia-100 to-violet-100 dark:from-fuchsia-900/20 dark:to-violet-900/20 mb-4">
+                    <Compass className="h-10 w-10 text-fuchsia-600 dark:text-fuchsia-400" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                    No recent activity
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    Start studying a deck to see it here
+                  </p>
+                  <button className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-fuchsia-600 to-violet-600 hover:from-fuchsia-700 hover:to-violet-700 text-white rounded-lg font-medium transition-all duration-300 shadow-lg shadow-fuchsia-500/30">
+                    <Compass className="h-4 w-4" />
+                    Explore Decks
+                  </button>
+                </div>
               )}
             </div>
           )}
         </div>
 
+        {/* My Decks Section - Chỉ decks của người dùng */}
         <DecksSection
-          title="All Decks"
-          decks={filteredDecks}
+          title="My Decks"
+          decks={filteredPersonalDecks}
           viewMode={viewMode}
           isExpanded={decksExpanded}
           searchQuery={searchQuery}
@@ -138,7 +188,7 @@ export default function MyDecksPage() {
         />
 
         {/* Folders Section */}
-        <div className="mb-12">
+        <div className="mb-8">
           <SectionHeader
             title="Folders"
             subtitle={`${filteredFolders.length} folder${
