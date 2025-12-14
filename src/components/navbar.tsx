@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   Bell,
   BookOpen,
@@ -16,13 +15,26 @@ import {
   X,
 } from "lucide-react";
 import { useTheme } from "next-themes";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import logo from "../../public/Logo.png";
 import { locales } from "../../i18n";
 import { useLocale } from "@/hooks/useLocale";
-
+import enFlag from "../../public/flags/enFlag.webp";
+import viFlag from "../../public/flags/viFlag.webp";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Button } from "./ui/button";
+// import zhFlag from "../../public/flags/zh.png";
+// import jpFlag from "../../public/flags/jp.png";
+// import krFlag from "../../public/flags/kr.png";
+// import frFlag from "../../public/flags/fr.png";
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
@@ -46,7 +58,7 @@ export default function Navbar() {
   }, []);
 
   const links = [
-    { id: 1, href: "/", label: "Home", icon: <Home className="h-4 w-4" /> },
+    { id: 1, href: "/home", label: "Home", icon: <Home className="h-4 w-4" /> },
     {
       id: 2,
       href: "/decks",
@@ -105,6 +117,14 @@ export default function Navbar() {
 
     activeOverlay:
       "from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30",
+  };
+  const FLAGS: Record<string, StaticImageData> = {
+    en: enFlag,
+    vi: viFlag,
+    // zh: zhFlag,
+    // jp: jpFlag,
+    // kr: krFlag,
+    // fr: frFlag,
   };
 
   return (
@@ -218,23 +238,40 @@ export default function Navbar() {
             <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           </Button>
           {/* Locale select */}
-          <div className="hidden sm:flex items-center">
-            <label htmlFor="locale-select" className="sr-only">
-              Choose language
-            </label>
-            <select
+          <Select value={currentLocale} onValueChange={(v) => changeLocale(v)}>
+            <SelectTrigger
               id="locale-select"
-              value={currentLocale}
-              onChange={(e) => changeLocale(e.target.value)}
-              className="h-9 pl-2 pr-6 rounded-md border border-gray-200 dark:border-gray-700 bg-white/0 text-sm text-gray-700 dark:text-gray-200"
+              className="
+                w-fit h-9 px-3 rounded-full text-sm font-medium
+                bg-white/5 dark:bg-white/0
+                 dark:border-gray-700/50
+                hover:bg-gray-100/40 dark:hover:bg-gray-800/40
+                backdrop-blur-sm transition-all flex items-center gap-2
+              "
             >
+              <div className="flex items-center gap-2">
+                <SelectValue placeholder="Language" />
+              </div>
+            </SelectTrigger>
+
+            <SelectContent className="w-fit">
               {locales.map((loc) => (
-                <option key={loc} value={loc}>
-                  {loc.toUpperCase()}
-                </option>
+                <SelectItem key={loc} value={loc}>
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src={FLAGS[loc]}
+                      alt={`${loc} flag`}
+                      width={20}
+                      height={20}
+                      className="rounded-sm object-cover"
+                    />
+                    <span>{loc.toUpperCase()}</span>
+                  </div>
+                </SelectItem>
               ))}
-            </select>
-          </div>
+            </SelectContent>
+          </Select>
+
           <div className="hidden md:flex items-center gap-3">
             <div className="h-9 w-px bg-gray-200 dark:bg-gray-700" />
             <Button

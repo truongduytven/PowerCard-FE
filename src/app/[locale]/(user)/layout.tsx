@@ -3,7 +3,7 @@ import GlobalProvider from "@/contexts/globalState";
 import React from "react";
 import { Toaster } from "sonner";
 import ProtectedRoute from "@/components/protectedRoute";
-import Navbar from "@/components/navbar";
+import Navbar from "@/components/Navbar";
 
 export default function LayoutUser(props: { children: React.ReactNode }) {
   return (
