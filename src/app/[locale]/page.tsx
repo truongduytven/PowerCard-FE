@@ -14,9 +14,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
-import GradientText from "@/components/GradientText";
-import BlurText from "@/components/BlurText";
-import ElectricBorder from "@/components/ElectricBorder";
+import GradientText from "@/components/aceternity/GradientText";
+import BlurText from "@/components/aceternity/BlurText";
+import ElectricBorder from "@/components/aceternity/ElectricBorder";
 import { WobbleCard } from "@/components/ui/wobble-card";
 import { IoLockOpenOutline } from "react-icons/io5";
 import { PiMagicWandLight } from "react-icons/pi";
@@ -88,7 +88,6 @@ function LandingPageComponent() {
                 <span className="text-xs font-medium text-[#1ABAD7] uppercase tracking-wider">Power Card</span>
               </div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] tracking-tight">
-
                 Master{" "}
                 <span className="inline-block">
                   <GradientText

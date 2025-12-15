@@ -59,9 +59,10 @@ interface ZoomProps {
     editingId: number | null;
     setEditingId: React.Dispatch<React.SetStateAction<number | null>>;
     setShowEditDialog: React.Dispatch<React.SetStateAction<boolean>>;
+    button: string;
 }
 
-export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSettingsDialog, flashcard, currentIndex, setCurrentIndex, flipped, setFlipped, activeStar, handelStarClick, setTempImageUrl, card, setCard, setApi, editingId, setEditingId, setShowEditDialog }: ZoomProps) {
+export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSettingsDialog, flashcard, currentIndex, setCurrentIndex, flipped, setFlipped, activeStar, handelStarClick, setTempImageUrl, card, setCard, setApi, editingId, setEditingId, setShowEditDialog, button }: ZoomProps) {
     if (!flashcard) return null;
     return (
         <div>
@@ -126,7 +127,7 @@ export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSetting
 
                                 <DialogClose asChild>
                                     <img
-                                        src="zoom-out.gif"
+                                        src="/zoom-out.gif"
                                         alt=""
                                         className="w-9 h-9 cursor-pointer dark:invert dark:saturate-0"
                                     />
@@ -158,7 +159,7 @@ export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSetting
 
                                     <DialogClose asChild>
                                         <img
-                                            src="zoom-out.gif"
+                                            src="/zoom-out.gif"
                                             alt=""
                                             className="w-8 h-8 cursor-pointer"
                                         />
@@ -185,7 +186,7 @@ export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSetting
                         <Progress value={33} className="h-0.5 w-full rounded-full" />
                         {/* BODY */}
                         <div className="flex-1 p-4 overflow-auto md:px-40 xl:px-80">
-                            <Carousel className="w-full" setApi={setApi}>
+                            <Carousel className="w-full h-[450px] relative" setApi={setApi}>
                                 <CarouselContent>
                                     {card.map((flashcard) => {
                                         const imageUrl = flashcard.imageUrl;
@@ -281,6 +282,24 @@ export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSetting
                                         )
                                     })}
                                 </CarouselContent>
+                                <div className="py-8 flex justify-between items-center gap-4 flex-wrap">
+                                    <button className={`${button} whitespace-nowrap border border-gray-300`}>
+                                        Dễ
+                                    </button>
+
+                                    <button className={`${button} whitespace-nowrap border border-gray-300`}>
+                                        Trung bình
+                                    </button>
+
+                                    <button className={`${button} whitespace-nowrap border border-gray-300`}>
+                                        Khó
+                                    </button>
+
+                                    <button className={`${button} whitespace-nowrap border border-gray-300`}>
+                                        Rất khó
+                                    </button>
+                                </div>
+
                                 <div className="flex justify-between gap-4 mt-4">
                                     <div>
                                         <div className="flex items-center space-x-2">
@@ -288,14 +307,13 @@ export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSetting
                                             <Switch id="airplane-mode" />
                                         </div>
                                     </div>
-                                    <div className='space-x-6'>
-                                        <CarouselPrevious className="static translate-y-0 translate-x-0" />
-                                        <CarouselNext className="static translate-y-0 translate-x-0" /></div>
                                     <div className='flex'>
-                                        <span><img src="./play-1.gif" alt="" className='w-10 h-10 dark:invert dark:saturate-0'/></span>
-                                         <span><img src="./shuffle-1.gif" alt="" className='w-10 h-10 dark:invert dark:saturate-0'/></span>
+                                        <span><img src="/play-1.gif" alt="" className='w-10 h-10 dark:invert dark:saturate-0' /></span>
+                                        <span><img src="/shuffle-1.gif" alt="" className='w-10 h-10 dark:invert dark:saturate-0' /></span>
                                     </div>
                                 </div>
+                                <CarouselPrevious />
+                                <CarouselNext />
                             </Carousel>
                         </div>
                     </DialogContent>

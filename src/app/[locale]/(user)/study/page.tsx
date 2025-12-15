@@ -184,13 +184,13 @@ export default function Study() {
           <div>
             <Select>
               <SelectTrigger className="w-[250px]">
-                <SelectValue placeholder="Select a fruit" />
+                <SelectValue placeholder="Select option default" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>Fruits</SelectLabel>
-                  <SelectItem value="apple">Apple</SelectItem>
-                  <SelectItem value="banana">Banana</SelectItem>
+                  <SelectLabel>Select option</SelectLabel>
+                  <SelectItem value="apple">Original</SelectItem>
+                  <SelectItem value="banana">Anphabetical</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>

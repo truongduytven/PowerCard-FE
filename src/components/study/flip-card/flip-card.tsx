@@ -48,9 +48,31 @@ export default function FlipCard({ flashcards, activeStar, showSettingsDialog, s
     const handleSelect = () => {
       setFlipped(false);
     };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "ArrowLeft") {
+        api.scrollPrev()
+      }
+
+      if (e.key === "ArrowRight") {
+        api.scrollNext()
+      }
+
+      if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+        e.preventDefault()
+        setFlipped((prev) => !prev)
+      }
+
+      if (e.key === " ") {
+        e.preventDefault()
+        setFlipped((prev) => !prev)
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
     setCurrentIndex(api.selectedScrollSnap());
     api.on("select", handleSelect);
     return () => {
+      window.removeEventListener("keydown", handleKeyDown)
       api.off("select", handleSelect);
       setCurrentIndex(api.selectedScrollSnap());
     };
@@ -216,6 +238,7 @@ export default function FlipCard({ flashcards, activeStar, showSettingsDialog, s
         editingId={editingId}
         setEditingId={setEditingId}
         setShowEditDialog={setShowEditDialog}
+        button={button}
       />
     </>
   );
