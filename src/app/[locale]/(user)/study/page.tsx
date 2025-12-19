@@ -27,6 +27,7 @@ import TextFormattingToolbar from '@/components/ui/toolbar'
 import { IoCloseOutline } from "react-icons/io5";
 import ActionButton from '@/components/study/action-button/action-button'
 import ActionCard from '@/components/study/action-card/action-card'
+import { useRouter } from 'next/navigation'
 
 type Flashcard = {
   id: number;
@@ -42,11 +43,18 @@ export default function Study() {
   const [activeStar, setActiveStar] = useState<{ [id: string]: boolean }>({});
   const [editingId, setEditingId] = useState<number | null>(null);
   const [focusedId, setFocusedId] = useState<number | null>(null);
+  const router = useRouter();
 
   const buttons = [
     { name: "Learn", tooltip: "Add to library", image: "/book.gif" },
     { name: "Flashcards", tooltip: "Add to review", image: "/flashcard.gif" },
-    { name: "Test", tooltip: "Mark as difficult", image: "/test.gif" },
+    {
+      name: "Test", tooltip: "Mark as difficult",
+      image: "/test.gif",
+      action: () => {
+        router.push("/test");
+      },
+    },
     { name: "Match", tooltip: "Delete card", image: "/match.gif" },
   ]
 
@@ -114,14 +122,15 @@ export default function Study() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 p-4 md:grid-cols-[1fr_3fr_1fr]">
+      <div className="grid grid-cols-1 p-4 xl:grid-cols-[1fr_3fr_1fr]">
         <div className="py-4 text-center">
-          <div className="col-span-12 rounded-lg md:col-span-2 flex flex-wrap justify-center gap-4 md:flex-col md:items-center md:space-y-4 md:space-x-0 md:justify-start">
+          <div className="col-span-12 rounded-lg xl:col-span-2 flex flex-wrap justify-center gap-4 xl:flex-col xl:items-center xl:space-y-4 xl:space-x-0 xl:justify-start">
             {buttons.map((button, index) => (
               <Tooltip key={index}>
                 <TooltipTrigger asChild>
                   <MovingBorderButton
                     className="bg-white dark:bg-slate-900 text-black dark:text-white border-neutral-200 dark:border-slate-800 flex gap-x-4 cursor-pointer"
+                    onClick={button.action}
                   >
                     <img src={button.image} alt={`${button.name} icon`} className="w-6 h-6 dark:invert dark:saturate-0" />
                     <span className="w-20 truncate text-center">{button.name}</span>
@@ -146,7 +155,7 @@ export default function Study() {
         </div>
 
         <div className="p-4 text-center">
-          <div className="col-span-12 md:col-span-2 flex flex-wrap items-center justify-center gap-4 md:flex md:flex-col md:items-center md:justify-start md:gap-y-8">
+          <div className="col-span-12 xl:col-span-2 flex flex-wrap items-center justify-center gap-4 xl:flex xl:flex-col xl:items-center xl:justify-start xl:gap-y-8">
             {[
               { icon: "/shuffle.gif", label: "Shuffle", tooltip: "Shuffle cards order" },
               { icon: "/play.gif", label: "Auto play", tooltip: "Auto play cards" },

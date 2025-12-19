@@ -20,6 +20,16 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select"
+import {
+    DropdownMenu,
+    DropdownMenuCheckboxItem,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { type DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu"
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { int } from 'zod';
@@ -40,6 +50,8 @@ import { FaStar } from "react-icons/fa6";
 import { FiEdit } from "react-icons/fi";
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
+import { useRouter } from 'next/navigation';
+import { ChevronDown } from 'lucide-react';
 
 interface ZoomProps {
     showDialogZoom: boolean;
@@ -62,7 +74,15 @@ interface ZoomProps {
     button: string;
 }
 
+
+type Checked = DropdownMenuCheckboxItemProps["checked"]
+
 export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSettingsDialog, flashcard, currentIndex, setCurrentIndex, flipped, setFlipped, activeStar, handelStarClick, setTempImageUrl, card, setCard, setApi, editingId, setEditingId, setShowEditDialog, button }: ZoomProps) {
+    const router = useRouter();
+    const [showStatusBar, setShowStatusBar] = React.useState<Checked>(true)
+    const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false)
+    const [showPanel, setShowPanel] = React.useState<Checked>(false)
+
     if (!flashcard) return null;
     return (
         <div>
@@ -96,18 +116,24 @@ export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSetting
 
                             {/* DESKTOP LAYOUT */}
                             <div className="flex-1 max-sm:hidden">
-                                <Select>
-                                    <SelectTrigger className="w-40">
-                                        <SelectValue placeholder="apple" />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        <SelectGroup>
-                                            <SelectLabel>Fruits</SelectLabel>
-                                            <SelectItem value="apple">Apple</SelectItem>
-                                            <SelectItem value="banana">Banana</SelectItem>
-                                        </SelectGroup>
-                                    </SelectContent>
-                                </Select>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button
+                                            variant="outline"
+                                            className="w-[180px] justify-between"
+                                        >
+                                            <span>Flashcard</span>
+                                            <ChevronDown className="h-4 w-4 opacity-50" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="w-56">
+                                        <DropdownMenuLabel>Feature</DropdownMenuLabel>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem>Learn</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => router.push("/test")}>Test</DropdownMenuItem>
+                                        <DropdownMenuItem>Match</DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </div>
 
                             {/* DESKTOP – CENTER */}
@@ -283,19 +309,19 @@ export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSetting
                                     })}
                                 </CarouselContent>
                                 <div className="py-8 flex justify-between items-center gap-4 flex-wrap">
-                                    <button className={`${button} whitespace-nowrap border border-gray-300`}>
+                                    <button className={`${button} whitespace-nowrap border border-gray-300 cursor-pointer`}>
                                         Dễ
                                     </button>
 
-                                    <button className={`${button} whitespace-nowrap border border-gray-300`}>
+                                    <button className={`${button} whitespace-nowrap border border-gray-300 cursor-pointer`}>
                                         Trung bình
                                     </button>
 
-                                    <button className={`${button} whitespace-nowrap border border-gray-300`}>
+                                    <button className={`${button} whitespace-nowrap border border-gray-300 cursor-pointer`}>
                                         Khó
                                     </button>
 
-                                    <button className={`${button} whitespace-nowrap border border-gray-300`}>
+                                    <button className={`${button} whitespace-nowrap border border-gray-300 cursor-pointer`}>
                                         Rất khó
                                     </button>
                                 </div>
@@ -307,7 +333,7 @@ export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSetting
                                             <Switch id="airplane-mode" />
                                         </div>
                                     </div>
-                                    <div className='flex'>
+                                    <div className='flex cursor-pointer'>
                                         <span><img src="/play-1.gif" alt="" className='w-10 h-10 dark:invert dark:saturate-0' /></span>
                                         <span><img src="/shuffle-1.gif" alt="" className='w-10 h-10 dark:invert dark:saturate-0' /></span>
                                     </div>
