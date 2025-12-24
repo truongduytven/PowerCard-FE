@@ -46,7 +46,17 @@ export default function Study() {
   const router = useRouter();
 
   const buttons = [
-    { name: "Learn", tooltip: "Add to library", image: "/book.gif" },
+    {
+      name: "Learn",
+      tooltip: "Start learning mode",
+      image: "/book.gif",
+      action: () => {
+        // Lưu flashcards vào localStorage để Learn page sử dụng
+        localStorage.setItem('learn-flashcards', JSON.stringify(flashcards));
+        // TODO: Thay '1' bằng ID thực tế của studyset
+        router.push("/learn/1");
+      },
+    },
     { name: "Flashcards", tooltip: "Add to review", image: "/flashcard.gif" },
     {
       name: "Test", tooltip: "Mark as difficult",
@@ -61,26 +71,26 @@ export default function Study() {
   const [flashcards, setFlashcards] = useState<Flashcard[]>([
     {
       id: 1,
-      definition: "Quá trình một sinh vật tạo ra năng lượng từ thức ăn.",
-      term: "Hô hấp tế bào",
+      term: "Cellular respiration",
+      definition: "Quá trình sinh vật tạo ra năng lượng từ thức ăn.",
       imageUrl: "",
     },
     {
       id: 2,
-      definition: "Lực hút giữa hai vật có khối lượng.",
-      term: "Trọng lực",
+      term: "Gravity",
+      definition: "Lực hút giữa các vật có khối lượng.",
       imageUrl: "https://i.pinimg.com/736x/61/62/2e/61622ec8899cffaa687a8342a84ea525.jpg",
     },
     {
       id: 3,
+      term: "Cell",
       definition: "Đơn vị cấu tạo cơ bản của mọi sinh vật.",
-      term: "Tế bào",
       imageUrl: "",
     },
     {
       id: 4,
-      definition: "Phản ứng tạo ra năng lượng trong tế bào thực vật.",
-      term: "Quang hợp",
+      term: "Photosynthesis",
+      definition: "Quá trình thực vật tạo ra năng lượng từ ánh sáng mặt trời.",
       imageUrl: "https://upload.wikimedia.org/wikipedia/commons/6/6e/Golde33443.jpg",
     },
   ]);
@@ -173,6 +183,7 @@ export default function Study() {
           onOpenChange={setShowSettingsDialog}
           value={value}
           setValue={setValue}
+          showCommentOption={false}
         />
       </div>
 
@@ -213,7 +224,6 @@ export default function Study() {
               <div className="md:px-18" key={flashcard.id}>
                 <AnimatedBorderCard className="my-4 w-full">
                   <div className="flex flex-col md:flex-row w-full py-4 md:items-center gap-4">
-
                     {/* Icons */}
                     <div className="order-1 md:order-5 flex items-center gap-3 px-6 justify-between shrink-0">
                       <Pencil

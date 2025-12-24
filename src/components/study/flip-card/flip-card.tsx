@@ -43,6 +43,34 @@ export default function FlipCard({ flashcards, activeStar, showSettingsDialog, s
 
   const button = `flex flex-1 justify-center items-center px-4 py-2 rounded-md border transition duration-200 bg-white text-black border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transform hover:-translate-y-1 dark:bg-[#0F172B] dark:text-white dark:border-slate-400 dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255)]`
 
+  const speakEnglishUS = (text: string): void => {
+    const synth = window.speechSynthesis;
+
+    const speak = () => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+
+      const voices = synth.getVoices();
+
+      const femaleUS = voices.find(v =>
+        v.lang === "en-US" &&
+        /female|zira|samantha|google us english/i.test(v.name)
+      );
+
+      if (femaleUS) {
+        utterance.voice = femaleUS;
+      }
+
+      synth.speak(utterance);
+    };
+
+    if (synth.getVoices().length === 0) {
+      synth.onvoiceschanged = speak;
+    } else {
+      speak();
+    }
+  };
+
   useEffect(() => {
     if (!api) return;
     const handleSelect = () => {
@@ -101,9 +129,6 @@ export default function FlipCard({ flashcards, activeStar, showSettingsDialog, s
                         </div>
                         <div className="flex gap-4">
                           <span className="border dark:border-[#718096] rounded-full p-1">
-                            <AiOutlineSound />
-                          </span>
-                          <span className="border dark:border-[#718096] rounded-full p-1">
                             <FiEdit onClick={(e) => {
                               e.stopPropagation();
                               setEditingId(flashcard.id);
@@ -143,7 +168,13 @@ export default function FlipCard({ flashcards, activeStar, showSettingsDialog, s
                           <HiOutlineLightBulb />
                         </div>
                         <div className="flex gap-4">
-                          <span className="border dark:border-[#718096] rounded-full p-1">
+                          <span
+                            className="border dark:border-[#718096] rounded-full p-1 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              speakEnglishUS(flashcard.term);
+                            }}
+                          >
                             <AiOutlineSound />
                           </span>
                           <span className="border dark:border-[#718096] rounded-full p-1">
@@ -180,23 +211,7 @@ export default function FlipCard({ flashcards, activeStar, showSettingsDialog, s
         <CarouselNext />
       </Carousel>
 
-      <div className="py-8 flex justify-between items-center gap-4 flex-wrap">
-        <button className={`${button} whitespace-nowrap border border-gray-300`}>
-          Dễ
-        </button>
-
-        <button className={`${button} whitespace-nowrap border border-gray-300`}>
-          Trung bình
-        </button>
-
-        <button className={`${button} whitespace-nowrap border border-gray-300`}>
-          Khó
-        </button>
-
-        <button className={`${button} whitespace-nowrap border border-gray-300`}>
-          Rất khó
-        </button>
-
+      <div className="py-8 flex justify-end items-center gap-4 flex-wrap">
         <img src="/zoom-in.gif" alt="" className="w-10 h-10 cursor-pointer dark:invert dark:saturate-0" onClick={() => setShowDialogZoom(true)} />
       </div>
 

@@ -308,24 +308,6 @@ export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSetting
                                         )
                                     })}
                                 </CarouselContent>
-                                <div className="py-8 flex justify-between items-center gap-4 flex-wrap">
-                                    <button className={`${button} whitespace-nowrap border border-gray-300 cursor-pointer`}>
-                                        Dễ
-                                    </button>
-
-                                    <button className={`${button} whitespace-nowrap border border-gray-300 cursor-pointer`}>
-                                        Trung bình
-                                    </button>
-
-                                    <button className={`${button} whitespace-nowrap border border-gray-300 cursor-pointer`}>
-                                        Khó
-                                    </button>
-
-                                    <button className={`${button} whitespace-nowrap border border-gray-300 cursor-pointer`}>
-                                        Rất khó
-                                    </button>
-                                </div>
-
                                 <div className="flex justify-between gap-4 mt-4">
                                     <div>
                                         <div className="flex items-center space-x-2">
