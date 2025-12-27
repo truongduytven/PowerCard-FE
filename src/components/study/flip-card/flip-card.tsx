@@ -16,7 +16,10 @@ import {
 import { FiEdit } from "react-icons/fi";
 import FlashcardEdit from "../../dialog/flashcard-edit/flashcard-edit";
 import Zoom from "@/components/dialog/zoom/zoom";
-
+import { FiShare2 } from "react-icons/fi";
+import { IoMdHeart } from "react-icons/io";
+import { IoMdHeartEmpty } from "react-icons/io";
+import Share from "@/components/dialog/share";
 export interface Flashcard {
   id: number;
   definition: string;
@@ -40,8 +43,10 @@ export default function FlipCard({ flashcards, activeStar, showSettingsDialog, s
   const [card, setCard] = useState<Flashcard[]>(flashcards);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [favorite, setFavorite] = useState(false);
+  const [sharedDialog, setSharedDialog] = useState(false);
 
-  const button = `flex flex-1 justify-center items-center px-4 py-2 rounded-md border transition duration-200 bg-white text-black border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transform hover:-translate-y-1 dark:bg-[#0F172B] dark:text-white dark:border-slate-400 dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255)]`
+  const button = `flex justify-center items-center px-4 py-2 rounded-md border transition duration-200 bg-white text-black border-black hover:shadow-[4px_4px_0px_0px_rgba(0,0,0)] transform hover:-translate-y-1 dark:bg-[#0F172B] dark:text-white dark:border-slate-400 dark:hover:shadow-[4px_4px_0px_0px_rgba(255,255,255)] cursor-pointer`
 
   const speakEnglishUS = (text: string): void => {
     const synth = window.speechSynthesis;
@@ -212,8 +217,19 @@ export default function FlipCard({ flashcards, activeStar, showSettingsDialog, s
       </Carousel>
 
       <div className="py-8 flex justify-end items-center gap-4 flex-wrap">
+        <button className={button} onClick={() => setFavorite(!favorite)}>
+          {favorite ? <IoMdHeart className="text-red-500" /> : <IoMdHeartEmpty />}
+        </button>
+        <button className={button} onClick={() => setSharedDialog(true)}>
+          <FiShare2 />
+        </button>
         <img src="/zoom-in.gif" alt="" className="w-10 h-10 cursor-pointer dark:invert dark:saturate-0" onClick={() => setShowDialogZoom(true)} />
       </div>
+
+      <Share
+        sharedDialog={sharedDialog}
+        setSharedDialog={setSharedDialog}
+      />
 
       <FlashcardEdit
         showEditDialog={showEditDialog}

@@ -161,15 +161,14 @@ export default function LearnPage() {
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="outline" className="w-[180px] justify-between">
-                                <span>Flashcard</span>
+                                <span>Learn</span>
                                 <ChevronDown className="h-4 w-4 opacity-50" />
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="w-56">
                             <DropdownMenuLabel>Feature</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem>Learn</DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => router.push(`/test/${id}`)}>Test</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => router.push(`/test`)}>Test</DropdownMenuItem>
                             <DropdownMenuItem>Match</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

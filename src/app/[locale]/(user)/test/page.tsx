@@ -101,8 +101,7 @@ export default function QuizScrollMode() {
             <DropdownMenuContent className="w-56">
               <DropdownMenuLabel>Feature</DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Learn</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => router.push("/study")}>Flashcard</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push("/learn/1")}>Learn</DropdownMenuItem>
               <DropdownMenuItem>Match</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

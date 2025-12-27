@@ -57,7 +57,7 @@ export default function Study() {
         router.push("/learn/1");
       },
     },
-    { name: "Flashcards", tooltip: "Add to review", image: "/flashcard.gif" },
+    { name: "Duplicate", tooltip: "Add to review", image: "/flashcard.gif" },
     {
       name: "Test", tooltip: "Mark as difficult",
       image: "/test.gif",
