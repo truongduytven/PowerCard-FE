@@ -84,7 +84,7 @@ export default function MyDecksPage() {
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
             <div>
-              <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-fuchsia-900 to-gray-900 dark:from-white dark:via-fuchsia-200 dark:to-white">
+              <h1 className="text-4xl leading-[1.25] font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 via-fuchsia-900 to-gray-900 dark:from-white dark:via-fuchsia-200 dark:to-white">
                 My Content
               </h1>
               <p className="text-gray-600 dark:text-gray-400 mt-2">
@@ -188,7 +188,7 @@ export default function MyDecksPage() {
         />
 
         {/* Folders Section */}
-        <div className="mb-8">
+        <div className="mt-8">
           <SectionHeader
             title="Folders"
             subtitle={`${filteredFolders.length} folder${

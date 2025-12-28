@@ -22,7 +22,6 @@ export default function CategoryFilter({
 }: CategoryFilterProps) {
   return (
     <div className="relative min-w-[200px]">
-      <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none z-10" />
       <Select value={value} onValueChange={onChange}>
         <SelectTrigger>
           <div className="flex items-center gap-2">
