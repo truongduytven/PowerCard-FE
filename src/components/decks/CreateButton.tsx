@@ -2,7 +2,8 @@
 
 import { BookPlus, FolderPlus, Plus } from "lucide-react";
 import { useState } from "react";
-
+import { useRouter } from "next/navigation";
+import { Button } from "../ui/button";
 type ContentType = "deck" | "folder";
 
 interface CreateButtonProps {
@@ -11,21 +12,28 @@ interface CreateButtonProps {
 
 export default function CreateButton({ onCreate }: CreateButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
-
-  const handleCreate = (type: ContentType) => {
+  const router = useRouter();
+  const handleCreate = (type: "deck" | "folder") => {
     setIsOpen(false);
-    onCreate(type);
+
+    if (type === "deck") {
+      router.push("/create-deck");
+    }
+
+    if (type === "folder") {
+      router.push("/create-folder");
+    }
   };
 
   return (
     <div className="relative">
-      <button
+      <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="group flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-fuchsia-600 to-violet-600 hover:from-fuchsia-700 hover:to-violet-700 text-white rounded-xl font-semibold transition-all duration-300 shadow-lg shadow-fuchsia-500/30 hover:shadow-xl hover:shadow-fuchsia-500/40 hover:scale-105"
+        className="group flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-fuchsia-600 to-violet-600 hover:from-fuchsia-700 hover:to-violet-700 text-white rounded-lg font-semibold transition-all duration-300 shadow-lg shadow-fuchsia-500/30 hover:shadow-xl hover:shadow-fuchsia-500/40 hover:scale-105"
       >
         <Plus className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
         Create New
-      </button>
+      </Button>
 
       {isOpen && (
         <>

@@ -5,6 +5,9 @@ import "./globals.css";
 import { geistSans, geistMono } from "../fonts";
 import fs from "fs/promises";
 import path from "path";
+import { Onborda, OnbordaProvider } from "onborda";
+import { steps } from "@/lib/steps";
+import { TourCard } from "@/components/tour";
 
 export const metadata: Metadata = {
   title: "PowerCard",
@@ -54,7 +57,16 @@ export default async function LocaleLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers locale={locale} messages={messages}>
-          {children}
+          <OnbordaProvider>
+            <Onborda
+              steps={steps}
+              cardComponent={TourCard}
+              shadowOpacity="0.8"
+              cardTransition={{ type: "spring", stiffness: 100, damping: 10 }}
+            >
+              {children}
+            </Onborda>
+          </OnbordaProvider>
         </Providers>
       </body>
     </html>

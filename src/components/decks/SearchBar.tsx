@@ -1,6 +1,7 @@
 "use client";
 
 import { Search } from "lucide-react";
+import { Input } from "../ui/input";
 
 interface SearchBarProps {
   value: string;
@@ -18,7 +19,7 @@ export default function SearchBar({
       <div className="absolute inset-0 bg-gradient-to-r from-fuchsia-500 to-violet-500 rounded-xl blur-lg opacity-0 group-hover:opacity-30 transition-opacity duration-300 pointer-events-none" />
       <div className="relative">
         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-fuchsia-500 transition-colors duration-300 z-10" />
-        <input
+        <Input
           type="text"
           placeholder={placeholder}
           value={value}

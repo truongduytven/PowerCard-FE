@@ -1,5 +1,6 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import { Sparkles } from "lucide-react";
 
 interface StartStudyCTAProps {
@@ -37,12 +38,13 @@ export function CTABox({
           {description}
         </p>
 
-        <button
+        <Button
+        size="lg"
           onClick={onStart}
           className="w-full py-3 bg-white hover:bg-gray-50 text-fuchsia-600 rounded-xl font-bold transition-all duration-300 hover:scale-105 shadow-lg"
         >
           {buttonText}
-        </button>
+        </Button>
       </div>
     </div>
   );
