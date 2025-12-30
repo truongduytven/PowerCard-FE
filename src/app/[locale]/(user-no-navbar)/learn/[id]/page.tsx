@@ -46,7 +46,7 @@ interface Flashcard {
     imageUrl: string;
 }
 
-export default function LearnPage() {
+export default function StudyPage() {
     const router = useRouter();
     const params = useParams();
     const id = params.id;

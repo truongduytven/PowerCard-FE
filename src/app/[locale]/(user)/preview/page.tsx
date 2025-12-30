@@ -36,7 +36,7 @@ type Flashcard = {
   imageUrl: string;
 };
 
-export default function Study() {
+export default function Preview() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [showSettingsDialog, setShowSettingsDialog] = useState(false)
   const [value, setValue] = useState("")
@@ -44,6 +44,35 @@ export default function Study() {
   const [editingId, setEditingId] = useState<number | null>(null);
   const [focusedId, setFocusedId] = useState<number | null>(null);
   const router = useRouter();
+
+  // Audio speech
+  const speakEnglishUS = (text: string): void => {
+    const synth = window.speechSynthesis;
+
+    const speak = () => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+
+      const voices = synth.getVoices();
+
+      const femaleUS = voices.find(v =>
+        v.lang === "en-US" &&
+        /female|zira|samantha|google us english/i.test(v.name)
+      );
+
+      if (femaleUS) {
+        utterance.voice = femaleUS;
+      }
+
+      synth.speak(utterance);
+    };
+
+    if (synth.getVoices().length === 0) {
+      synth.onvoiceschanged = speak;
+    } else {
+      speak();
+    }
+  };
 
   const buttons = [
     {
@@ -161,6 +190,7 @@ export default function Study() {
             flashcards={flashcards}
             activeStar={activeStar}
             handelStarClick={handelStarClick}
+            speakEnglishUS={speakEnglishUS}
           />
         </div>
 
@@ -233,8 +263,11 @@ export default function Study() {
                         }
                       />
                       <div className="flex gap-2">
-                        <Volume2 className="w-4 h-4" />
-                        <span onClick={() => handelStarClick(flashcard.id)}>
+                        <span onClick={(e) => {
+                          e.stopPropagation();
+                          speakEnglishUS(flashcard.term);
+                        }}><Volume2 className="w-4 h-4 cursor-pointer" /></span>
+                        <span onClick={() => handelStarClick(flashcard.id)} className='cursor-pointer'>
                           {activeStar[flashcard.id] ? (
                             <FaStar className="text-yellow-400" />
                           ) : (

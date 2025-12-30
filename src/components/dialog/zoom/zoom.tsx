@@ -72,21 +72,33 @@ interface ZoomProps {
     setEditingId: React.Dispatch<React.SetStateAction<number | null>>;
     setShowEditDialog: React.Dispatch<React.SetStateAction<boolean>>;
     button: string;
+    speakEnglishUS: (text: string) => void;
+    generateHint: (term: string) => string;
+    setShowHint: React.Dispatch<React.SetStateAction<{ [id: number]: boolean }>>;
+    hint: string;
+    showHint: { [id: number]: boolean };
 }
 
 
 type Checked = DropdownMenuCheckboxItemProps["checked"]
 
-export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSettingsDialog, flashcard, currentIndex, setCurrentIndex, flipped, setFlipped, activeStar, handelStarClick, setTempImageUrl, card, setCard, setApi, editingId, setEditingId, setShowEditDialog, button }: ZoomProps) {
+export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSettingsDialog, flashcard, currentIndex, setCurrentIndex, flipped, setFlipped, activeStar, handelStarClick, setTempImageUrl, card, setCard, setApi, editingId, setEditingId, setShowEditDialog, button, speakEnglishUS, generateHint, setShowHint, hint, showHint }: ZoomProps) {
     const router = useRouter();
     const [showStatusBar, setShowStatusBar] = React.useState<Checked>(true)
     const [showActivityBar, setShowActivityBar] = React.useState<Checked>(false)
     const [showPanel, setShowPanel] = React.useState<Checked>(false)
 
+    const handleOpenChange = (open: boolean) => {
+        setShowDialogZoom(open);
+        if (!open) {
+            setShowHint({}); // Reset gợi ý khi đóng dialog
+        }
+    };
+
     if (!flashcard) return null;
     return (
         <div>
-            <Dialog open={showDialogZoom} onOpenChange={setShowDialogZoom}>
+            <Dialog open={showDialogZoom} onOpenChange={handleOpenChange}>
                 <DialogPortal>
                     <DialogOverlay className="fixed inset-0 w-screen h-screen bg-black/40" />
                     <DialogContent
@@ -216,6 +228,7 @@ export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSetting
                                 <CarouselContent>
                                     {card.map((flashcard) => {
                                         const imageUrl = flashcard.imageUrl;
+                                        const hint = generateHint(flashcard.term);
                                         return (
                                             <CarouselItem key={flashcard.id}>
                                                 <div className="relative h-[450px] cursor-pointer perspective" onClick={() => setFlipped(!flipped)}>
@@ -228,26 +241,57 @@ export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSetting
                                                             className="absolute inset-0 backface-hidden flex flex-col gap-4 p-4 shadow-md bg-primary-radiant dark:bg-primary-radiant-dark border rounded-lg justify-between"
                                                         >
                                                             <div className="flex justify-between items-center">
-                                                                <div className="border dark:border-[#718096] rounded-full p-1">
-                                                                    <HiOutlineLightBulb />
+                                                                <div
+                                                                    className="min-h-8"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        if (!hint) return;
+                                                                        setShowHint(prev => ({ ...prev, [flashcard.id]: !prev[flashcard.id] }));
+                                                                    }}
+                                                                >
+                                                                    {hint ? (
+                                                                        showHint[flashcard.id] ? (
+                                                                            <div className="flex items-center gap-2 border dark:border-primary rounded-full px-4 py-1">
+                                                                                <HiOutlineLightBulb />
+                                                                                {hint}
+                                                                            </div>
+                                                                        ) : (
+                                                                            <div className="flex items-center gap-2 px-4 py-1">
+                                                                                <HiOutlineLightBulb />
+                                                                                Hiển thị gợi ý
+                                                                            </div>
+                                                                        )
+                                                                    ) : (
+                                                                        <div className="opacity-0 px-4 py-1 select-none">
+                                                                            Hiển thị gợi ý
+                                                                        </div>
+                                                                    )}
                                                                 </div>
+
                                                                 <div className="flex gap-4">
                                                                     <span className="border dark:border-[#718096] rounded-full p-1">
-                                                                        <AiOutlineSound />
+                                                                        <FiEdit
+                                                                            onClick={(e) => {
+                                                                                e.stopPropagation();
+                                                                                setEditingId(flashcard.id);
+                                                                                setTempImageUrl(flashcard.imageUrl);
+                                                                                setShowEditDialog(true);
+                                                                            }}
+                                                                        />
                                                                     </span>
-                                                                    <span className="border dark:border-[#718096] rounded-full p-1">
-                                                                        <FiEdit onClick={(e) => {
+
+                                                                    <span
+                                                                        className="border dark:border-[#718096] rounded-full p-1"
+                                                                        onClick={(e) => {
                                                                             e.stopPropagation();
-                                                                            setEditingId(flashcard.id);
-                                                                            setTempImageUrl(flashcard.imageUrl);
-                                                                            setShowEditDialog(true);
-                                                                        }} />
-                                                                    </span>
-                                                                    <span className="border dark:border-[#718096] rounded-full p-1" onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handelStarClick(flashcard.id);
-                                                                    }}>
-                                                                        {activeStar[flashcard.id] ? <FaStar className="text-yellow-400" /> : <FaRegStar />}
+                                                                            handelStarClick(flashcard.id);
+                                                                        }}
+                                                                    >
+                                                                        {activeStar[flashcard.id] ? (
+                                                                            <FaStar className="text-yellow-400" />
+                                                                        ) : (
+                                                                            <FaRegStar />
+                                                                        )}
                                                                     </span>
                                                                 </div>
                                                             </div>
@@ -270,12 +314,15 @@ export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSetting
                                                         <div
                                                             className="absolute inset-0 backface-hidden rotate-y-180 flex flex-col gap-4 p-4 shadow-md dark:bg-[#2D3748] border rounded-lg justify-between bg-primary-radiant"
                                                         >
-                                                            <div className="flex justify-between items-center">
-                                                                <div className="border dark:border-[#718096] rounded-full p-1">
-                                                                    <HiOutlineLightBulb />
-                                                                </div>
+                                                            <div className="flex justify-end items-center">
                                                                 <div className="flex gap-4">
-                                                                    <span className="border dark:border-[#718096] rounded-full p-1">
+                                                                    <span
+                                                                        className="border dark:border-[#718096] rounded-full p-1 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            speakEnglishUS(flashcard.term);
+                                                                        }}
+                                                                    >
                                                                         <AiOutlineSound />
                                                                     </span>
                                                                     <span className="border dark:border-[#718096] rounded-full p-1">

@@ -32,9 +32,10 @@ interface FlipCardProps {
   showSettingsDialog: boolean;
   setShowSettingsDialog: React.Dispatch<React.SetStateAction<boolean>>;
   handelStarClick: (id: number) => void;
+  speakEnglishUS: (text: string) => void;
 }
 
-export default function FlipCard({ flashcards, activeStar, showSettingsDialog, setShowSettingsDialog, handelStarClick }: FlipCardProps) {
+export default function FlipCard({ flashcards, activeStar, showSettingsDialog, setShowSettingsDialog, handelStarClick, speakEnglishUS }: FlipCardProps) {
   const [flipped, setFlipped] = useState(false);
   const [api, setApi] = useState<CarouselApi | null>(null);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -88,39 +89,11 @@ export default function FlipCard({ flashcards, activeStar, showSettingsDialog, s
     return word[0] + middle + word[word.length - 1];
   };
 
-
-  const speakEnglishUS = (text: string): void => {
-    const synth = window.speechSynthesis;
-
-    const speak = () => {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = "en-US";
-
-      const voices = synth.getVoices();
-
-      const femaleUS = voices.find(v =>
-        v.lang === "en-US" &&
-        /female|zira|samantha|google us english/i.test(v.name)
-      );
-
-      if (femaleUS) {
-        utterance.voice = femaleUS;
-      }
-
-      synth.speak(utterance);
-    };
-
-    if (synth.getVoices().length === 0) {
-      synth.onvoiceschanged = speak;
-    } else {
-      speak();
-    }
-  };
-
   useEffect(() => {
     if (!api) return;
     const handleSelect = () => {
       setFlipped(false);
+      setShowHint({});
     };
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowLeft") {
@@ -297,7 +270,10 @@ export default function FlipCard({ flashcards, activeStar, showSettingsDialog, s
         <button className={button} onClick={() => setSharedDialog(true)}>
           <FiShare2 />
         </button>
-        <img src="/zoom-in.gif" alt="" className="w-10 h-10 cursor-pointer dark:invert dark:saturate-0" onClick={() => setShowDialogZoom(true)} />
+        <img src="/zoom-in.gif" alt="" className="w-10 h-10 cursor-pointer dark:invert dark:saturate-0" onClick={() => {
+          setShowDialogZoom(true);
+          setShowHint({});
+        }} />
       </div>
 
       <Share
@@ -344,6 +320,11 @@ export default function FlipCard({ flashcards, activeStar, showSettingsDialog, s
         setEditingId={setEditingId}
         setShowEditDialog={setShowEditDialog}
         button={button}
+        speakEnglishUS={speakEnglishUS}
+        generateHint={generateHint}
+        setShowHint={setShowHint}
+        hint={generateHint(card[currentIndex]?.term || "")}
+        showHint={showHint}
       />
     </>
   );
