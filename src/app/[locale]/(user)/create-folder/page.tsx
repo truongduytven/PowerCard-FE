@@ -4,10 +4,20 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 import { FormData } from "@/types/create-folder";
 import { availableStudySets } from "@/lib/mock/create-folder";
-import { FolderPlus, RotateCcw } from "lucide-react";
+import { FolderPlus, RotateCcw, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import PreviewPanel from "@/components/create-folder/PreviewPanel";
 import CustomizationPanel from "@/components/create-folder/CustomizationPanel";
@@ -19,7 +29,7 @@ import StudySetSelector from "@/components/create-folder/StudySetSelector";
 import SelectedStudySets from "@/components/create-folder/SelectedStudySets";
 
 export default function CreateFolderPage() {
-  const [formData, setFormData] = useState<FormData>({
+  const defaultFormData: FormData = {
     title: "",
     description: "",
     icon: "book",
@@ -29,51 +39,158 @@ export default function CreateFolderPage() {
     visibility: "private",
     colorTheme: "blue",
     sortOrder: "manual",
-  });
+  };
 
+  const [formData, setFormData] = useState<FormData>(defaultFormData);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [showSuccess, setShowSuccess] = useState<boolean>(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
-  const [showTips, setShowTips] = useState<boolean>(true);
   const [autoSave, setAutoSave] = useState<boolean>(true);
   const [isExporting, setIsExporting] = useState<boolean>(false);
   const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
+  const [showExitConfirm, setShowExitConfirm] = useState<boolean>(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
-  // Auto-save effect
+  // Hàm kiểm tra thay đổi
+  const checkForChanges = () => {
+    const savedDraft = localStorage.getItem("folderDraft");
+    const currentData = JSON.stringify(formData);
+    const defaultData = JSON.stringify(defaultFormData);
+
+    // Có thay đổi so với dữ liệu mặc định
+    return (
+      currentData !== defaultData || (savedDraft && savedDraft !== currentData)
+    );
+  };
+
+  // Hàm reset form
+  const resetForm = () => {
+    setFormData(defaultFormData);
+    setSearchQuery("");
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+    setSelectedCategory("all");
+    setViewMode("grid");
+    setShowAdvanced(false);
+  };
+
+  // Auto-save effect - CHỈ hoạt động khi autoSave là true
   useEffect(() => {
-    if (autoSave && formData.title) {
+    if (!autoSave) return;
+
+    if (formData.title) {
       const timer = setTimeout(() => {
         localStorage.setItem("folderDraft", JSON.stringify(formData));
+        setHasUnsavedChanges(true);
         toast.success("Đã tự động lưu");
       }, 2000);
       return () => clearTimeout(timer);
     }
   }, [formData, autoSave]);
 
+  // Xóa bản nháp khi tắt autoSave
+  useEffect(() => {
+    if (!autoSave) {
+      localStorage.removeItem("folderDraft");
+      setHasUnsavedChanges(false);
+      toast.info("Đã tắt tự động lưu - bản nháp hiện tại sẽ không được lưu");
+    }
+  }, [autoSave]);
+
   // Load draft on mount
   useEffect(() => {
-    const savedDraft = localStorage.getItem("folderDraft");
-    if (savedDraft) {
-      try {
-        setFormData(JSON.parse(savedDraft));
-        toast("Đã khôi phục bản nháp chưa lưu", {
-          icon: "📝",
-          duration: 3000,
-        });
-      } catch (error) {
-        console.error("Error loading draft:", error);
+    const savedAutoSave = localStorage.getItem("folderAutoSave");
+    const shouldAutoSave = savedAutoSave ? JSON.parse(savedAutoSave) : true;
+
+    setAutoSave(shouldAutoSave);
+
+    if (shouldAutoSave) {
+      const savedDraft = localStorage.getItem("folderDraft");
+      if (savedDraft) {
+        try {
+          const parsedData = JSON.parse(savedDraft);
+          setFormData({
+            title: parsedData.title || "",
+            description: parsedData.description || "",
+            icon: parsedData.icon || "book",
+            iconGradient:
+              parsedData.iconGradient ||
+              "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            studySets: parsedData.studySets || [],
+            tags: parsedData.tags || [],
+            visibility:
+              parsedData.visibility === "private" ||
+              parsedData.visibility === "public" ||
+              parsedData.visibility === "shared"
+                ? parsedData.visibility
+                : "private",
+            colorTheme:
+              parsedData.colorTheme === "blue" ||
+              parsedData.colorTheme === "green" ||
+              parsedData.colorTheme === "purple" ||
+              parsedData.colorTheme === "red" ||
+              parsedData.colorTheme === "orange"
+                ? parsedData.colorTheme
+                : "blue",
+            sortOrder:
+              parsedData.sortOrder === "manual" ||
+              parsedData.sortOrder === "alphabetical" ||
+              parsedData.sortOrder === "date"
+                ? parsedData.sortOrder
+                : "manual",
+          });
+          setHasUnsavedChanges(true);
+          toast("Đã khôi phục bản nháp chưa lưu", {
+            icon: "📝",
+            duration: 3000,
+          });
+        } catch (error) {
+          console.error("Error loading draft:", error);
+        }
       }
     }
   }, []);
+
+  // Lưu trạng thái autoSave vào localStorage
+  useEffect(() => {
+    localStorage.setItem("folderAutoSave", JSON.stringify(autoSave));
+  }, [autoSave]);
+
+  // Xử lý sự kiện beforeunload (khi đóng tab/trình duyệt)
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = "Bạn có thay đổi chưa lưu. Bạn có chắc muốn rời đi?";
+        return e.returnValue;
+      }
+    };
+
+    const handlePopState = (e: PopStateEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        setShowExitConfirm(true);
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    window.addEventListener("popstate", handlePopState);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      window.removeEventListener("popstate", handlePopState);
+    };
+  }, [hasUnsavedChanges, autoSave]);
 
   const handleInputChange = (
     field: keyof FormData,
     value: string | string[]
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    setHasUnsavedChanges(true);
   };
 
   const toggleStudySet = (setId: string) => {
@@ -83,6 +200,7 @@ export default function CreateFolderPage() {
         ? prev.studySets.filter((id) => id !== setId)
         : [...prev.studySets, setId],
     }));
+    setHasUnsavedChanges(true);
     toast.success("Đã cập nhật study set");
   };
 
@@ -91,6 +209,7 @@ export default function CreateFolderPage() {
       ...prev,
       studySets: prev.studySets.filter((id) => id !== setId),
     }));
+    setHasUnsavedChanges(true);
     toast.error("Đã xóa study set");
   };
 
@@ -115,6 +234,7 @@ export default function CreateFolderPage() {
     setFormData((prev) => ({ ...prev, studySets: newStudySets }));
     setDraggedIndex(null);
     setDragOverIndex(null);
+    setHasUnsavedChanges(true);
     toast.success("Đã sắp xếp lại thứ tự");
   };
 
@@ -138,14 +258,15 @@ export default function CreateFolderPage() {
 
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    console.log("Form Data:", formData);
+    console.log("Form Data đã gửi:", formData);
+
     localStorage.removeItem("folderDraft");
+    localStorage.removeItem("folderAutoSave");
+    setHasUnsavedChanges(false);
+
     setIsExporting(false);
     setShowSuccess(true);
     toast.dismiss();
-    toast.success("🎉 Folder đã được tạo thành công!");
-
-    setTimeout(() => setShowSuccess(false), 5000);
   };
 
   const quickAddStudySet = (count: number) => {
@@ -158,6 +279,7 @@ export default function CreateFolderPage() {
       ...prev,
       studySets: [...prev.studySets, ...availableIds],
     }));
+    setHasUnsavedChanges(true);
     toast.success(`Đã thêm ${count} study sets`);
   };
 
@@ -179,6 +301,43 @@ export default function CreateFolderPage() {
     .map((id) => availableStudySets.find((set) => set.id === id))
     .filter((set) => set !== undefined);
 
+  // Hàm xử lý reset form (cho nút Đặt lại)
+  const handleResetForm = () => {
+    if (confirm("Bạn có chắc muốn đặt lại form? Dữ liệu hiện tại sẽ bị mất.")) {
+      resetForm();
+      setHasUnsavedChanges(false);
+
+      if (autoSave) {
+        localStorage.setItem("folderDraft", JSON.stringify(defaultFormData));
+      }
+
+      toast.success("Đã đặt lại form");
+    }
+  };
+
+  // Hàm xử lý thoát
+  const handleExit = (saveDraft: boolean) => {
+    if (saveDraft && autoSave) {
+      localStorage.setItem("folderDraft", JSON.stringify(formData));
+      toast.success("Đã lưu bản nháp");
+    } else {
+      localStorage.removeItem("folderDraft");
+    }
+
+    setShowExitConfirm(false);
+    setHasUnsavedChanges(false);
+    window.history.back();
+  };
+
+  // Hàm hiển thị modal xác nhận khi nhấn nút hủy
+  const handleCancelClick = () => {
+    if (hasUnsavedChanges && autoSave) {
+      setShowExitConfirm(true);
+    } else {
+      window.history.back();
+    }
+  };
+
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 p-3 md:p-6">
@@ -190,7 +349,47 @@ export default function CreateFolderPage() {
             isExporting={isExporting}
           />
 
-          <AnimatePresence>{showSuccess && <SuccessMessage />}</AnimatePresence>
+          <AnimatePresence>
+            {showSuccess && (
+              <SuccessMessage
+                onClose={() => {
+                  setShowSuccess(false);
+                  resetForm();
+                }}
+              />
+            )}
+          </AnimatePresence>
+
+          {/* Modal xác nhận thoát */}
+          <AlertDialog open={showExitConfirm} onOpenChange={setShowExitConfirm}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Bạn có thay đổi chưa lưu</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Dữ liệu của bạn sẽ bị mất nếu bạn rời đi ngay bây giờ. Bạn có
+                  muốn lưu bản nháp trước khi thoát không?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
+                <AlertDialogCancel onClick={() => setShowExitConfirm(false)}>
+                  Hủy
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={() => handleExit(false)}
+                  className="bg-gray-600 hover:bg-gray-700"
+                >
+                  Thoát và không lưu
+                </AlertDialogAction>
+                <AlertDialogAction
+                  onClick={() => handleExit(true)}
+                  className="bg-blue-600 hover:bg-blue-700"
+                >
+                  <Save className="w-4 h-4 mr-2" />
+                  Thoát và lưu bản nháp
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
 
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Left Column - Form & Study Sets */}
@@ -296,34 +495,15 @@ export default function CreateFolderPage() {
                     <Button
                       variant="outline"
                       className="h-11"
-                      onClick={() => {
-                        if (confirm("Bạn có chắc muốn hủy?")) {
-                          window.history.back();
-                        }
-                      }}
+                      onClick={handleCancelClick}
                     >
                       Hủy
                     </Button>
                     <Button
                       variant="outline"
                       className="h-11"
-                      onClick={() => {
-                        if (confirm("Bạn có chắc muốn đặt lại?")) {
-                          setFormData({
-                            title: "",
-                            description: "",
-                            icon: "book",
-                            iconGradient:
-                              "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                            studySets: [],
-                            tags: [],
-                            visibility: "private",
-                            colorTheme: "blue",
-                            sortOrder: "manual",
-                          });
-                          toast.success("Đã đặt lại");
-                        }
-                      }}
+                      onClick={handleResetForm}
+                      disabled={isExporting}
                     >
                       <RotateCcw className="w-4 h-4 mr-2" />
                       Đặt lại
