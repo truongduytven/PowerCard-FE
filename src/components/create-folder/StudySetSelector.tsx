@@ -32,6 +32,7 @@ import {
   BookOpen,
   Check,
   RotateCcw,
+  ChevronDown,
 } from "lucide-react";
 import { StudySet } from "@/types/create-folder";
 
@@ -45,7 +46,6 @@ interface StudySetSelectorProps {
   filteredStudySets: StudySet[];
   toggleStudySet: (setId: string) => void;
   formDataStudySets: string[];
-  quickAddStudySet: (count: number) => void;
   selectedStudySets: StudySet[];
 }
 
@@ -59,7 +59,6 @@ export default function StudySetSelector({
   filteredStudySets,
   toggleStudySet,
   formDataStudySets,
-  quickAddStudySet,
   selectedStudySets,
 }: StudySetSelectorProps) {
   const categories = [
@@ -85,43 +84,8 @@ export default function StudySetSelector({
             </div>
           </div>
 
-          {/* Quick Add Buttons - Cải tiến layout */}
           <div className="flex items-center gap-2 flex-wrap justify-end">
             <div className="flex items-center gap-1 sm:gap-2">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => quickAddStudySet(1)}
-                    className="h-9 px-2 sm:px-3 min-w-[60px] sm:min-w-0"
-                  >
-                    <Plus className="w-3.5 h-3.5 mr-1" />
-                    <span>+1</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  Thêm 1 study set ngẫu nhiên
-                </TooltipContent>
-              </Tooltip>
-
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => quickAddStudySet(3)}
-                    className="h-9 px-2 sm:px-3 min-w-[60px] sm:min-w-0"
-                  >
-                    <Plus className="w-3.5 h-3.5 mr-1" />
-                    <span>+3</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  Thêm 3 study sets ngẫu nhiên
-                </TooltipContent>
-              </Tooltip>
-
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
@@ -130,7 +94,7 @@ export default function StudySetSelector({
                     onClick={() =>
                       setViewMode(viewMode === "grid" ? "list" : "grid")
                     }
-                    className="h-9 w-9 p-0 flex-shrink-0"
+                    className="h-9 w-9 p-0 flex-shrink-0 cursor-pointer"
                   >
                     {viewMode === "grid" ? (
                       <List className="w-4 h-4" />
@@ -151,28 +115,73 @@ export default function StudySetSelector({
         <div className="space-y-6">
           {/* Enhanced Search and Filters */}
           <div className="space-y-4">
-            {/* Search Bar - Cải tiến để responsive tốt hơn */}
-            <div className="relative group">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4 group-focus-within:text-primary" />
-              <Input
-                placeholder="Tìm kiếm theo tên, thể loại hoặc tags..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-9 h-11 text-sm sm:text-base"
-              />
-              {searchQuery && (
-                <button
-                  onClick={() => setSearchQuery("")}
-                  className="absolute right-3 top-1/2 -translate-y-1/2"
+            <div className="flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1 group">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4 group-focus-within:text-primary transition-all duration-200" />
+                <Input
+                  placeholder="Tìm kiếm theo tên, thể loại hoặc tags..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-9  text-sm sm:text-base rounded-lg border-gray-300 focus-visible:ring-primary/30 transition-all duration-200 group-hover:border-primary/50 bg-white shadow-sm"
+                />
+                {searchQuery && (
+                  <motion.button
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                    aria-label="Xóa tìm kiếm"
+                  >
+                    <X className="w-3.5 h-3.5 text-gray-500 hover:text-gray-700" />
+                  </motion.button>
+                )}
+                {/* Hiệu ứng focus ring */}
+                <div className="absolute inset-0 rounded-lg ring-1 ring-transparent group-focus-within:ring-primary/20 transition-all duration-300 pointer-events-none" />
+              </div>
+
+              {/* Category Selector - với gradient border */}
+              <div className="relative w-full sm:w-48">
+                <div className="absolute inset-0 pointer-events-none cursor-pointers bg-gradient-to-r from-pink-500 to-purple-500 rounded-lg opacity-0 group-hover:opacity-20 transition-opacity duration-300" />
+                <Select
+                  value={selectedCategory}
+                  onValueChange={setSelectedCategory}
                 >
-                  <X className="w-4 h-4 text-muted-foreground hover:text-foreground" />
-                </button>
+                  <SelectTrigger className="h-11 w-full cursor-pointer">
+                    <SelectValue placeholder="Tất cả thể loại" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((cat) => (
+                      <SelectItem key={cat} value={cat} className="text-sm">
+                        {cat === "all" ? "Tất cả thể loại" : cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {(searchQuery || selectedCategory !== "all") && (
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        setSearchQuery("");
+                        setSelectedCategory("all");
+                      }}
+                      className="h-9 w-9 p-0"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Đặt lại bộ lọc</TooltipContent>
+                </Tooltip>
               )}
             </div>
 
             {/* Filter Controls - Xếp hàng ngang trên desktop */}
             <div className="flex flex-col sm:flex-row gap-3">
-              <div className="flex-1">
+              {/* <div className="flex-1">
                 <Select
                   value={selectedCategory}
                   onValueChange={setSelectedCategory}
@@ -188,11 +197,11 @@ export default function StudySetSelector({
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
+              </div> */}
 
               {/* Stats and Reset Button */}
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 text-sm">
+                {/* <div className="flex items-center gap-2 text-sm">
                   <Badge variant="outline" className="font-normal">
                     {filteredStudySets.length} đang hiển thị
                   </Badge>
@@ -201,26 +210,7 @@ export default function StudySetSelector({
                       {selectedStudySets.length} đã chọn
                     </Badge>
                   )}
-                </div>
-
-                {(searchQuery || selectedCategory !== "all") && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setSearchQuery("");
-                          setSelectedCategory("all");
-                        }}
-                        className="h-9 w-9 p-0"
-                      >
-                        <RotateCcw className="w-4 h-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>Đặt lại bộ lọc</TooltipContent>
-                  </Tooltip>
-                )}
+                </div> */}
               </div>
             </div>
 
@@ -256,9 +246,16 @@ export default function StudySetSelector({
                 <h3 className="font-medium text-gray-900 text-base sm:text-lg">
                   Study Sets có sẵn
                 </h3>
-                <p className="text-sm text-gray-500 mt-1">
-                  {filteredStudySets.length} sets
-                </p>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Badge variant="outline" className="font-normal">
+                  {filteredStudySets.length} đang hiển thị
+                </Badge>
+                {selectedStudySets.length > 0 && (
+                  <Badge className="bg-gradient-to-br from-purple-100 to-pink-100 text-purple-800 border border-purple-200">
+                    {selectedStudySets.length} đã chọn
+                  </Badge>
+                )}
               </div>
             </div>
 
@@ -285,10 +282,10 @@ export default function StudySetSelector({
                       <button
                         type="button"
                         onClick={() => toggleStudySet(set.id)}
-                        className={`w-full p-3 sm:p-4 rounded-xl border text-left transition-all duration-200 ${
+                        className={`w-full cursor-pointer p-3 sm:p-4 rounded-xl border text-left transition-all duration-200 ${
                           isSelected
-                            ? "border-blue-500 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-sm"
-                            : "border-gray-200 hover:border-blue-300 hover:shadow-sm bg-white"
+                            ? "border-pink-500 bg-gradient-to-r from-pink-50 to-indigo-50 shadow-sm"
+                            : "border-gray-200 hover:border-pink-300 hover:shadow-sm bg-white"
                         } ${
                           viewMode === "list"
                             ? "flex items-center gap-4"
@@ -300,7 +297,7 @@ export default function StudySetSelector({
                             viewMode === "list" ? "w-10 h-10" : "w-12 h-12 mb-3"
                           } rounded-lg flex items-center justify-center transition-all ${
                             isSelected
-                              ? "bg-gradient-to-br from-blue-500 to-purple-600 shadow-md"
+                              ? "bg-gradient-to-br from-pink-500 to-purple-600 shadow-md"
                               : "bg-gray-100"
                           }`}
                         >
@@ -319,7 +316,7 @@ export default function StudySetSelector({
                           <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-1 mb-2">
                             <p
                               className={`font-medium text-sm sm:text-base truncate ${
-                                isSelected ? "text-blue-900" : "text-gray-900"
+                                isSelected ? "text-pink-900" : "text-gray-900"
                               }`}
                             >
                               {set.title}

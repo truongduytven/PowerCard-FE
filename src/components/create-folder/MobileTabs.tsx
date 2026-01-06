@@ -38,7 +38,6 @@ interface MobileTabsProps {
   filteredStudySets: StudySet[];
   toggleStudySet: (setId: string) => void;
   formDataStudySets: string[];
-  quickAddStudySet: (count: number) => void;
   selectedStudySets: StudySet[];
   removeStudySet: (setId: string) => void;
   draggedIndex: number | null;
@@ -61,7 +60,6 @@ export default function MobileTabs({
   filteredStudySets,
   toggleStudySet,
   formDataStudySets,
-  quickAddStudySet,
   selectedStudySets,
   removeStudySet,
   draggedIndex,
@@ -212,24 +210,7 @@ export default function MobileTabs({
 
                 {/* Quick Actions */}
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => quickAddStudySet(1)}
-                      className="h-8 px-3 text-xs"
-                    >
-                      +1
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => quickAddStudySet(3)}
-                      className="h-8 px-3 text-xs"
-                    >
-                      +3
-                    </Button>
-                  </div>
+                  <div className="flex items-center gap-2"></div>
                   <div className="flex items-center gap-2">
                     <Badge variant="outline" className="text-xs font-normal">
                       {formDataStudySets.length} đã chọn

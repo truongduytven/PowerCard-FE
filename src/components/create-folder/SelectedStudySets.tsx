@@ -45,16 +45,16 @@ export default function SelectedStudySets({
 }: SelectedStudySetsProps) {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-      <Card className="border border-blue-200 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg">
+      <Card className="border border-pink-200 bg-gradient-to-br from-pink-50 to-indigo-50 shadow-lg">
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
                 <GripVertical className="w-5 h-5 text-white" />
               </div>
               <div>
                 <CardTitle className="text-xl">Study Sets Đã Chọn</CardTitle>
-                <CardDescription className="text-blue-700">
+                <CardDescription className="text-pink-700">
                   Kéo thả để sắp xếp thứ tự hiển thị
                 </CardDescription>
               </div>
@@ -64,7 +64,7 @@ export default function SelectedStudySets({
                 value={formData.sortOrder}
                 onValueChange={(value) => handleInputChange("sortOrder", value)}
               >
-                <SelectTrigger className="w-[180px] bg-white">
+                <SelectTrigger className="w-[180px] bg-white cursor-pointer">
                   <SelectValue placeholder="Sắp xếp" />
                 </SelectTrigger>
                 <SelectContent>
@@ -74,7 +74,7 @@ export default function SelectedStudySets({
                 </SelectContent>
               </Select>
 
-              <Badge className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
+              <Badge className="bg-gradient-to-br from-purple-500 to-pink-600 text-white hover:from-purple-600 hover:to-pink-700">
                 {selectedStudySets.length} sets
               </Badge>
             </div>
@@ -94,16 +94,16 @@ export default function SelectedStudySets({
                 onDragOver={(e) => handleDragOver(e, index)}
                 onDrop={(e) => handleDrop(e, index)}
                 onDragEnd={handleDragEnd}
-                className={`group flex items-center gap-4 p-4 bg-white rounded-xl border border-blue-100 cursor-move transition-all duration-200 shadow-sm hover:shadow-md ${
+                className={`group flex items-center gap-4 p-4 bg-white rounded-xl border border-pink-100 cursor-move transition-all duration-200 shadow-sm hover:shadow-md ${
                   draggedIndex === index ? "opacity-40 scale-95 shadow-lg" : ""
                 } ${
                   dragOverIndex === index
-                    ? "border-blue-500 shadow-lg scale-[1.02] bg-blue-50"
-                    : "hover:border-blue-300"
+                    ? "border-pink-500 shadow-lg scale-[1.02] bg-pink-50"
+                    : "hover:border-pink-300"
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <GripVertical className="w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-colors" />
+                  <GripVertical className="w-5 h-5 text-gray-400 group-hover:text-pink-500 transition-colors" />
                   <span className="text-sm font-medium text-gray-500 w-6">
                     {index + 1}
                   </span>

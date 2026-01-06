@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   Card,
   CardContent,
@@ -13,7 +14,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { HelpCircle } from "lucide-react";
+import { HelpCircle, AlertCircle } from "lucide-react";
 import { FormData } from "@/types/create-folder";
 
 interface FolderFormProps {
@@ -25,6 +26,51 @@ export default function FolderForm({
   formData,
   handleInputChange,
 }: FolderFormProps) {
+  const [titleError, setTitleError] = useState<string>("");
+  const [descriptionError, setDescriptionError] = useState<string>("");
+
+  const handleTitleChange = (value: string) => {
+    // Reset error khi bắt đầu gõ
+    if (titleError) setTitleError("");
+
+    // Kiểm tra và giới hạn 60 ký tự
+    if (value.length <= 60) {
+      handleInputChange("title", value);
+    } else {
+      // Hiển thị thông báo lỗi khi vượt quá
+      setTitleError("Tên folder không được vượt quá 60 ký tự");
+      // Vẫn cập nhật nhưng cắt bớt
+      handleInputChange("title", value.slice(0, 60));
+
+      // Hiển thị toast hoặc feedback tùy chọn
+      // Bạn có thể tích hợp toast ở đây nếu muốn
+    }
+  };
+
+  const handleDescriptionChange = (value: string) => {
+    // Reset error khi bắt đầu gõ
+    if (descriptionError) setDescriptionError("");
+
+    // Kiểm tra và giới hạn 200 ký tự
+    if (value.length <= 200) {
+      handleInputChange("description", value);
+    } else {
+      // Hiển thị thông báo lỗi khi vượt quá
+      setDescriptionError("Mô tả không được vượt quá 200 ký tự");
+      // Vẫn cập nhật nhưng cắt bớt
+      handleInputChange("description", value.slice(0, 200));
+    }
+  };
+
+  // Hàm clear error khi focus vào input
+  const handleTitleFocus = () => {
+    if (titleError) setTitleError("");
+  };
+
+  const handleDescriptionFocus = () => {
+    if (descriptionError) setDescriptionError("");
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -52,7 +98,13 @@ export default function FolderForm({
             <Label htmlFor="title" className="text-sm font-medium">
               Tên Folder <span className="text-red-500">*</span>
             </Label>
-            <span className="text-xs text-gray-500">
+            <span
+              className={`text-xs ${
+                formData.title.length >= 55
+                  ? "text-red-500 font-semibold"
+                  : "text-gray-500"
+              }`}
+            >
               {formData.title.length}/60
             </span>
           </div>
@@ -60,10 +112,19 @@ export default function FolderForm({
             id="title"
             placeholder="Ví dụ: Ôn thi TOEIC 800+"
             value={formData.title}
-            onChange={(e) => handleInputChange("title", e.target.value)}
+            onChange={(e) => handleTitleChange(e.target.value)}
+            onFocus={handleTitleFocus}
             maxLength={60}
-            className="h-11"
+            className={`h-11 ${
+              titleError ? "border-red-500 focus-visible:ring-red-500" : ""
+            }`}
           />
+          {titleError && (
+            <div className="flex items-center gap-1 text-red-500 text-sm animate-in fade-in duration-300">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{titleError}</span>
+            </div>
+          )}
         </div>
 
         <div className="space-y-3">
@@ -71,7 +132,13 @@ export default function FolderForm({
             <Label htmlFor="description" className="text-sm font-medium">
               Mô Tả
             </Label>
-            <span className="text-xs text-gray-500">
+            <span
+              className={`text-xs ${
+                formData.description.length >= 180
+                  ? "text-red-500 font-semibold"
+                  : "text-gray-500"
+              }`}
+            >
               {formData.description.length}/200
             </span>
           </div>
@@ -79,10 +146,21 @@ export default function FolderForm({
             id="description"
             placeholder="Mô tả nội dung, mục tiêu học tập..."
             value={formData.description}
-            onChange={(e) => handleInputChange("description", e.target.value)}
+            onChange={(e) => handleDescriptionChange(e.target.value)}
+            onFocus={handleDescriptionFocus}
             maxLength={200}
-            className="min-h-[100px] resize-none"
+            className={`min-h-[100px] resize-none ${
+              descriptionError
+                ? "border-red-500 focus-visible:ring-red-500"
+                : ""
+            }`}
           />
+          {descriptionError && (
+            <div className="flex items-center gap-1 text-red-500 text-sm animate-in fade-in duration-300">
+              <AlertCircle className="w-4 h-4 flex-shrink-0" />
+              <span>{descriptionError}</span>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

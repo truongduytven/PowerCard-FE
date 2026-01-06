@@ -229,54 +229,120 @@ export const iconOptions: IconOption[] = [
   { value: "cpu", icon: Cpu, label: "CPU", category: "Công nghệ" },
   { value: "cloud", icon: Cloud, label: "Cloud", category: "Công nghệ" },
 ];
-
 export const iconGradientOptions = [
+  // ===== CHÍNH (ĐẬM – AN TOÀN) =====
   {
-    value: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-    label: "Tím",
-    preview: "from-purple-600 to-pink-500",
-    category: "Chính",
+    value: "linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%)",
+    label: "Tím Neon",
+    preview: "from-violet-600 to-indigo-800",
+    category: "Đậm",
   },
   {
     value: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
     label: "Hồng",
-    preview: "from-pink-400 to-red-500",
+    preview: "from-pink-500 to-rose-600",
     category: "Chính",
   },
   {
     value: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
     label: "Xanh Dương",
-    preview: "from-blue-400 to-cyan-400",
+    preview: "from-blue-500 to-cyan-500",
     category: "Chính",
   },
   {
     value: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
     label: "Xanh Lá",
-    preview: "from-green-400 to-teal-300",
+    preview: "from-green-500 to-teal-500",
     category: "Chính",
   },
   {
     value: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
     label: "Cam Hồng",
-    preview: "from-pink-500 to-yellow-400",
+    preview: "from-rose-500 to-yellow-500",
     category: "Chính",
   },
   {
     value: "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
     label: "Xanh Đậm",
-    preview: "from-cyan-400 to-indigo-900",
+    preview: "from-cyan-500 to-indigo-800",
+    category: "Chính",
+  },
+
+  // ===== ĐẬM / NỔI (Saturated) =====
+  {
+    value: "linear-gradient(135deg, #ff512f 0%, #dd2476 100%)",
+    label: "Đỏ Hồng Đậm",
+    preview: "from-red-600 to-pink-600",
+    category: "Đậm",
+  },
+  {
+    value: "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)",
+    label: "Xanh Ngọc",
+    preview: "from-emerald-600 to-green-500",
+    category: "Đậm",
+  },
+  {
+    value: "linear-gradient(135deg, #396afc 0%, #2948ff 100%)",
+    label: "Xanh Hoàng Gia",
+    preview: "from-blue-700 to-indigo-700",
+    category: "Đậm",
+  },
+  {
+    value: "linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%)",
+    label: "Cam Năng Lượng",
+    preview: "from-orange-600 to-yellow-500",
+    category: "Đậm",
+  },
+
+  // ===== SIÊU ĐẬM / HIGH CONTRAST =====
+  {
+    value: "linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)",
+    label: "Hồng Cam Đậm",
+    preview: "from-fuchsia-600 to-orange-600",
+    category: "Đậm",
+  },
+  {
+    value: "linear-gradient(135deg, #41295a 0%, #2f0743 100%)",
+    label: "Tím Than",
+    preview: "from-purple-800 to-violet-900",
+    category: "Đậm",
+  },
+  {
+    value: "linear-gradient(135deg, #141e30 0%, #243b55 100%)",
+    label: "Xanh Đêm",
+    preview: "from-slate-800 to-blue-900",
+    category: "Đậm",
+  },
+  {
+    value: "linear-gradient(135deg, #000000 0%, #434343 100%)",
+    label: "Đen Đậm",
+    preview: "from-black to-gray-700",
+    category: "Đậm",
+  },
+
+  // ===== PHÁ CÁCH / MODERN =====
+  {
+    value: "linear-gradient(135deg, #f12711 0%, #f5af19 100%)",
+    label: "Đỏ Cam",
+    preview: "from-red-600 to-amber-500",
+    category: "Đậm",
+  },
+  {
+    value: "linear-gradient(135deg, #00b09b 0%, #96c93d 100%)",
+    label: "Xanh Neon",
+    preview: "from-teal-600 to-lime-500",
+    category: "Đậm",
+  },
+  {
+    value: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    label: "Tím",
+    preview: "from-purple-600 to-indigo-600",
     category: "Chính",
   },
   {
-    value: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
-    label: "Pastel",
-    preview: "from-cyan-100 to-pink-100",
-    category: "Pastel",
-  },
-  {
-    value: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)",
-    label: "Cam Nhạt",
-    preview: "from-orange-100 to-orange-300",
-    category: "Pastel",
+    value: "linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%)",
+    label: "Hồng Đỏ",
+    preview: "from-pink-600 to-red-600",
+    category: "Đậm",
   },
 ];

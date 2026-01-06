@@ -1,28 +1,24 @@
-import { Progress } from "@/components/ui/progress";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { Download, Upload, Sparkle, Book, Zap, Info, Clock, CheckCircle } from "lucide-react";
-import { motion } from "framer-motion";
-import { FormData as FormDataType } from "@/types/create-folder";
 import { iconOptions } from "@/lib/mock/create-folder";
+import { FormData as FormDataType } from "@/types/create-folder";
+import { motion } from "framer-motion";
+import { Book, CheckCircle, Clock, Info, Zap } from "lucide-react";
 
 interface ProgressHeaderProps {
   formData: FormDataType;
   autoSave: boolean;
   setAutoSave: (value: boolean) => void;
-  isExporting: boolean;
 }
 
 export default function ProgressHeader({
   formData,
   autoSave,
   setAutoSave,
-  isExporting,
 }: ProgressHeaderProps) {
   const calculateProgress = () => {
     let progress = 0;
@@ -63,19 +59,18 @@ export default function ProgressHeader({
           </div>
 
           <div className="flex items-center gap-3">
-            {/* Auto-save với style nâng cấp */}
             <Tooltip>
               <TooltipTrigger asChild>
                 <motion.div
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl border border-gray-200 text-sm cursor-help shadow-sm hover:shadow-md transition-shadow duration-200"
+                  className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl border border-gray-200 text-sm  shadow-sm hover:shadow-md transition-shadow duration-200"
                 >
                   <div className="relative">
                     <Switch
                       checked={autoSave}
                       onCheckedChange={setAutoSave}
-                      className="scale-90 data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-500 data-[state=checked]:to-pink-500"
+                      className="scale-90 cursor-pointer data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-500 data-[state=checked]:to-pink-500"
                     />
                     {autoSave && (
                       <motion.div
@@ -259,18 +254,18 @@ export default function ProgressHeader({
         >
           <div className="relative">
             {/* Outer glow */}
-            <div 
+            <div
               className="absolute inset-0 blur-xl rounded-3xl opacity-60"
-              style={{ 
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                filter: 'blur(24px)'
+              style={{
+                background: formData.iconGradient,
+                filter: "blur(24px)",
               }}
             />
 
             {/* Main icon container */}
             <div
               className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl flex items-center justify-center shadow-lg"
-              style={{ background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)" }}
+              style={{ background: formData.iconGradient }}
             >
               <SelectedIcon className="w-10 h-10 md:w-12 md:h-12 text-white drop-shadow-md" />
 
@@ -290,8 +285,9 @@ export default function ProgressHeader({
                     }}
                     className="absolute -top-2 -right-2 w-4 h-4 rounded-full"
                     style={{
-                      background: 'radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.3) 70%)',
-                      boxShadow: '0 0 10px rgba(255,255,255,0.5)'
+                      background:
+                        "radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.3) 70%)",
+                      boxShadow: "0 0 10px rgba(255,255,255,0.5)",
                     }}
                   />
                   <motion.div
@@ -307,8 +303,9 @@ export default function ProgressHeader({
                     }}
                     className="absolute -bottom-2 -left-2 w-3 h-3 rounded-full"
                     style={{
-                      background: 'radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 70%)',
-                      boxShadow: '0 0 8px rgba(255,255,255,0.4)'
+                      background:
+                        "radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 70%)",
+                      boxShadow: "0 0 8px rgba(255,255,255,0.4)",
                     }}
                   />
                 </>
@@ -334,23 +331,20 @@ export default function ProgressHeader({
               >
                 <div className="relative group">
                   {/* Main badge lấy màu từ gradient của icon */}
-                  <div 
+                  <div
                     className="backdrop-blur-md border border-white/30 text-white text-[9px] font-bold px-2 py-1.5 rounded-full shadow-xl"
-                    style={{
-                      background: "linear-gradient(135deg, rgba(102, 126, 234, 0.8) 0%, rgba(118, 75, 162, 0.8) 100%), rgba(255,255,255,0.2)",
-                      boxShadow: "0 4px 15px rgba(147, 51, 234, 0.4)"
-                    }}
+                    style={{ background: formData.iconGradient }}
                   >
                     <div className="flex items-center gap-1.5">
                       <motion.div
-                        animate={{ 
+                        animate={{
                           scale: [1, 1.2, 1],
-                          rotate: [0, 360]
+                          rotate: [0, 360],
                         }}
-                        transition={{ 
-                          duration: 2, 
+                        transition={{
+                          duration: 2,
                           repeat: Infinity,
-                          ease: "easeInOut" 
+                          ease: "easeInOut",
                         }}
                       >
                         <CheckCircle className="w-3 h-3" />
@@ -362,15 +356,17 @@ export default function ProgressHeader({
                   {/* Hiệu ứng ánh sáng xoay quanh badge */}
                   <motion.div
                     animate={{ rotate: 360 }}
-                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                    transition={{
+                      duration: 4,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
                     className="absolute inset-0 rounded-full border border-white/20 -z-10"
                   />
 
                   {/* Tooltip tinh tế */}
-                  
-                  
-                  
-                                    <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900/90 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap pointer-events-none">
+
+                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900/90 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap pointer-events-none">
                     <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900/90 rotate-45"></div>
                     Folder đã sẵn sàng
                   </div>

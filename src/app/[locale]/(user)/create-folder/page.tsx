@@ -33,7 +33,7 @@ export default function CreateFolderPage() {
     title: "",
     description: "",
     icon: "book",
-    iconGradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    iconGradient: "linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%)",
     studySets: [],
     tags: [],
     visibility: "private",
@@ -56,14 +56,12 @@ export default function CreateFolderPage() {
 
   // Hàm kiểm tra thay đổi
   const checkForChanges = () => {
-    const savedDraft = localStorage.getItem("folderDraft");
     const currentData = JSON.stringify(formData);
     const defaultData = JSON.stringify(defaultFormData);
 
-    // Có thay đổi so với dữ liệu mặc định
-    return (
-      currentData !== defaultData || (savedDraft && savedDraft !== currentData)
-    );
+    // Chỉ kiểm tra thay đổi so với dữ liệu mặc định
+    // KHÔNG so sánh với draft vì đã có autoSave
+    return currentData !== defaultData;
   };
 
   // Hàm reset form
@@ -84,7 +82,7 @@ export default function CreateFolderPage() {
     if (formData.title) {
       const timer = setTimeout(() => {
         localStorage.setItem("folderDraft", JSON.stringify(formData));
-        setHasUnsavedChanges(true);
+        // KHÔNG set hasUnsavedChanges ở đây vì đã có autoSave
         toast.success("Đã tự động lưu");
       }, 2000);
       return () => clearTimeout(timer);
@@ -95,11 +93,18 @@ export default function CreateFolderPage() {
   useEffect(() => {
     if (!autoSave) {
       localStorage.removeItem("folderDraft");
-      setHasUnsavedChanges(false);
-      toast.info("Đã tắt tự động lưu - bản nháp hiện tại sẽ không được lưu");
+
+      // Kiểm tra xem form có thay đổi không
+      const hasChanges = checkForChanges();
+      setHasUnsavedChanges(hasChanges);
+
+      if (hasChanges) {
+        toast.info("Đã tắt tự động lưu - bạn có thay đổi chưa lưu");
+      } else {
+        toast.info("Đã tắt tự động lưu");
+      }
     }
   }, [autoSave]);
-
   // Load draft on mount
   useEffect(() => {
     const savedAutoSave = localStorage.getItem("folderAutoSave");
@@ -142,7 +147,7 @@ export default function CreateFolderPage() {
                 ? parsedData.sortOrder
                 : "manual",
           });
-          setHasUnsavedChanges(true);
+          // KHÔNG set hasUnsavedChanges = true ở đây vì đã có autoSave
           toast("Đã khôi phục bản nháp chưa lưu", {
             icon: "📝",
             duration: 3000,
@@ -162,7 +167,8 @@ export default function CreateFolderPage() {
   // Xử lý sự kiện beforeunload (khi đóng tab/trình duyệt)
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
+      if (hasUnsavedChanges && !autoSave) {
+        // Chỉ kiểm tra khi tắt autoSave
         e.preventDefault();
         e.returnValue = "Bạn có thay đổi chưa lưu. Bạn có chắc muốn rời đi?";
         return e.returnValue;
@@ -170,7 +176,8 @@ export default function CreateFolderPage() {
     };
 
     const handlePopState = (e: PopStateEvent) => {
-      if (hasUnsavedChanges) {
+      if (hasUnsavedChanges && !autoSave) {
+        // Chỉ hiện hộp thoại khi tắt autoSave
         e.preventDefault();
         setShowExitConfirm(true);
       }
@@ -183,16 +190,19 @@ export default function CreateFolderPage() {
       window.removeEventListener("beforeunload", handleBeforeUnload);
       window.removeEventListener("popstate", handlePopState);
     };
-  }, [hasUnsavedChanges, autoSave]);
+  }, [hasUnsavedChanges, autoSave]); // Thêm autoSave vào dependency
 
   const handleInputChange = (
     field: keyof FormData,
     value: string | string[]
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    setHasUnsavedChanges(true);
-  };
 
+    // Chỉ set hasUnsavedChanges khi tắt autoSave
+    if (!autoSave) {
+      setHasUnsavedChanges(true);
+    }
+  };
   const toggleStudySet = (setId: string) => {
     setFormData((prev) => ({
       ...prev,
@@ -200,7 +210,12 @@ export default function CreateFolderPage() {
         ? prev.studySets.filter((id) => id !== setId)
         : [...prev.studySets, setId],
     }));
-    setHasUnsavedChanges(true);
+
+    // Chỉ set hasUnsavedChanges khi tắt autoSave
+    if (!autoSave) {
+      setHasUnsavedChanges(true);
+    }
+
     toast.success("Đã cập nhật study set");
   };
 
@@ -209,10 +224,14 @@ export default function CreateFolderPage() {
       ...prev,
       studySets: prev.studySets.filter((id) => id !== setId),
     }));
-    setHasUnsavedChanges(true);
+
+    // Chỉ set hasUnsavedChanges khi tắt autoSave
+    if (!autoSave) {
+      setHasUnsavedChanges(true);
+    }
+
     toast.error("Đã xóa study set");
   };
-
   const handleDragStart = (index: number) => {
     setDraggedIndex(index);
   };
@@ -234,7 +253,12 @@ export default function CreateFolderPage() {
     setFormData((prev) => ({ ...prev, studySets: newStudySets }));
     setDraggedIndex(null);
     setDragOverIndex(null);
-    setHasUnsavedChanges(true);
+
+    // Chỉ set hasUnsavedChanges khi tắt autoSave
+    if (!autoSave) {
+      setHasUnsavedChanges(true);
+    }
+
     toast.success("Đã sắp xếp lại thứ tự");
   };
 
@@ -269,20 +293,6 @@ export default function CreateFolderPage() {
     toast.dismiss();
   };
 
-  const quickAddStudySet = (count: number) => {
-    const availableIds = availableStudySets
-      .filter((set) => !formData.studySets.includes(set.id))
-      .slice(0, count)
-      .map((set) => set.id);
-
-    setFormData((prev) => ({
-      ...prev,
-      studySets: [...prev.studySets, ...availableIds],
-    }));
-    setHasUnsavedChanges(true);
-    toast.success(`Đã thêm ${count} study sets`);
-  };
-
   const filteredStudySets = availableStudySets.filter((set) => {
     const matchesSearch =
       set.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -305,7 +315,11 @@ export default function CreateFolderPage() {
   const handleResetForm = () => {
     if (confirm("Bạn có chắc muốn đặt lại form? Dữ liệu hiện tại sẽ bị mất.")) {
       resetForm();
-      setHasUnsavedChanges(false);
+
+      // Chỉ set hasUnsavedChanges khi tắt autoSave
+      if (!autoSave) {
+        setHasUnsavedChanges(false);
+      }
 
       if (autoSave) {
         localStorage.setItem("folderDraft", JSON.stringify(defaultFormData));
@@ -314,7 +328,6 @@ export default function CreateFolderPage() {
       toast.success("Đã đặt lại form");
     }
   };
-
   // Hàm xử lý thoát
   const handleExit = (saveDraft: boolean) => {
     if (saveDraft && autoSave) {
@@ -331,7 +344,8 @@ export default function CreateFolderPage() {
 
   // Hàm hiển thị modal xác nhận khi nhấn nút hủy
   const handleCancelClick = () => {
-    if (hasUnsavedChanges && autoSave) {
+    // Chỉ hiện hộp thoại khi có thay đổi và TẮT autoSave
+    if (hasUnsavedChanges && !autoSave) {
       setShowExitConfirm(true);
     } else {
       window.history.back();
@@ -346,7 +360,6 @@ export default function CreateFolderPage() {
             formData={formData}
             autoSave={autoSave}
             setAutoSave={setAutoSave}
-            isExporting={isExporting}
           />
 
           <AnimatePresence>
@@ -412,7 +425,6 @@ export default function CreateFolderPage() {
                 filteredStudySets={filteredStudySets}
                 toggleStudySet={toggleStudySet}
                 formDataStudySets={formData.studySets}
-                quickAddStudySet={quickAddStudySet}
                 selectedStudySets={selectedStudySets}
                 removeStudySet={removeStudySet}
               />
@@ -434,7 +446,6 @@ export default function CreateFolderPage() {
                   filteredStudySets={filteredStudySets}
                   toggleStudySet={toggleStudySet}
                   formDataStudySets={formData.studySets}
-                  quickAddStudySet={quickAddStudySet}
                   selectedStudySets={selectedStudySets}
                 />
 
@@ -457,7 +468,7 @@ export default function CreateFolderPage() {
 
             {/* Right Column - Preview & Actions */}
             <div className="lg:col-span-1">
-              <div className="lg:sticky lg:top-20 space-y-6">
+              <div className="lg:sticky lg:top-16 space-y-6">
                 <PreviewPanel
                   formData={formData}
                   selectedStudySets={selectedStudySets}
@@ -479,7 +490,7 @@ export default function CreateFolderPage() {
                     <Button
                       onClick={handleSubmit}
                       size="lg"
-                      className="w-full h-12 text-base font-semibold bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                      className="w-full h-12 cursor-pointers  text-base font-semibold bg-gradient-to-r from-purple-600 to-pink-600"
                       disabled={
                         !formData.title ||
                         formData.studySets.length === 0 ||

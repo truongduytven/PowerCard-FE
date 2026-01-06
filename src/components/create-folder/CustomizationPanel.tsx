@@ -23,14 +23,14 @@ export default function CustomizationPanel({
       <CardHeader className="pb-4">
         <button
           onClick={() => setShowAdvanced(!showAdvanced)}
-          className="flex items-center justify-between w-full"
+          className="flex items-center justify-between w-full cursor-pointer"
         >
           <div className="flex items-center gap-2">
             <PaletteIcon className="w-5 h-5 text-purple-600" />
             <CardTitle className="text-lg">Tùy Chỉnh</CardTitle>
           </div>
           {showAdvanced ? (
-            <ChevronUp className="w-5 h-5 text-gray-500" />
+            <ChevronUp className="w-5 h-5 text-gray-500 " />
           ) : (
             <ChevronDown className="w-5 h-5 text-gray-500" />
           )}
@@ -57,12 +57,12 @@ export default function CustomizationPanel({
                         onClick={() => handleInputChange("icon", option.value)}
                         className={`p-2 rounded-lg border ${
                           isSelected
-                            ? "border-blue-500 bg-blue-50"
+                            ? "border-pink-500 bg-pink-50"
                             : "border-gray-200"
                         }`}
                       >
                         <div
-                          className="w-8 h-8 rounded flex items-center justify-center mx-auto"
+                          className="w-10 h-10 rounded flex items-center justify-center mx-auto"
                           style={{ background: formData.iconGradient }}
                         >
                           <Icon className="w-4 h-4 text-white" />
@@ -75,8 +75,8 @@ export default function CustomizationPanel({
 
               <div className="space-y-3">
                 <Label className="text-sm font-medium">Màu Gradient</Label>
-                <div className="grid grid-cols-5 gap-2">
-                  {iconGradientOptions.slice(0, 8).map((gradient) => {
+                <div className="grid grid-cols-6 gap-2">
+                  {iconGradientOptions.map((gradient) => {
                     const isSelected = formData.iconGradient === gradient.value;
                     return (
                       <button
@@ -85,9 +85,7 @@ export default function CustomizationPanel({
                           handleInputChange("iconGradient", gradient.value)
                         }
                         className={`aspect-square rounded border-2 ${
-                          isSelected
-                            ? "border-gray-900 ring-2 ring-blue-500"
-                            : "border-white"
+                          isSelected ? " ring-2 ring-pink-500" : "border-white"
                         }`}
                         style={{ background: gradient.value }}
                       />
