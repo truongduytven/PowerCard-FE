@@ -36,7 +36,7 @@ export default function HomePage() {
   const t = useTranslations("Home");
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-fuchsia-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-fuchsia-950/20">
-      <BackgroundBeams />
+      {/* <BackgroundBeams /> */}
       <main className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <HeaderHero words={words} />
         <UserStatsGrid userStats={userStats} />

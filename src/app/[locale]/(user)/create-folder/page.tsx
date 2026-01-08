@@ -330,7 +330,7 @@ export default function CreateFolderPage() {
   };
   // Hàm xử lý thoát
   const handleExit = (saveDraft: boolean) => {
-    if (saveDraft && autoSave) {
+    if (saveDraft) {
       localStorage.setItem("folderDraft", JSON.stringify(formData));
       toast.success("Đã lưu bản nháp");
     } else {

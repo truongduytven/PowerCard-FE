@@ -23,7 +23,7 @@ export default function CategoryFilter({
   return (
     <div className="relative min-w-[200px]">
       <Select value={value} onValueChange={onChange}>
-        <SelectTrigger>
+        <SelectTrigger className=" !min-h-10 py-0">
           <div className="flex items-center gap-2">
             <Filter className="h-4 w-4 text-muted-foreground" />
             <SelectValue placeholder="Select category" />
