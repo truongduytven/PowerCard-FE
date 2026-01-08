@@ -53,7 +53,7 @@ export default function CreateFolderPage() {
   const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
   const [showExitConfirm, setShowExitConfirm] = useState<boolean>(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
-
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
   // Hàm kiểm tra thay đổi
   const checkForChanges = () => {
     const currentData = JSON.stringify(formData);
@@ -311,23 +311,24 @@ export default function CreateFolderPage() {
     .map((id) => availableStudySets.find((set) => set.id === id))
     .filter((set) => set !== undefined);
 
-  // Hàm xử lý reset form (cho nút Đặt lại)
   const handleResetForm = () => {
-    if (confirm("Bạn có chắc muốn đặt lại form? Dữ liệu hiện tại sẽ bị mất.")) {
-      resetForm();
-
-      // Chỉ set hasUnsavedChanges khi tắt autoSave
-      if (!autoSave) {
-        setHasUnsavedChanges(false);
-      }
-
-      if (autoSave) {
-        localStorage.setItem("folderDraft", JSON.stringify(defaultFormData));
-      }
-
-      toast.success("Đã đặt lại form");
-    }
+    if (hasUnsavedChanges) setShowResetConfirm(true);
   };
+  const confirmResetForm = () => {
+    resetForm();
+
+    if (!autoSave) {
+      setHasUnsavedChanges(false);
+    }
+
+    if (autoSave) {
+      localStorage.setItem("folderDraft", JSON.stringify(defaultFormData));
+    }
+
+    toast.success("Đã đặt lại form");
+    setShowResetConfirm(false);
+  };
+
   // Hàm xử lý thoát
   const handleExit = (saveDraft: boolean) => {
     if (saveDraft) {
@@ -387,15 +388,18 @@ export default function CreateFolderPage() {
                 <AlertDialogCancel onClick={() => setShowExitConfirm(false)}>
                   Hủy
                 </AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => handleExit(false)}
-                  className="bg-gray-600 hover:bg-gray-700"
-                >
-                  Thoát và không lưu
-                </AlertDialogAction>
+                <div className="rounded-md bg-gradient-to-br from-purple-400 to-pink-500 p-[1.5px]">
+                  <AlertDialogAction
+                    onClick={() => handleExit(false)}
+                    className="w-full bg-background text-purple-600  hover:bg-purple-50 border-0"
+                  >
+                    Thoát và không lưu
+                  </AlertDialogAction>
+                </div>
+
                 <AlertDialogAction
                   onClick={() => handleExit(true)}
-                  className="bg-blue-600 hover:bg-blue-700"
+                  className="bg-gradient-to-br from-purple-500 to-pink-600  text-white  hover:from-purple-600 hover:to-pink-700 shadow-lg"
                 >
                   <Save className="w-4 h-4 mr-2" />
                   Thoát và lưu bản nháp
@@ -403,7 +407,32 @@ export default function CreateFolderPage() {
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+          <AlertDialog
+            open={showResetConfirm}
+            onOpenChange={setShowResetConfirm}
+          >
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>
+                  Bạn có chắc muốn đặt lại form?
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Tất cả dữ liệu bạn đã nhập sẽ bị mất và không thể khôi phục.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
 
+              <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
+                <AlertDialogCancel>Hủy</AlertDialogCancel>
+
+                <AlertDialogAction
+                  onClick={confirmResetForm}
+                  className="bg-gradient-to-br from-purple-500 to-pink-600 text-white hover:from-purple-600 hover:to-pink-700"
+                >
+                  Đặt lại form
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           <div className="grid lg:grid-cols-3 gap-6">
             {/* Left Column - Form & Study Sets */}
             <div className="lg:col-span-2 space-y-6">
@@ -514,7 +543,12 @@ export default function CreateFolderPage() {
                       variant="outline"
                       className="h-11"
                       onClick={handleResetForm}
-                      disabled={isExporting}
+                      disabled={
+                        isExporting ||
+                        (!formData.title &&
+                          !formData.description &&
+                          formData.studySets.length === 0)
+                      }
                     >
                       <RotateCcw className="w-4 h-4 mr-2" />
                       Đặt lại
