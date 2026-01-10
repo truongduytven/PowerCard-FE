@@ -54,6 +54,9 @@ export default function CreateFolderPage() {
   const [showExitConfirm, setShowExitConfirm] = useState<boolean>(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showDraftDialog, setShowDraftDialog] = useState(false);
+  const [pendingDraft, setPendingDraft] = useState<any | null>(null);
+
   // Hàm kiểm tra thay đổi
   const checkForChanges = () => {
     const currentData = JSON.stringify(formData);
@@ -106,58 +109,139 @@ export default function CreateFolderPage() {
     }
   }, [autoSave]);
   // Load draft on mount
+  // useEffect(() => {
+  //   const savedAutoSave = localStorage.getItem("folderAutoSave");
+  //   const shouldAutoSave = savedAutoSave ? JSON.parse(savedAutoSave) : true;
+
+  //   setAutoSave(shouldAutoSave);
+
+  //   if (shouldAutoSave) {
+  //     const savedDraft = localStorage.getItem("folderDraft");
+  //     if (savedDraft) {
+  //       try {
+  //         const parsedData = JSON.parse(savedDraft);
+  //         setFormData({
+  //           title: parsedData.title || "",
+  //           description: parsedData.description || "",
+  //           icon: parsedData.icon || "book",
+  //           iconGradient:
+  //             parsedData.iconGradient ||
+  //             "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+  //           studySets: parsedData.studySets || [],
+  //           tags: parsedData.tags || [],
+  //           visibility:
+  //             parsedData.visibility === "private" ||
+  //             parsedData.visibility === "public" ||
+  //             parsedData.visibility === "shared"
+  //               ? parsedData.visibility
+  //               : "private",
+  //           colorTheme:
+  //             parsedData.colorTheme === "blue" ||
+  //             parsedData.colorTheme === "green" ||
+  //             parsedData.colorTheme === "purple" ||
+  //             parsedData.colorTheme === "red" ||
+  //             parsedData.colorTheme === "orange"
+  //               ? parsedData.colorTheme
+  //               : "blue",
+  //           sortOrder:
+  //             parsedData.sortOrder === "manual" ||
+  //             parsedData.sortOrder === "alphabetical" ||
+  //             parsedData.sortOrder === "date"
+  //               ? parsedData.sortOrder
+  //               : "manual",
+  //         });
+  //         // KHÔNG set hasUnsavedChanges = true ở đây vì đã có autoSave
+  //         toast("Đã khôi phục bản nháp chưa lưu", {
+  //           icon: "📝",
+  //           duration: 3000,
+  //         });
+  //       } catch (error) {
+  //         console.error("Error loading draft:", error);
+  //       }
+  //     }
+  //   }
+  // }, []);
   useEffect(() => {
     const savedAutoSave = localStorage.getItem("folderAutoSave");
     const shouldAutoSave = savedAutoSave ? JSON.parse(savedAutoSave) : true;
 
     setAutoSave(shouldAutoSave);
 
-    if (shouldAutoSave) {
-      const savedDraft = localStorage.getItem("folderDraft");
-      if (savedDraft) {
-        try {
-          const parsedData = JSON.parse(savedDraft);
-          setFormData({
-            title: parsedData.title || "",
-            description: parsedData.description || "",
-            icon: parsedData.icon || "book",
-            iconGradient:
-              parsedData.iconGradient ||
-              "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-            studySets: parsedData.studySets || [],
-            tags: parsedData.tags || [],
-            visibility:
-              parsedData.visibility === "private" ||
-              parsedData.visibility === "public" ||
-              parsedData.visibility === "shared"
-                ? parsedData.visibility
-                : "private",
-            colorTheme:
-              parsedData.colorTheme === "blue" ||
-              parsedData.colorTheme === "green" ||
-              parsedData.colorTheme === "purple" ||
-              parsedData.colorTheme === "red" ||
-              parsedData.colorTheme === "orange"
-                ? parsedData.colorTheme
-                : "blue",
-            sortOrder:
-              parsedData.sortOrder === "manual" ||
-              parsedData.sortOrder === "alphabetical" ||
-              parsedData.sortOrder === "date"
-                ? parsedData.sortOrder
-                : "manual",
-          });
-          // KHÔNG set hasUnsavedChanges = true ở đây vì đã có autoSave
-          toast("Đã khôi phục bản nháp chưa lưu", {
-            icon: "📝",
-            duration: 3000,
-          });
-        } catch (error) {
-          console.error("Error loading draft:", error);
-        }
-      }
+    if (!shouldAutoSave) return;
+
+    const savedDraft = localStorage.getItem("folderDraft");
+    if (!savedDraft) return;
+
+    try {
+      const parsedData = JSON.parse(savedDraft);
+      const hasTitle =
+        typeof parsedData.title === "string" &&
+        parsedData.title.trim().length > 0;
+
+      const hasDescription =
+        typeof parsedData.description === "string" &&
+        parsedData.description.trim().length > 0;
+
+      const hasStudySets =
+        Array.isArray(parsedData.studySets) && parsedData.studySets.length > 0;
+
+      // ❌ draft trống → không hiện dialog
+      if (!hasTitle && !hasDescription && !hasStudySets) return;
+      // 👉 lưu tạm, CHƯA setFormData
+      setPendingDraft(parsedData);
+      setShowDraftDialog(true);
+    } catch (error) {
+      console.error("Error loading draft:", error);
     }
   }, []);
+  const handleUseDraft = () => {
+    if (!pendingDraft) return;
+
+    setFormData({
+      title: pendingDraft.title || "",
+      description: pendingDraft.description || "",
+      icon: pendingDraft.icon || "book",
+      iconGradient:
+        pendingDraft.iconGradient ||
+        "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+      studySets: pendingDraft.studySets || [],
+      tags: pendingDraft.tags || [],
+      visibility: ["private", "public", "shared"].includes(
+        pendingDraft.visibility
+      )
+        ? pendingDraft.visibility
+        : "private",
+      colorTheme: ["blue", "green", "purple", "red", "orange"].includes(
+        pendingDraft.colorTheme
+      )
+        ? pendingDraft.colorTheme
+        : "blue",
+      sortOrder: ["manual", "alphabetical", "date"].includes(
+        pendingDraft.sortOrder
+      )
+        ? pendingDraft.sortOrder
+        : "manual",
+    });
+
+    toast("Đã khôi phục bản nháp chưa lưu", {
+      icon: "📝",
+      duration: 3000,
+    });
+
+    setShowDraftDialog(false);
+    setPendingDraft(null);
+  };
+  const handleCreateNew = () => {
+    localStorage.removeItem("folderDraft");
+
+    setFormData(defaultFormData);
+    setHasUnsavedChanges(false);
+
+    toast.success("Đã tạo bản mới");
+
+    setShowDraftDialog(false);
+    setPendingDraft(null);
+  };
 
   // Lưu trạng thái autoSave vào localStorage
   useEffect(() => {
@@ -312,7 +396,13 @@ export default function CreateFolderPage() {
     .filter((set) => set !== undefined);
 
   const handleResetForm = () => {
-    if (hasUnsavedChanges) setShowResetConfirm(true);
+    if (
+      formData.title ||
+      formData.description ||
+      formData.studySets.length !== 0
+    ) {
+      setShowResetConfirm(true);
+    }
   };
   const confirmResetForm = () => {
     resetForm();
@@ -429,6 +519,31 @@ export default function CreateFolderPage() {
                   className="bg-gradient-to-br from-purple-500 to-pink-600 text-white hover:from-purple-600 hover:to-pink-700"
                 >
                   Đặt lại form
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <AlertDialog open={showDraftDialog} onOpenChange={setShowDraftDialog}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Phát hiện bản nháp</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Bạn có một bản nháp chưa lưu từ lần trước.
+                  <br />
+                  Bạn muốn tiếp tục chỉnh sửa hay tạo một folder mới?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+
+              <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
+                <AlertDialogCancel onClick={handleCreateNew}>
+                  Tạo mới
+                </AlertDialogCancel>
+
+                <AlertDialogAction
+                  onClick={handleUseDraft}
+                  className="bg-gradient-to-br from-purple-500 to-pink-600 text-white hover:from-purple-600 hover:to-pink-700"
+                >
+                  Tiếp tục bản nháp
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
