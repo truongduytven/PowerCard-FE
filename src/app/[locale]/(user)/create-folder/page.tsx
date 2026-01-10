@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -55,7 +56,12 @@ export default function CreateFolderPage() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showDraftDialog, setShowDraftDialog] = useState(false);
+  const [isSavingDraft, setIsSavingDraft] = useState(false);
   const [pendingDraft, setPendingDraft] = useState<any | null>(null);
+  const router = useRouter();
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(
+    null
+  );
 
   // Hàm kiểm tra thay đổi
   const checkForChanges = () => {
@@ -83,12 +89,24 @@ export default function CreateFolderPage() {
     if (!autoSave) return;
 
     if (formData.title) {
-      const timer = setTimeout(() => {
-        localStorage.setItem("folderDraft", JSON.stringify(formData));
-        // KHÔNG set hasUnsavedChanges ở đây vì đã có autoSave
+      let indicatorTimer: number | undefined;
+      const timer = window.setTimeout(() => {
+        setIsSavingDraft(true);
+        try {
+          localStorage.setItem("folderDraft", JSON.stringify(formData));
+        } catch (e) {}
         toast.success("Đã tự động lưu");
-      }, 2000);
-      return () => clearTimeout(timer);
+
+        // turn off saving indicator after short delay
+        indicatorTimer = window.setTimeout(() => {
+          setIsSavingDraft(false);
+        }, 800);
+      }, 1000);
+
+      return () => {
+        clearTimeout(timer);
+        if (indicatorTimer) clearTimeout(indicatorTimer);
+      };
     }
   }, [formData, autoSave]);
 
@@ -108,59 +126,7 @@ export default function CreateFolderPage() {
       }
     }
   }, [autoSave]);
-  // Load draft on mount
-  // useEffect(() => {
-  //   const savedAutoSave = localStorage.getItem("folderAutoSave");
-  //   const shouldAutoSave = savedAutoSave ? JSON.parse(savedAutoSave) : true;
 
-  //   setAutoSave(shouldAutoSave);
-
-  //   if (shouldAutoSave) {
-  //     const savedDraft = localStorage.getItem("folderDraft");
-  //     if (savedDraft) {
-  //       try {
-  //         const parsedData = JSON.parse(savedDraft);
-  //         setFormData({
-  //           title: parsedData.title || "",
-  //           description: parsedData.description || "",
-  //           icon: parsedData.icon || "book",
-  //           iconGradient:
-  //             parsedData.iconGradient ||
-  //             "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-  //           studySets: parsedData.studySets || [],
-  //           tags: parsedData.tags || [],
-  //           visibility:
-  //             parsedData.visibility === "private" ||
-  //             parsedData.visibility === "public" ||
-  //             parsedData.visibility === "shared"
-  //               ? parsedData.visibility
-  //               : "private",
-  //           colorTheme:
-  //             parsedData.colorTheme === "blue" ||
-  //             parsedData.colorTheme === "green" ||
-  //             parsedData.colorTheme === "purple" ||
-  //             parsedData.colorTheme === "red" ||
-  //             parsedData.colorTheme === "orange"
-  //               ? parsedData.colorTheme
-  //               : "blue",
-  //           sortOrder:
-  //             parsedData.sortOrder === "manual" ||
-  //             parsedData.sortOrder === "alphabetical" ||
-  //             parsedData.sortOrder === "date"
-  //               ? parsedData.sortOrder
-  //               : "manual",
-  //         });
-  //         // KHÔNG set hasUnsavedChanges = true ở đây vì đã có autoSave
-  //         toast("Đã khôi phục bản nháp chưa lưu", {
-  //           icon: "📝",
-  //           duration: 3000,
-  //         });
-  //       } catch (error) {
-  //         console.error("Error loading draft:", error);
-  //       }
-  //     }
-  //   }
-  // }, []);
   useEffect(() => {
     const savedAutoSave = localStorage.getItem("folderAutoSave");
     const shouldAutoSave = savedAutoSave ? JSON.parse(savedAutoSave) : true;
@@ -270,11 +236,81 @@ export default function CreateFolderPage() {
     window.addEventListener("beforeunload", handleBeforeUnload);
     window.addEventListener("popstate", handlePopState);
 
+    // Listen for explicit pending navigation events from other components (e.g., Navbar)
+    const handlePendingNav = (ev: Event) => {
+      const custom = ev as CustomEvent<{ href: string }>;
+      const href = custom?.detail?.href;
+      if (!href) return;
+
+      if (hasUnsavedChanges && !autoSave) {
+        // Prevent immediate navigation and show dialog
+        setPendingNavigation(href);
+        setShowExitConfirm(true);
+      } else {
+        // No unsaved changes -> navigate immediately
+        router.push(href);
+      }
+    };
+
+    window.addEventListener(
+      "powercard:pendingNavigation",
+      handlePendingNav as EventListener
+    );
+
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
       window.removeEventListener("popstate", handlePopState);
+      window.removeEventListener(
+        "powercard:pendingNavigation",
+        handlePendingNav as EventListener
+      );
     };
   }, [hasUnsavedChanges, autoSave]); // Thêm autoSave vào dependency
+
+  // Persist hasUnsavedChanges so other components (Navbar) can check it synchronously
+  useEffect(() => {
+    try {
+      localStorage.setItem(
+        "powercard:hasUnsavedChanges",
+        hasUnsavedChanges ? "1" : "0"
+      );
+    } catch (e) {
+      // ignore
+    }
+  }, [hasUnsavedChanges]);
+
+  // Intercept client-side link clicks (Next.js Link/router) to show confirm dialog
+  useEffect(() => {
+    const handleLinkClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      const anchor = target.closest("a") as HTMLAnchorElement | null;
+      if (!anchor) return;
+
+      const href = anchor.getAttribute("href");
+      if (!href) return;
+
+      // Ignore external links, anchors, and protocols
+      if (
+        href.startsWith("#") ||
+        href.startsWith("mailto:") ||
+        href.startsWith("tel:") ||
+        (href.startsWith("http") && !href.startsWith(window.location.origin))
+      ) {
+        return;
+      }
+
+      if (hasUnsavedChanges && !autoSave) {
+        e.preventDefault();
+        setPendingNavigation(href);
+        setShowExitConfirm(true);
+      }
+    };
+
+    // Use capture phase so our handler runs before Next.js internal handlers
+    document.addEventListener("click", handleLinkClick, true);
+    return () => document.removeEventListener("click", handleLinkClick, true);
+  }, [hasUnsavedChanges, autoSave]);
 
   const handleInputChange = (
     field: keyof FormData,
@@ -422,15 +458,38 @@ export default function CreateFolderPage() {
   // Hàm xử lý thoát
   const handleExit = (saveDraft: boolean) => {
     if (saveDraft) {
-      localStorage.setItem("folderDraft", JSON.stringify(formData));
+      setIsSavingDraft(true);
+      try {
+        localStorage.setItem("folderDraft", JSON.stringify(formData));
+      } catch (e) {}
       toast.success("Đã lưu bản nháp");
-    } else {
-      localStorage.removeItem("folderDraft");
-    }
 
-    setShowExitConfirm(false);
-    setHasUnsavedChanges(false);
-    window.history.back();
+      setShowExitConfirm(false);
+      setHasUnsavedChanges(false);
+
+      const href = pendingNavigation;
+      setPendingNavigation(null);
+
+      // show saving indicator briefly before navigation
+      setTimeout(() => {
+        setIsSavingDraft(false);
+        if (href) router.push(href);
+        else window.history.back();
+      }, 600);
+    } else {
+      try {
+        localStorage.removeItem("folderDraft");
+      } catch (e) {}
+
+      setShowExitConfirm(false);
+      setHasUnsavedChanges(false);
+
+      const href = pendingNavigation;
+      setPendingNavigation(null);
+
+      if (href) router.push(href);
+      else window.history.back();
+    }
   };
 
   // Hàm hiển thị modal xác nhận khi nhấn nút hủy
@@ -450,6 +509,7 @@ export default function CreateFolderPage() {
           <ProgressHeader
             formData={formData}
             autoSave={autoSave}
+            isSavingDraft ={isSavingDraft}
             setAutoSave={setAutoSave}
           />
 
@@ -475,7 +535,12 @@ export default function CreateFolderPage() {
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter className="flex flex-col sm:flex-row gap-2">
-                <AlertDialogCancel onClick={() => setShowExitConfirm(false)}>
+                <AlertDialogCancel
+                  onClick={() => {
+                    setShowExitConfirm(false);
+                    setPendingNavigation(null);
+                  }}
+                >
                   Hủy
                 </AlertDialogCancel>
                 <div className="rounded-md bg-gradient-to-br from-purple-400 to-pink-500 p-[1.5px]">

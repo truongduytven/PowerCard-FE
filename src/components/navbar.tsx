@@ -14,6 +14,7 @@ import {
   User,
   X,
 } from "lucide-react";
+import Link from "next/link";
 import { useTheme } from "next-themes";
 import Image, { StaticImageData } from "next/image";
 import { usePathname } from "next/navigation";
@@ -125,9 +126,26 @@ export default function Navbar() {
     >
       <div className="max-w-8xl mx-auto flex h-16 items-center justify-between px-4 md:px-8 lg:px-20">
         <div className="flex items-center gap-8 lg:gap-12">
-          <a
+          <Link
             href={`/${currentLocale}`}
             className="flex items-center gap-3 group h-16"
+            onClick={(e) => {
+              try {
+                const has =
+                  localStorage.getItem("powercard:hasUnsavedChanges") === "1";
+                const auto = JSON.parse(
+                  localStorage.getItem("folderAutoSave") ?? "true"
+                );
+                if (has && !auto) {
+                  e.preventDefault();
+                  window.dispatchEvent(
+                    new CustomEvent("powercard:pendingNavigation", {
+                      detail: { href: `/${currentLocale}` },
+                    })
+                  );
+                }
+              } catch (err) {}
+            }}
           >
             <div className="h-full flex items-center justify-center px-2">
               <div className="relative h-full flex items-center justify-center min-w-[60px]">
@@ -159,7 +177,7 @@ export default function Navbar() {
                 Smart Learning
               </p>
             </div>
-          </a>
+          </Link>
 
           <div className="hidden lg:flex items-center gap-1">
             {links.map((link) => {
@@ -168,7 +186,7 @@ export default function Navbar() {
                 link.href === "/" ? "" : link.href
               }`;
               return (
-                <a
+                <Link
                   key={link.id}
                   href={linkHref}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 relative group
@@ -177,6 +195,24 @@ export default function Navbar() {
                         ? `text-purple-600 dark:text-pink-400 bg-gradient-to-r ${gradientColors.activeOverlay} shadow-sm`
                         : "text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-pink-400"
                     }`}
+                  onClick={(e) => {
+                    try {
+                      const has =
+                        localStorage.getItem("powercard:hasUnsavedChanges") ===
+                        "1";
+                      const auto = JSON.parse(
+                        localStorage.getItem("folderAutoSave") ?? "true"
+                      );
+                      if (has && !auto) {
+                        e.preventDefault();
+                        window.dispatchEvent(
+                          new CustomEvent("powercard:pendingNavigation", {
+                            detail: { href: linkHref },
+                          })
+                        );
+                      }
+                    } catch (err) {}
+                  }}
                 >
                   <span
                     className={`transition-transform duration-300 ${
@@ -199,7 +235,7 @@ export default function Navbar() {
                     className={`absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500/0 to-purple-500/0 
                     group-hover:from-pink-500/5 group-hover:to-purple-500/5 transition-all duration-300`}
                   />
-                </a>
+                </Link>
               );
             })}
           </div>
@@ -303,10 +339,29 @@ export default function Navbar() {
                   link.href === "/" ? "" : link.href
                 }`;
                 return (
-                  <a
+                  <Link
                     key={link.id}
                     href={linkHref}
-                    onClick={() => setOpen(false)}
+                    onClick={(e) => {
+                      setOpen(false);
+                      try {
+                        const has =
+                          localStorage.getItem(
+                            "powercard:hasUnsavedChanges"
+                          ) === "1";
+                        const auto = JSON.parse(
+                          localStorage.getItem("folderAutoSave") ?? "true"
+                        );
+                        if (has && !auto) {
+                          e.preventDefault();
+                          window.dispatchEvent(
+                            new CustomEvent("powercard:pendingNavigation", {
+                              detail: { href: linkHref },
+                            })
+                          );
+                        }
+                      } catch (err) {}
+                    }}
                     className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all duration-300 group
                       ${
                         isActive
@@ -333,12 +388,30 @@ export default function Navbar() {
                           : "bg-gray-300 dark:bg-gray-600 group-hover:bg-purple-400 dark:group-hover:bg-pink-400"
                       }`}
                     />
-                  </a>
+                  </Link>
                 );
               })}
-              <a
+              <Link
                 href="/profile"
-                onClick={() => setOpen(false)}
+                onClick={(e) => {
+                  setOpen(false);
+                  try {
+                    const has =
+                      localStorage.getItem("powercard:hasUnsavedChanges") ===
+                      "1";
+                    const auto = JSON.parse(
+                      localStorage.getItem("folderAutoSave") ?? "true"
+                    );
+                    if (has && !auto) {
+                      e.preventDefault();
+                      window.dispatchEvent(
+                        new CustomEvent("powercard:pendingNavigation", {
+                          detail: { href: "/profile" },
+                        })
+                      );
+                    }
+                  } catch (err) {}
+                }}
                 className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all duration-300 group
                   ${
                     pathname === "/profile"
@@ -357,7 +430,7 @@ export default function Navbar() {
                       : "bg-gray-300 dark:bg-gray-600 group-hover:bg-purple-400 dark:group-hover:bg-pink-400"
                   }`}
                 />
-              </a>
+              </Link>
             </div>
           </div>
         </div>

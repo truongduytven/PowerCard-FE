@@ -7,17 +7,27 @@ import {
 import { iconOptions } from "@/lib/mock/create-folder";
 import { FormData as FormDataType } from "@/types/create-folder";
 import { motion } from "framer-motion";
-import { Book, CheckCircle, Clock, Info, Zap } from "lucide-react";
+import {
+  Book,
+  CheckCircle,
+  Clock,
+  Info,
+  Loader2,
+  Zap,
+  Save,
+} from "lucide-react";
 
 interface ProgressHeaderProps {
   formData: FormDataType;
   autoSave: boolean;
+  isSavingDraft: boolean;
   setAutoSave: (value: boolean) => void;
 }
 
 export default function ProgressHeader({
   formData,
   autoSave,
+  isSavingDraft,
   setAutoSave,
 }: ProgressHeaderProps) {
   const calculateProgress = () => {
@@ -59,56 +69,102 @@ export default function ProgressHeader({
           </div>
 
           <div className="flex items-center gap-3">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <motion.div
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-2 px-4 py-2.5 bg-white rounded-xl border border-gray-200 text-sm  shadow-sm hover:shadow-md transition-shadow duration-200"
-                >
-                  <div className="relative">
-                    <Switch
-                      checked={autoSave}
-                      onCheckedChange={setAutoSave}
-                      className="scale-90 cursor-pointer data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-500 data-[state=checked]:to-pink-500"
-                    />
-                    {autoSave && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="absolute -top-1 -right-1"
-                      >
-                        <Zap className="w-3 h-3 text-yellow-500 fill-yellow-500" />
-                      </motion.div>
-                    )}
-                  </div>
-                  <span
-                    className={`font-medium whitespace-nowrap ${
-                      autoSave ? "text-purple-700" : "text-gray-600"
+            {isSavingDraft ? (
+              // Hiển thị trạng thái đang lưu
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-200 text-sm shadow-sm"
+              >
+                <div className="relative">
+                  <Loader2 className="w-4 h-4 text-purple-600 animate-spin" />
+                </div>
+                <span className="font-medium text-purple-700 whitespace-nowrap">
+                  Đang lưu...
+                </span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="w-3.5 h-3.5 text-purple-400 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="bottom"
+                    className="max-w-xs border-purple-100 bg-white shadow-lg"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <Save className="w-4 h-4 text-purple-500" />
+                      <p className="font-semibold text-gray-900">
+                        Đang lưu bản nháp
+                      </p>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Mọi thay đổi của bạn đang được lưu tự động. Vui lòng đợi
+                      một chút.
+                    </p>
+                  </TooltipContent>
+                </Tooltip>
+              </motion.div>
+            ) : (
+              // Hiển thị toggle auto-save khi không lưu
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <motion.div
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm shadow-sm hover:shadow-md transition-all duration-200 ${
+                      autoSave
+                        ? "bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200"
+                        : "bg-white border-gray-200"
                     }`}
                   >
-                    {autoSave ? "Đang tự động lưu" : "Auto-save"}
-                  </span>
-                  <Info className="w-3.5 h-3.5 text-gray-400" />
-                </motion.div>
-              </TooltipTrigger>
-              <TooltipContent
-                side="bottom"
-                className="max-w-xs border-purple-100 bg-white shadow-lg"
-              >
-                <div className="flex items-center gap-2 mb-1">
-                  <Zap className="w-4 h-4 text-purple-500" />
-                  <p className="font-semibold text-gray-900">
-                    Chế độ tự động lưu
+                    <div className="relative">
+                      <Switch
+                        checked={autoSave}
+                        onCheckedChange={setAutoSave}
+                        disabled={isSavingDraft}
+                        className={`scale-90 cursor-pointer ${
+                          autoSave
+                            ? "data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-500 data-[state=checked]:to-pink-500"
+                            : ""
+                        }`}
+                      />
+                      {autoSave && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="absolute -top-1 -right-1"
+                        >
+                          <Zap className="w-3 h-3 text-yellow-500 fill-yellow-500" />
+                        </motion.div>
+                      )}
+                    </div>
+                    <span
+                      className={`font-medium whitespace-nowrap ${
+                        autoSave ? "text-purple-700" : "text-gray-600"
+                      }`}
+                    >
+                      {autoSave ? "Auto-save" : "Auto-save"}
+                    </span>
+                    <Info className="w-3.5 h-3.5 text-gray-400" />
+                  </motion.div>
+                </TooltipTrigger>
+                <TooltipContent
+                  side="bottom"
+                  className="max-w-xs border-purple-100 bg-white shadow-lg"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <Zap className="w-4 h-4 text-purple-500" />
+                    <p className="font-semibold text-gray-900">
+                      Chế độ tự động lưu
+                    </p>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    {autoSave
+                      ? "✓ Đang tự động lưu mọi thay đổi của bạn"
+                      : "Tắt: Mọi thay đổi sẽ không được lưu tự động."}
                   </p>
-                </div>
-                <p className="text-sm text-gray-600">
-                  {autoSave
-                    ? "✓ Đang tự động lưu mọi thay đổi của bạn"
-                    : "Tắt: Mọi thay đổi sẽ không được lưu tự động."}
-                </p>
-              </TooltipContent>
-            </Tooltip>
+                </TooltipContent>
+              </Tooltip>
+            )}
           </div>
         </div>
       </div>
@@ -123,14 +179,30 @@ export default function ProgressHeader({
         <div className="flex-1">
           <div className="backdrop-blur-sm rounded-2xl p-6">
             <div className="space-y-4">
-              {/* Header với icon */}
+              {/* Header với icon và trạng thái lưu */}
               <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-purple-500" />
-                  <span className="text-sm font-semibold text-gray-700">
-                    Tiến độ tạo folder
-                  </span>
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-purple-500" />
+                    <span className="text-sm font-semibold text-gray-700">
+                      Tiến độ tạo folder
+                    </span>
+                  </div>
+
+                  {isSavingDraft && (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      className="flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full border border-purple-200"
+                    >
+                      <Loader2 className="w-3 h-3 text-purple-600 animate-spin" />
+                      <span className="text-xs font-medium text-purple-700">
+                        Đang lưu...
+                      </span>
+                    </motion.div>
+                  )}
                 </div>
+
                 <div className="flex items-center gap-2">
                   <motion.span
                     key={progress}
@@ -167,22 +239,45 @@ export default function ProgressHeader({
                     {/* Main gradient */}
                     <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-purple-600 to-pink-600 rounded-full"></div>
 
-                    {/* Shimmer effect */}
+                    {/* Shimmer effect - chỉ hiển thị khi đang lưu */}
+                    {isSavingDraft && (
+                      <motion.div
+                        animate={{
+                          x: ["0%", "100%"],
+                        }}
+                        transition={{
+                          duration: 1.5,
+                          repeat: Infinity,
+                          ease: "linear",
+                        }}
+                        className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                      />
+                    )}
+
+                    {/* Glow effect mạnh hơn khi đang lưu */}
+                    <div
+                      className={`absolute inset-0 rounded-full ${
+                        isSavingDraft
+                          ? "shadow-[0_0_25px_rgba(168,85,247,0.5)]"
+                          : "shadow-[0_0_20px_rgba(168,85,247,0.3)]"
+                      }`}
+                    ></div>
+                  </motion.div>
+
+                  {/* Overlay khi đang lưu */}
+                  {isSavingDraft && (
                     <motion.div
                       animate={{
-                        x: ["0%", "100%"],
+                        opacity: [0.3, 0.5, 0.3],
                       }}
                       transition={{
-                        duration: 2,
+                        duration: 1.5,
                         repeat: Infinity,
-                        ease: "linear",
+                        ease: "easeInOut",
                       }}
-                      className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                      className="absolute inset-0 bg-white/30"
                     />
-
-                    {/* Glow effect */}
-                    <div className="absolute inset-0 shadow-[0_0_20px_rgba(168,85,247,0.3)] rounded-full"></div>
-                  </motion.div>
+                  )}
                 </div>
 
                 {/* Milestones với animation */}
@@ -202,6 +297,7 @@ export default function ProgressHeader({
                       label: "Study Sets",
                       completed: studySetsCount > 0,
                       icon: "S",
+                      count: studySetsCount,
                     },
                   ].map((item, index) => (
                     <motion.div
@@ -212,7 +308,7 @@ export default function ProgressHeader({
                       className="flex items-center gap-3"
                     >
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
+                        className={`relative w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
                           item.completed
                             ? "bg-gradient-to-br from-green-100 to-emerald-100 text-green-700 shadow-sm"
                             : "bg-gray-100 text-gray-400"
@@ -223,14 +319,33 @@ export default function ProgressHeader({
                         ) : (
                           <span>{item.icon}</span>
                         )}
+
+                        {/* Badge số lượng cho Study Sets */}
+                        {item.label === "Study Sets" && studySetsCount > 0 && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px] font-bold border-2 border-white"
+                          >
+                            {studySetsCount}
+                          </motion.div>
+                        )}
                       </div>
-                      <div>
-                        <div
-                          className={`text-sm font-medium ${
-                            item.completed ? "text-gray-900" : "text-gray-500"
-                          }`}
-                        >
-                          {item.label}
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={`text-sm font-medium ${
+                              item.completed ? "text-gray-900" : "text-gray-500"
+                            }`}
+                          >
+                            {item.label}
+                          </div>
+                          {item.label === "Study Sets" &&
+                            studySetsCount > 0 && (
+                              <span className="text-xs text-purple-600 font-semibold">
+                                ({studySetsCount})
+                              </span>
+                            )}
                         </div>
                         <div className="text-xs text-gray-400">
                           {item.completed ? "Đã hoàn thành" : "Chưa hoàn thành"}
@@ -253,21 +368,60 @@ export default function ProgressHeader({
           transition={{ delay: 0.3 }}
         >
           <div className="relative">
-            {/* Outer glow */}
+            {/* Outer glow - mạnh hơn khi đang lưu */}
             <div
-              className="absolute inset-0 blur-xl rounded-3xl opacity-60"
+              className={`absolute inset-0 blur-xl rounded-3xl ${
+                isSavingDraft ? "opacity-70" : "opacity-60"
+              }`}
               style={{
                 background: formData.iconGradient,
                 filter: "blur(24px)",
               }}
             />
 
-            {/* Main icon container */}
-            <div
-              className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl flex items-center justify-center shadow-lg"
+            {/* Main icon container với hiệu ứng đang lưu */}
+            <motion.div
+              className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden"
               style={{ background: formData.iconGradient }}
+              animate={
+                isSavingDraft
+                  ? {
+                      scale: [1, 1.02, 1],
+                      boxShadow: [
+                        "0 10px 25px rgba(168,85,247,0.4)",
+                        "0 10px 30px rgba(168,85,247,0.6)",
+                        "0 10px 25px rgba(168,85,247,0.4)",
+                      ],
+                    }
+                  : {}
+              }
+              transition={
+                isSavingDraft
+                  ? {
+                      duration: 1.5,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                    }
+                  : {}
+              }
             >
               <SelectedIcon className="w-10 h-10 md:w-12 md:h-12 text-white drop-shadow-md" />
+
+              {/* Hiệu ứng xoay khi đang lưu */}
+              {isSavingDraft && (
+                <>
+                  <motion.div
+                    animate={{ rotate: 360 }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "linear",
+                    }}
+                    className="absolute inset-4 border-2 border-white/20 rounded-full"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
+                </>
+              )}
 
               {/* Floating particles effect với màu từ gradient */}
               {isComplete && (
@@ -310,7 +464,7 @@ export default function ProgressHeader({
                   />
                 </>
               )}
-            </div>
+            </motion.div>
 
             {/* Badge khi hoàn thành - phối màu với icon */}
             {isComplete && (
@@ -363,13 +517,6 @@ export default function ProgressHeader({
                     }}
                     className="absolute inset-0 rounded-full border border-white/20 -z-10"
                   />
-
-                  {/* Tooltip tinh tế */}
-
-                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900/90 backdrop-blur-sm text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap pointer-events-none">
-                    <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-gray-900/90 rotate-45"></div>
-                    Folder đã sẵn sàng
-                  </div>
                 </div>
               </motion.div>
             )}
