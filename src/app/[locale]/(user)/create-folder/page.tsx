@@ -95,7 +95,7 @@ export default function CreateFolderPage() {
         try {
           localStorage.setItem("folderDraft", JSON.stringify(formData));
         } catch (e) {}
-        toast.success("Đã tự động lưu");
+        // toast.success("Đã tự động lưu");
 
         // turn off saving indicator after short delay
         indicatorTimer = window.setTimeout(() => {
@@ -336,7 +336,7 @@ export default function CreateFolderPage() {
       setHasUnsavedChanges(true);
     }
 
-    toast.success("Đã cập nhật study set");
+    // toast.success("Đã cập nhật study set");
   };
 
   const removeStudySet = (setId: string) => {
@@ -350,7 +350,7 @@ export default function CreateFolderPage() {
       setHasUnsavedChanges(true);
     }
 
-    toast.error("Đã xóa study set");
+    // toast.error("Đã xóa study set");
   };
   const handleDragStart = (index: number) => {
     setDraggedIndex(index);
@@ -379,7 +379,7 @@ export default function CreateFolderPage() {
       setHasUnsavedChanges(true);
     }
 
-    toast.success("Đã sắp xếp lại thứ tự");
+    // toast.success("Đã sắp xếp lại thứ tự");
   };
 
   const handleDragEnd = () => {
@@ -504,12 +504,12 @@ export default function CreateFolderPage() {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100 p-3 md:p-6">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-fuchsia-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-fuchsia-950/20 p-3 md:p-6">
         <div className="max-w-7xl mx-auto">
           <ProgressHeader
             formData={formData}
             autoSave={autoSave}
-            isSavingDraft ={isSavingDraft}
+            isSavingDraft={isSavingDraft}
             setAutoSave={setAutoSave}
           />
 
@@ -691,7 +691,7 @@ export default function CreateFolderPage() {
                 />
 
                 {/* Action Buttons */}
-                <div className="space-y-4 sticky bottom-0 bg-white">
+                <div className="space-y-4 sticky bottom-0 bg-white dark:bg-gray-900/30 border-t border-gray-200 dark:border-gray-800">
                   <motion.div
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}
@@ -699,7 +699,7 @@ export default function CreateFolderPage() {
                     <Button
                       onClick={handleSubmit}
                       size="lg"
-                      className="w-full h-12 cursor-pointers  text-base font-semibold bg-gradient-to-r from-purple-600 to-pink-600"
+                      className="w-full h-12 cursor-pointer text-base font-semibold bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 dark:from-purple-700 dark:to-pink-700 dark:hover:from-purple-800 dark:hover:to-pink-800 text-white shadow-lg shadow-purple-500/20 dark:shadow-purple-500/30"
                       disabled={
                         !formData.title ||
                         formData.studySets.length === 0 ||
@@ -714,14 +714,14 @@ export default function CreateFolderPage() {
                   <div className="grid grid-cols-2 gap-3">
                     <Button
                       variant="outline"
-                      className="h-11"
+                      className="h-11 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
                       onClick={handleCancelClick}
                     >
                       Hủy
                     </Button>
                     <Button
                       variant="outline"
-                      className="h-11"
+                      className="h-11 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white"
                       onClick={handleResetForm}
                       disabled={
                         isExporting ||

@@ -13,8 +13,8 @@ import {
   Clock,
   Info,
   Loader2,
-  Zap,
   Save,
+  Zap,
 } from "lucide-react";
 
 interface ProgressHeaderProps {
@@ -58,10 +58,11 @@ export default function ProgressHeader({
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 to-purple-700 bg-clip-text text-transparent">
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r  from-gray-900 via-purple-700 to-fuchsia-700  dark:from-gray-100 dark:via-purple-400 dark:to-fuchsia-400 bg-clip-text text-transparent">
                   Tạo Folder Mới
                 </h1>
-                <p className="text-gray-600 text-sm md:text-base max-w-2xl mt-1">
+
+                <p className="text-sm md:text-base max-w-2xl mt-1 text-gray-600 dark:text-gray-400">
                   Tổ chức các bộ học tập của bạn một cách khoa học và hiệu quả
                 </p>
               </div>
@@ -70,33 +71,40 @@ export default function ProgressHeader({
 
           <div className="flex items-center gap-3">
             {isSavingDraft ? (
-              // Hiển thị trạng thái đang lưu
+              /* ================== ĐANG LƯU ================== */
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-purple-50 to-blue-50 rounded-xl border border-purple-200 text-sm shadow-sm"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm shadow-sm
+                bg-gradient-to-r from-purple-50 to-blue-50 dark:from-purple-950/40 dark:to-blue-950/30
+                border-purple-200 dark:border-purple-800"
               >
-                <div className="relative">
-                  <Loader2 className="w-4 h-4 text-purple-600 animate-spin" />
-                </div>
-                <span className="font-medium text-purple-700 whitespace-nowrap">
+                <Loader2 className="w-4 h-4 animate-spin text-purple-600 dark:text-purple-400" />
+
+                <span className="font-medium text-purple-700 dark:text-purple-300 whitespace-nowrap">
                   Đang lưu...
                 </span>
+
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Info className="w-3.5 h-3.5 text-purple-400 cursor-help" />
+                    <Info className="w-3.5 h-3.5 text-purple-400 dark:text-purple-500 cursor-help" />
                   </TooltipTrigger>
+
                   <TooltipContent
                     side="bottom"
-                    className="max-w-xs border-purple-100 bg-white shadow-lg"
+                    className="
+                      max-w-xs shadow-lg
+                      bg-white dark:bg-gray-900
+                      border border-purple-100 dark:border-purple-800
+                    "
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <Save className="w-4 h-4 text-purple-500" />
-                      <p className="font-semibold text-gray-900">
+                      <p className="font-semibold text-gray-900 dark:text-gray-100">
                         Đang lưu bản nháp
                       </p>
                     </div>
-                    <p className="text-sm text-gray-600">
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
                       Mọi thay đổi của bạn đang được lưu tự động. Vui lòng đợi
                       một chút.
                     </p>
@@ -104,29 +112,42 @@ export default function ProgressHeader({
                 </Tooltip>
               </motion.div>
             ) : (
-              // Hiển thị toggle auto-save khi không lưu
+              /* ================== AUTO SAVE TOGGLE ================== */
               <Tooltip>
                 <TooltipTrigger asChild>
                   <motion.div
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm shadow-sm hover:shadow-md transition-all duration-200 ${
-                      autoSave
-                        ? "bg-gradient-to-r from-purple-50 to-pink-50 border-purple-200"
-                        : "bg-white border-gray-200"
-                    }`}
+                    className={`
+                        flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm shadow-sm
+                        transition-all duration-200
+                        ${
+                          autoSave
+                            ? `
+                              bg-gradient-to-r from-purple-50 to-pink-50
+                              dark:from-purple-950/40 dark:to-pink-950/30
+                              border-purple-200 dark:border-purple-800
+                            `
+                            : `
+                              bg-white dark:bg-gray-900
+                              border-gray-200 dark:border-gray-800
+                            `
+                        }
+                      `}
                   >
                     <div className="relative">
                       <Switch
                         checked={autoSave}
                         onCheckedChange={setAutoSave}
                         disabled={isSavingDraft}
-                        className={`scale-90 cursor-pointer ${
-                          autoSave
-                            ? "data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-purple-500 data-[state=checked]:to-pink-500"
-                            : ""
-                        }`}
+                        className="
+                            scale-90 cursor-pointer
+                            data-[state=checked]:bg-gradient-to-r
+                            data-[state=checked]:from-purple-500
+                            data-[state=checked]:to-pink-500
+                          "
                       />
+
                       {autoSave && (
                         <motion.div
                           initial={{ scale: 0 }}
@@ -137,27 +158,36 @@ export default function ProgressHeader({
                         </motion.div>
                       )}
                     </div>
+
                     <span
                       className={`font-medium whitespace-nowrap ${
-                        autoSave ? "text-purple-700" : "text-gray-600"
+                        autoSave
+                          ? "text-purple-700 dark:text-purple-300"
+                          : "text-gray-600 dark:text-gray-400"
                       }`}
                     >
-                      {autoSave ? "Auto-save" : "Auto-save"}
+                      Auto-save
                     </span>
-                    <Info className="w-3.5 h-3.5 text-gray-400" />
+
+                    <Info className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500" />
                   </motion.div>
                 </TooltipTrigger>
+
                 <TooltipContent
                   side="bottom"
-                  className="max-w-xs border-purple-100 bg-white shadow-lg"
+                  className="
+                    max-w-xs shadow-lg
+                    bg-white dark:bg-gray-900
+                    border border-purple-100 dark:border-purple-800
+                  "
                 >
                   <div className="flex items-center gap-2 mb-1">
                     <Zap className="w-4 h-4 text-purple-500" />
-                    <p className="font-semibold text-gray-900">
+                    <p className="font-semibold text-gray-900 dark:text-gray-100">
                       Chế độ tự động lưu
                     </p>
                   </div>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     {autoSave
                       ? "✓ Đang tự động lưu mọi thay đổi của bạn"
                       : "Tắt: Mọi thay đổi sẽ không được lưu tự động."}
@@ -176,15 +206,21 @@ export default function ProgressHeader({
         transition={{ delay: 0.1 }}
         className="flex flex-col md:flex-row md:items-center gap-6 md:gap-8"
       >
+        {/* ================= LEFT ================= */}
         <div className="flex-1">
-          <div className="backdrop-blur-sm rounded-2xl p-6">
+          <div
+            className="backdrop-blur-sm rounded-2xl p-6
+              bg-white/70 dark:bg-gray-900/60
+              border border-gray-200/60 dark:border-gray-800/60
+            "
+          >
             <div className="space-y-4">
-              {/* Header với icon và trạng thái lưu */}
+              {/* ===== HEADER ===== */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-purple-500" />
-                    <span className="text-sm font-semibold text-gray-700">
+                    <Clock className="w-4 h-4 text-purple-500 dark:text-purple-400" />
+                    <span className="text-sm font-semibold text-gray-700 dark:text-gray-300">
                       Tiến độ tạo folder
                     </span>
                   </div>
@@ -193,10 +229,15 @@ export default function ProgressHeader({
                     <motion.div
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
-                      className="flex items-center gap-1.5 px-2.5 py-1 bg-gradient-to-r from-purple-100 to-blue-100 rounded-full border border-purple-200"
+                      className="
+                        flex items-center gap-1.5 px-2.5 py-1 rounded-full border
+                        bg-gradient-to-r from-purple-100 to-blue-100
+                        dark:from-purple-950/50 dark:to-blue-950/40
+                        border-purple-200 dark:border-purple-800
+                      "
                     >
-                      <Loader2 className="w-3 h-3 text-purple-600 animate-spin" />
-                      <span className="text-xs font-medium text-purple-700">
+                      <Loader2 className="w-3 h-3 animate-spin text-purple-600 dark:text-purple-400" />
+                      <span className="text-xs font-medium text-purple-700 dark:text-purple-300">
                         Đang lưu...
                       </span>
                     </motion.div>
@@ -212,6 +253,7 @@ export default function ProgressHeader({
                   >
                     {progress}%
                   </motion.span>
+
                   {isComplete && (
                     <motion.div
                       initial={{ rotate: -180, scale: 0 }}
@@ -223,64 +265,40 @@ export default function ProgressHeader({
                 </div>
               </div>
 
-              {/* Enhanced progress bar với animation */}
+              {/* ===== PROGRESS BAR ===== */}
               <div className="space-y-2">
-                <div className="relative h-3 bg-gray-100 rounded-full overflow-hidden shadow-inner">
+                <div className="relative h-3 rounded-full overflow-hidden shadow-inner bg-gray-100 dark:bg-gray-800">
                   <motion.div
                     initial={{ width: 0 }}
                     animate={{ width: `${progress}%` }}
-                    transition={{
-                      duration: 1.2,
-                      ease: "easeOut",
-                      delay: 0.2,
-                    }}
+                    transition={{ duration: 1.2, ease: "easeOut", delay: 0.2 }}
                     className="h-full relative rounded-full"
                   >
-                    {/* Main gradient */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500 via-purple-600 to-pink-600 rounded-full"></div>
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-purple-600 to-pink-600 " />
 
-                    {/* Shimmer effect - chỉ hiển thị khi đang lưu */}
                     {isSavingDraft && (
                       <motion.div
-                        animate={{
-                          x: ["0%", "100%"],
-                        }}
+                        animate={{ x: ["0%", "100%"] }}
                         transition={{
                           duration: 1.5,
                           repeat: Infinity,
                           ease: "linear",
                         }}
-                        className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent"
+                        className="absolute top-0 left-0 w-1/3 h-full bg-gradient-to-r from-transparent via-white/40 to-transparent "
                       />
                     )}
 
-                    {/* Glow effect mạnh hơn khi đang lưu */}
                     <div
                       className={`absolute inset-0 rounded-full ${
                         isSavingDraft
-                          ? "shadow-[0_0_25px_rgba(168,85,247,0.5)]"
-                          : "shadow-[0_0_20px_rgba(168,85,247,0.3)]"
+                          ? "shadow-[0_0_25px_rgba(168,85,247,0.45)]"
+                          : "shadow-[0_0_18px_rgba(168,85,247,0.25)]"
                       }`}
-                    ></div>
-                  </motion.div>
-
-                  {/* Overlay khi đang lưu */}
-                  {isSavingDraft && (
-                    <motion.div
-                      animate={{
-                        opacity: [0.3, 0.5, 0.3],
-                      }}
-                      transition={{
-                        duration: 1.5,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                      className="absolute inset-0 bg-white/30"
                     />
-                  )}
+                  </motion.div>
                 </div>
 
-                {/* Milestones với animation */}
+                {/* ===== MILESTONES ===== */}
                 <div className="grid grid-cols-3 gap-4 pt-4">
                   {[
                     {
@@ -308,11 +326,13 @@ export default function ProgressHeader({
                       className="flex items-center gap-3"
                     >
                       <div
-                        className={`relative w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 ${
-                          item.completed
-                            ? "bg-gradient-to-br from-green-100 to-emerald-100 text-green-700 shadow-sm"
-                            : "bg-gray-100 text-gray-400"
-                        }`}
+                        className={`relative w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold
+                    ${
+                      item.completed
+                        ? "bg-gradient-to-br from-green-100 to-emerald-100 text-green-700 dark:from-green-900/40 dark:to-emerald-900/40 dark:text-green-300"
+                        : "bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500"
+                    }
+                  `}
                       >
                         {item.completed ? (
                           <CheckCircle className="w-4 h-4" />
@@ -320,34 +340,35 @@ export default function ProgressHeader({
                           <span>{item.icon}</span>
                         )}
 
-                        {/* Badge số lượng cho Study Sets */}
                         {item.label === "Study Sets" && studySetsCount > 0 && (
                           <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
-                            className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-purple-600 text-white flex items-center justify-center text-[10px] font-bold border-2 border-white"
+                            className="
+                              absolute -top-1 -right-1
+                              w-5 h-5 rounded-full
+                              flex items-center justify-center
+                              bg-purple-600 text-white
+                              text-[10px] font-bold leading-none
+                              border-2 border-white dark:border-gray-900
+                            "
                           >
                             {studySetsCount}
                           </motion.div>
                         )}
                       </div>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <div
-                            className={`text-sm font-medium ${
-                              item.completed ? "text-gray-900" : "text-gray-500"
-                            }`}
-                          >
-                            {item.label}
-                          </div>
-                          {item.label === "Study Sets" &&
-                            studySetsCount > 0 && (
-                              <span className="text-xs text-purple-600 font-semibold">
-                                ({studySetsCount})
-                              </span>
-                            )}
+
+                      <div>
+                        <div
+                          className={`text-sm font-medium ${
+                            item.completed
+                              ? "text-gray-900 dark:text-gray-100"
+                              : "text-gray-500 dark:text-gray-400"
+                          }`}
+                        >
+                          {item.label}
                         </div>
-                        <div className="text-xs text-gray-400">
+                        <div className="text-xs text-gray-400 dark:text-gray-500">
                           {item.completed ? "Đã hoàn thành" : "Chưa hoàn thành"}
                         </div>
                       </div>
@@ -359,7 +380,7 @@ export default function ProgressHeader({
           </div>
         </div>
 
-        {/* Icon preview với enhanced effects */}
+        {/* ================= RIGHT ICON ================= */}
         <motion.div
           className="flex items-center justify-center md:justify-end"
           whileHover={{ scale: 1.05 }}
@@ -368,158 +389,17 @@ export default function ProgressHeader({
           transition={{ delay: 0.3 }}
         >
           <div className="relative">
-            {/* Outer glow - mạnh hơn khi đang lưu */}
             <div
-              className={`absolute inset-0 blur-xl rounded-3xl ${
-                isSavingDraft ? "opacity-70" : "opacity-60"
-              }`}
-              style={{
-                background: formData.iconGradient,
-                filter: "blur(24px)",
-              }}
+              className="absolute inset-0 blur-2xl rounded-3xl opacity-60"
+              style={{ background: formData.iconGradient }}
             />
 
-            {/* Main icon container với hiệu ứng đang lưu */}
             <motion.div
-              className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl flex items-center justify-center shadow-lg overflow-hidden"
+              className="relative w-20 h-20 md:w-24 md:h-24 rounded-2xl flex items-center justify-center shadow-lg"
               style={{ background: formData.iconGradient }}
-              animate={
-                isSavingDraft
-                  ? {
-                      scale: [1, 1.02, 1],
-                      boxShadow: [
-                        "0 10px 25px rgba(168,85,247,0.4)",
-                        "0 10px 30px rgba(168,85,247,0.6)",
-                        "0 10px 25px rgba(168,85,247,0.4)",
-                      ],
-                    }
-                  : {}
-              }
-              transition={
-                isSavingDraft
-                  ? {
-                      duration: 1.5,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                    }
-                  : {}
-              }
             >
               <SelectedIcon className="w-10 h-10 md:w-12 md:h-12 text-white drop-shadow-md" />
-
-              {/* Hiệu ứng xoay khi đang lưu */}
-              {isSavingDraft && (
-                <>
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                    className="absolute inset-4 border-2 border-white/20 rounded-full"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent" />
-                </>
-              )}
-
-              {/* Floating particles effect với màu từ gradient */}
-              {isComplete && (
-                <>
-                  <motion.div
-                    animate={{
-                      y: [0, -15, 0],
-                      x: [0, 8, 0],
-                      rotate: [0, 180, 360],
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      delay: 0.2,
-                    }}
-                    className="absolute -top-2 -right-2 w-4 h-4 rounded-full"
-                    style={{
-                      background:
-                        "radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.3) 70%)",
-                      boxShadow: "0 0 10px rgba(255,255,255,0.5)",
-                    }}
-                  />
-                  <motion.div
-                    animate={{
-                      y: [0, -12, 0],
-                      x: [0, -6, 0],
-                      rotate: [0, -180, 0],
-                    }}
-                    transition={{
-                      duration: 2.5,
-                      repeat: Infinity,
-                      delay: 0.4,
-                    }}
-                    className="absolute -bottom-2 -left-2 w-3 h-3 rounded-full"
-                    style={{
-                      background:
-                        "radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.2) 70%)",
-                      boxShadow: "0 0 8px rgba(255,255,255,0.4)",
-                    }}
-                  />
-                </>
-              )}
             </motion.div>
-
-            {/* Badge khi hoàn thành - phối màu với icon */}
-            {isComplete && (
-              <motion.div
-                initial={{ scale: 0, rotate: -180, y: 20 }}
-                animate={{
-                  scale: 1,
-                  rotate: 0,
-                  y: 0,
-                  transition: {
-                    type: "spring",
-                    stiffness: 250,
-                    damping: 15,
-                  },
-                }}
-                whileHover={{ scale: 1.1, rotate: [0, 5, -5, 0] }}
-                className="absolute -top-2 -right-2 z-10"
-              >
-                <div className="relative group">
-                  {/* Main badge lấy màu từ gradient của icon */}
-                  <div
-                    className="backdrop-blur-md border border-white/30 text-white text-[9px] font-bold px-2 py-1.5 rounded-full shadow-xl"
-                    style={{ background: formData.iconGradient }}
-                  >
-                    <div className="flex items-center gap-1.5">
-                      <motion.div
-                        animate={{
-                          scale: [1, 1.2, 1],
-                          rotate: [0, 360],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }}
-                      >
-                        <CheckCircle className="w-3 h-3" />
-                      </motion.div>
-                      <span className="tracking-tight">DONE</span>
-                    </div>
-                  </div>
-
-                  {/* Hiệu ứng ánh sáng xoay quanh badge */}
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{
-                      duration: 4,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                    className="absolute inset-0 rounded-full border border-white/20 -z-10"
-                  />
-                </div>
-              </motion.div>
-            )}
           </div>
         </motion.div>
       </motion.div>

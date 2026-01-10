@@ -72,9 +72,9 @@ export default function FolderForm({
   };
 
   return (
-    <Card>
+    <Card className="bg-white/70 dark:bg-gray-900/60 border border-gray-200/60 dark:border-gray-800/60 shadow-sm">
       <CardHeader>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 ">
           <CardTitle className="text-xl">Thông Tin Folder</CardTitle>
           <Tooltip>
             <TooltipTrigger asChild>
