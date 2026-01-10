@@ -691,7 +691,7 @@ export default function CreateFolderPage() {
                 />
 
                 {/* Action Buttons */}
-                <div className="space-y-4 sticky bottom-0 bg-white dark:bg-gray-900/30 border-t border-gray-200 dark:border-gray-800">
+                <div className="space-y-4 sticky bottom-0 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
                   <motion.div
                     whileHover={{ scale: 1.01 }}
                     whileTap={{ scale: 0.99 }}

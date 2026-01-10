@@ -75,9 +75,9 @@ export default function MobileTabs({
   ];
 
   return (
-    <div className="lg:hidden mb-4">
-      <Tabs defaultValue="basic" className="w-full">
-        <TabsList className="grid grid-cols-3 w-full">
+    <div className="lg:hidden mb-4 ">
+      <Tabs defaultValue="basic" className="w-full ">
+        <TabsList className="grid grid-cols-3 w-full bg-white/70 dark:bg-gray-900/60 border border-gray-200/60 dark:border-gray-800/60">
           <TabsTrigger value="basic">Thông tin</TabsTrigger>
           <TabsTrigger value="sets">Study Sets</TabsTrigger>
           <TabsTrigger value="selected">
@@ -85,8 +85,8 @@ export default function MobileTabs({
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="basic" className="space-y-6 mt-4">
-          <Card>
+        <TabsContent value="basic" className="space-y-6 mt-4 ">
+          <Card className="bg-white/70 dark:bg-gray-900/60 border border-gray-200/60 dark:border-gray-800/60 shadow-sm">
             <CardHeader className="pb-3">
               <CardTitle className="text-lg">Thông Tin Folder</CardTitle>
             </CardHeader>
