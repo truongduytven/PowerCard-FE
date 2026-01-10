@@ -29,7 +29,7 @@ export default function CreateButton({ onCreate }: CreateButtonProps) {
     <div className="relative">
       <Button
         onClick={() => setIsOpen(!isOpen)}
-        className="group flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-fuchsia-600 to-violet-600 hover:from-fuchsia-700 hover:to-violet-700 text-white rounded-lg font-semibold transition-all duration-300 shadow-lg shadow-fuchsia-500/30 hover:shadow-xl hover:shadow-fuchsia-500/40 hover:scale-105"
+        className="group cursor-pointer  flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-fuchsia-600 to-violet-600 hover:from-fuchsia-700 hover:to-violet-700 text-white rounded-lg font-semibold transition-all duration-300 shadow-lg shadow-fuchsia-500/30 hover:shadow-xl hover:shadow-fuchsia-500/40 hover:scale-105"
       >
         <Plus className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
         Create New
@@ -50,7 +50,7 @@ export default function CreateButton({ onCreate }: CreateButtonProps) {
             <div className="p-2">
               <button
                 onClick={() => handleCreate("deck")}
-                className="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-gray-100/80 dark:hover:bg-gray-700/80 transition-colors duration-200 group"
+                className="flex items-center cursor-pointer  gap-3 w-full p-3 rounded-lg hover:bg-gray-100/80 dark:hover:bg-gray-700/80 transition-colors duration-200 group"
               >
                 <div className="p-2 bg-gradient-to-br from-fuchsia-500/10 to-violet-500/10 rounded-lg group-hover:scale-110 transition-transform duration-300">
                   <BookPlus className="h-5 w-5 text-fuchsia-600 dark:text-fuchsia-400" />
@@ -67,7 +67,7 @@ export default function CreateButton({ onCreate }: CreateButtonProps) {
 
               <button
                 onClick={() => handleCreate("folder")}
-                className="flex items-center gap-3 w-full p-3 rounded-lg hover:bg-gray-100/80 dark:hover:bg-gray-700/80 transition-colors duration-200 group"
+                className="flex items-center  cursor-pointer  gap-3 w-full p-3 rounded-lg hover:bg-gray-100/80 dark:hover:bg-gray-700/80 transition-colors duration-200 group"
               >
                 <div className="p-2 bg-gradient-to-br from-blue-500/10 to-cyan-500/10 rounded-lg group-hover:scale-110 transition-transform duration-300">
                   <FolderPlus className="h-5 w-5 text-blue-600 dark:text-blue-400" />

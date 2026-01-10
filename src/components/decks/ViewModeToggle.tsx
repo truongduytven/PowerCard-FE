@@ -27,10 +27,10 @@ export default function ViewModeToggle({
       />
 
       {/* Buttons */}
-      <div className="relative z-10 grid grid-cols-2 h-full">
+      <div className="relative z-10 grid grid-cols-2 h-full ">
         <button
           onClick={() => onChange("grid")}
-          className={`flex items-center justify-center transition-colors duration-200 ${
+          className={`flex items-center justify-center transition-colors duration-200 cursor-pointer ${
             value === "grid" ? "text-white" : "text-gray-600 dark:text-gray-400"
           }`}
         >
@@ -39,7 +39,7 @@ export default function ViewModeToggle({
 
         <button
           onClick={() => onChange("list")}
-          className={`flex items-center justify-center transition-colors duration-200 ${
+          className={`flex items-center justify-center transition-colors duration-200 cursor-pointer ${
             value === "list" ? "text-white" : "text-gray-600 dark:text-gray-400"
           }`}
         >
