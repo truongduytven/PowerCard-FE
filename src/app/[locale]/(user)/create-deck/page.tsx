@@ -73,6 +73,16 @@ import {
 } from "lucide-react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
 
 // Types
 interface Flashcard {
@@ -150,12 +160,9 @@ const useAutoSave = (formData: FormData, delay: number = 800) => {
         setLastSaved(new Date());
         setSaveCount((prev) => {
           const next = prev + 1;
-          if (next % 3 === 0) {
-            toast.info("Đang tự động lưu nháp...", {
-              duration: 2000,
-              position: "bottom-right",
-            });
-          }
+          // if (next % 3 === 0) {
+          //   toast("Đang tự động lưu nháp...", { duration: 2000 });
+          // }
           return next;
         });
       } catch (error) {
@@ -209,41 +216,54 @@ const useAutoSave = (formData: FormData, delay: number = 800) => {
 // 2. History Hook (Undo/Redo)
 const useHistory = (initialState: FormData) => {
   const [history, setHistory] = useState<FormData[]>([initialState]);
+  const historyRef = useRef<FormData[]>([initialState]);
+  const indexRef = useRef(0);
   const [currentIndex, setCurrentIndex] = useState(0);
   const maxHistory = 50;
 
-  const push = useCallback(
-    (state: FormData) => {
-      setHistory((prev) => {
-        const newHistory = [...prev.slice(0, currentIndex + 1), state];
-        if (newHistory.length > maxHistory) {
-          return newHistory.slice(-maxHistory);
-        }
-        return newHistory;
-      });
-      setCurrentIndex((prev) => Math.min(prev + 1, maxHistory - 1));
-    },
-    [currentIndex]
-  );
+  const push = useCallback((state: FormData) => {
+    setHistory((prev) => {
+      const truncated = prev.slice(0, indexRef.current + 1);
+      const newHistory = [...truncated, state];
+
+      if (newHistory.length > maxHistory) {
+        const sliced = newHistory.slice(-maxHistory);
+        historyRef.current = sliced;
+        indexRef.current = sliced.length - 1;
+        setCurrentIndex(indexRef.current);
+        return sliced;
+      }
+
+      historyRef.current = newHistory;
+      indexRef.current = Math.min(indexRef.current + 1, maxHistory - 1);
+      setCurrentIndex(indexRef.current);
+      return newHistory;
+    });
+  }, []);
 
   const undo = useCallback(() => {
-    if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1);
-      return history[currentIndex - 1];
+    if (indexRef.current > 0) {
+      indexRef.current -= 1;
+      setCurrentIndex(indexRef.current);
+      return historyRef.current[indexRef.current];
     }
     return null;
-  }, [currentIndex, history]);
+  }, []);
 
   const redo = useCallback(() => {
-    if (currentIndex < history.length - 1) {
-      setCurrentIndex((prev) => prev + 1);
-      return history[currentIndex + 1];
+    if (indexRef.current < historyRef.current.length - 1) {
+      indexRef.current += 1;
+      setCurrentIndex(indexRef.current);
+      return historyRef.current[indexRef.current];
     }
     return null;
-  }, [currentIndex, history]);
+  }, []);
 
   const clearHistory = useCallback(() => {
-    setHistory([initialState]);
+    const initial = [initialState];
+    historyRef.current = initial;
+    indexRef.current = 0;
+    setHistory(initial);
     setCurrentIndex(0);
   }, [initialState]);
 
@@ -424,7 +444,7 @@ const BulkActions: React.FC<{
   const handleExampleLoad = () => {
     if (textAreaRef.current) {
       textAreaRef.current.value = `Hello: Xin chào\nGoodbye: Tạm biệt\nThank you: Cảm ơn\nPlease: Làm ơn\nSorry: Xin lỗi`;
-      toast.info("Đã tải ví dụ mẫu");
+      toast("Đã tải ví dụ mẫu");
     }
   };
 
@@ -526,7 +546,7 @@ const BulkActions: React.FC<{
                 className="w-full flex items-center gap-3 p-3 hover:bg-purple-50 rounded-lg transition-colors"
                 onClick={() => {
                   // Export logic here
-                  toast.info("Tính năng export đang được phát triển");
+                  toast("Tính năng export đang được phát triển");
                   setShowBulkMenu(false);
                 }}
               >
@@ -939,6 +959,34 @@ const ImportQuizletModal: React.FC<{
 
 // 7. Main Component với tất cả tính năng
 export default function CreateFlashcardPage() {
+  const getInitialFormData = (): FormData => ({
+    title: "",
+    description: "",
+    icon: "book",
+    iconColor: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    topicId: "",
+    folderSetId: "",
+    isPublic: false,
+    flashcards: [
+      {
+        id: "1",
+        term: "",
+        definition: "",
+        mediaId: null,
+        mediaPreview: null,
+        position: 0,
+      },
+      {
+        id: "2",
+        term: "",
+        definition: "",
+        mediaId: null,
+        mediaPreview: null,
+        position: 1,
+      },
+    ],
+  });
+
   const [formData, setFormData] = useState<FormData>({
     title: "",
     description: "",
@@ -979,6 +1027,16 @@ export default function CreateFlashcardPage() {
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  const titleRef = useRef<HTMLInputElement | null>(null);
+  const flashcardFieldRefs = useRef<{
+    [cardId: string]: {
+      term?: HTMLTextAreaElement | null;
+      definition?: HTMLTextAreaElement | null;
+    };
+  }>({});
+
+  const [showDraftDialog, setShowDraftDialog] = useState(false);
+  const draftCandidateRef = useRef<FormData | null>(null);
   const [deletedCardCache, setDeletedCardCache] = useState<{
     card: Flashcard;
     index: number;
@@ -987,59 +1045,18 @@ export default function CreateFlashcardPage() {
 
   // Initialize hooks
   const { lastSaved, isSaving, recoverDraft, clearDraft, saveCount } =
-    useAutoSave(formData, 3000);
+    useAutoSave(formData, 1000);
   const history = useHistory(formData);
 
-  // Recover draft on mount
+  // Recover draft on mount — show AlertDialog to choose
   useEffect(() => {
     const draft = recoverDraft();
     if (draft) {
-      setFormData(draft);
-      toast.custom(
-        (t) => (
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-4 shadow-lg max-w-md animate-in slide-in-from-right">
-            <div className="flex items-start gap-3">
-              <History className="w-5 h-5 text-blue-600 mt-0.5" />
-              <div className="flex-1">
-                <p className="font-medium text-gray-900">
-                  Tìm thấy bản nháp chưa lưu
-                </p>
-                <p className="text-sm text-gray-600 mt-1">
-                  Bạn có muốn khôi phục bản nháp trước đó?
-                </p>
-                <div className="flex gap-2 mt-3">
-                  <Button
-                    size="sm"
-                    onClick={() => {
-                      setFormData(draft);
-                      toast.dismiss(t);
-                      toast.success("Đã khôi phục bản nháp");
-                    }}
-                  >
-                    Khôi phục
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => {
-                      clearDraft();
-                      toast.dismiss(t);
-                    }}
-                  >
-                    Bỏ qua
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        ),
-        {
-          duration: 10000,
-          position: "bottom-right",
-        }
-      );
+      // keep candidate in ref and open dialog
+      draftCandidateRef.current = draft;
+      setShowDraftDialog(true);
     }
-  }, [recoverDraft, clearDraft]);
+  }, [recoverDraft]);
   // Update form data with history tracking
   const updateFormData = useCallback(
     (newData: FormData) => {
@@ -1057,7 +1074,7 @@ export default function CreateFlashcardPage() {
     }
 
     if (field === "description") {
-      value = String(value).slice(0, 100);
+      value = String(value).slice(0, 500);
     }
 
     const newData = { ...formData, [field]: value };
@@ -1400,16 +1417,62 @@ export default function CreateFlashcardPage() {
     toast.success("Đã lưu nháp thành công");
   };
 
+  // Handle dialog actions for draft
+  const handleRestoreDraft = () => {
+    const draft = draftCandidateRef.current;
+    if (draft) {
+      setFormData(draft);
+      toast.success("Đã khôi phục bản nháp");
+    }
+    draftCandidateRef.current = null;
+    setShowDraftDialog(false);
+  };
+
+  const handleCreateNewFromDialog = () => {
+    clearDraft();
+    setFormData(getInitialFormData());
+    draftCandidateRef.current = null;
+    setShowDraftDialog(false);
+    toast("Tạo mới bộ flashcard");
+  };
+
   const handleSubmit = () => {
     const emptyCards = formData.flashcards.filter(
       (card) => !card.term.trim() || !card.definition.trim()
     );
     if (!formData.title.trim()) {
+      // focus title and scroll
+      titleRef.current?.focus();
+      titleRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
       toast.error("Vui lòng nhập tiêu đề cho bộ flashcard");
       return;
     }
 
     if (emptyCards.length > 0) {
+      // find first incomplete card and focus the missing field
+      const idx = formData.flashcards.findIndex(
+        (c) => !c.term.trim() || !c.definition.trim()
+      );
+      if (idx !== -1) {
+        const card = formData.flashcards[idx];
+        // ensure expanded
+        setExpandedCards((prev) => new Set([...prev, card.id]));
+        // focus appropriate field after DOM updates
+        requestAnimationFrame(() => {
+          const refs = flashcardFieldRefs.current[card.id];
+          if (!card.term.trim()) {
+            refs?.term?.focus();
+            refs?.term?.scrollIntoView({ behavior: "smooth", block: "center" });
+          } else if (!card.definition.trim()) {
+            refs?.definition?.focus();
+            refs?.definition?.scrollIntoView({
+              behavior: "smooth",
+              block: "center",
+            });
+          }
+        });
+      }
+
       toast.error(
         `Còn ${emptyCards.length} thẻ chưa hoàn thành. Vui lòng kiểm tra lại.`
       );
@@ -1886,6 +1949,7 @@ export default function CreateFlashcardPage() {
                     placeholder="Ví dụ: Từ vựng TOEIC cơ bản, Hóa học lớp 12, ..."
                     value={formData.title}
                     onChange={(e) => handleInputChange("title", e.target.value)}
+                    ref={titleRef}
                     maxLength={100}
                     className="h-11 border-gray-300/80 focus:border-blue-500 focus:ring-blue-500/20 text-base placeholder:text-gray-400/90 rounded-xl"
                   />
@@ -2280,6 +2344,13 @@ export default function CreateFlashcardPage() {
                                   e.target.value
                                 )
                               }
+                              ref={(el) => {
+                                flashcardFieldRefs.current[card.id] = {
+                                  ...(flashcardFieldRefs.current[card.id] ||
+                                    {}),
+                                  term: el,
+                                };
+                              }}
                               className={`min-h-[120px] resize-none text-sm rounded-lg ${
                                 !card.term.trim()
                                   ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
@@ -2312,6 +2383,13 @@ export default function CreateFlashcardPage() {
                                   e.target.value
                                 )
                               }
+                              ref={(el) => {
+                                flashcardFieldRefs.current[card.id] = {
+                                  ...(flashcardFieldRefs.current[card.id] ||
+                                    {}),
+                                  definition: el,
+                                };
+                              }}
                               className={`min-h-[120px] resize-none text-sm rounded-lg ${
                                 !card.definition.trim()
                                   ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
@@ -2436,6 +2514,27 @@ export default function CreateFlashcardPage() {
         </div>
       </div>
 
+      {/* Draft AlertDialog */}
+      <AlertDialog open={showDraftDialog} onOpenChange={setShowDraftDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tìm thấy bản nháp chưa lưu</AlertDialogTitle>
+            <AlertDialogDescription>
+              Chúng tôi tìm thấy một bản nháp trước đó. Bạn muốn tiếp tục với
+              bản nháp này hay tạo mới?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCreateNewFromDialog}>
+              Tạo mới
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleRestoreDraft}>
+              Tiếp tục với bản nháp
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Keyboard Shortcuts Helper */}
       <div className="fixed bottom-4 right-4 z-50">
         <Button
@@ -2457,6 +2556,26 @@ export default function CreateFlashcardPage() {
           Phím tắt
         </Button>
       </div>
+      {/* Draft AlertDialog */}
+      <AlertDialog open={showDraftDialog} onOpenChange={setShowDraftDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Tìm thấy bản nháp chưa lưu</AlertDialogTitle>
+            <AlertDialogDescription>
+              Chúng tôi tìm thấy một bản nháp trước đó. Bạn muốn tiếp tục với
+              bản nháp này hay tạo mới?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={handleCreateNewFromDialog}>
+              Tạo mới
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleRestoreDraft}>
+              Tiếp tục với bản nháp
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
