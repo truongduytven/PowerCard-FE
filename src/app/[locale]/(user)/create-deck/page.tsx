@@ -1497,26 +1497,65 @@ export default function CreateFlashcardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-      {/* Header Section */}
-      <div className="sticky top-0 z-10 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100/80">
+      {/* Header Section - Tối ưu padding và shadow */}
+      <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <div className="hidden sm:flex items-center gap-4">
                 {/* Auto-save status */}
-                {renderAutoSaveStatus()}
+                <div className="flex items-center gap-2 text-sm">
+                  {isSaving ? (
+                    <div className="flex items-center gap-2 text-amber-600">
+                      <Loader2 className="w-3 h-3 animate-spin" />
+                      <span className="font-medium">Đang lưu...</span>
+                    </div>
+                  ) : lastSaved ? (
+                    <div className="flex items-center gap-2 text-green-600">
+                      <Check className="w-3 h-3" />
+                      <span className="font-medium">Đã lưu</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-gray-500">
+                      <Clock className="w-3 h-3" />
+                      <span>Chưa lưu</span>
+                    </div>
+                  )}
+                </div>
 
                 {/* Undo/Redo controls */}
-                {renderHistoryControls()}
+                <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-1 bg-white/80 backdrop-blur-sm">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleUndo}
+                    disabled={!history.canUndo}
+                    className="h-8 w-8 p-0 hover:bg-gray-100/80"
+                    title="Hoàn tác (Ctrl+Z)"
+                  >
+                    <Undo className="w-4 h-4" />
+                  </Button>
+                  <div className="w-px h-4 bg-gray-200/60" />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRedo}
+                    disabled={!history.canRedo}
+                    className="h-8 w-8 p-0 hover:bg-gray-100/80"
+                    title="Làm lại (Ctrl+Shift+Z)"
+                  >
+                    <Redo className="w-4 h-4" />
+                  </Button>
+                </div>
 
                 {/* Progress indicator */}
                 <div className="flex items-center gap-3">
                   <div className="text-right">
                     <p className="text-sm font-medium text-gray-900">
-                      {completedCards}/{totalCards} thẻ hoàn thành
+                      {completedCards}/{totalCards} thẻ
                     </p>
-                    <div className="w-40 h-1.5 bg-gray-200 rounded-full overflow-hidden mt-1">
+                    <div className="w-32 h-1.5 bg-gray-200/80 rounded-full overflow-hidden mt-1">
                       <div
                         className="h-full bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-500 rounded-full"
                         style={{ width: `${progress}%` }}
@@ -1525,7 +1564,7 @@ export default function CreateFlashcardPage() {
                   </div>
                   <Badge
                     variant="secondary"
-                    className="font-semibold bg-gradient-to-r from-blue-50 to-indigo-50 text-blue-700 border border-blue-200"
+                    className="font-medium bg-gradient-to-r from-blue-50/80 to-indigo-50/80 text-blue-700 border border-blue-200/60 backdrop-blur-sm"
                   >
                     <BookOpen className="w-3 h-3 mr-1" />
                     Bản nháp
@@ -1537,29 +1576,29 @@ export default function CreateFlashcardPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Success Message */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        {/* Success Message - Tối ưu shadow và animation */}
         {showSuccess && (
-          <div className="mb-6 animate-in fade-in slide-in-from-top-2 duration-300">
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 shadow-lg">
-              <div className="flex items-center gap-4">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-md">
-                  <Check className="w-5 h-5 text-white" />
+          <div className="mb-5 animate-in fade-in slide-in-from-top duration-300">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50/80 border border-green-200 rounded-xl p-4 shadow-lg backdrop-blur-sm">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center shadow">
+                  <Check className="w-4 h-4 text-white" />
                 </div>
                 <div className="flex-1">
                   <h3 className="font-semibold text-green-900">
                     Tạo thành công!
                   </h3>
-                  <p className="text-sm text-green-700 mt-1">
+                  <p className="text-sm text-green-700/90 mt-0.5">
                     Bộ flashcard "
                     <span className="font-medium">{formData.title}</span>" đã
-                    được tạo và sẵn sàng để sử dụng.
+                    được tạo.
                   </p>
                 </div>
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-green-300 text-green-700 hover:bg-green-50"
+                  className="border-green-300/80 text-green-700 hover:bg-green-50/80 h-8"
                   onClick={() => setShowSuccess(false)}
                 >
                   Đóng
@@ -1576,699 +1615,678 @@ export default function CreateFlashcardPage() {
           onImport={handleImportFromQuizlet}
         />
 
-        <div className="">
-          {/* Main Content */}
-          <div className="">
-            {/* Basic Info Card with Icon Picker */}
-            <Card className="border-0 shadow-xl bg-white rounded-2xl overflow-hidden">
-              <CardHeader className="pb-4 border-b border-gray-100 bg-gradient-to-r from-gray-50 to-white">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-md">
-                      <Sparkles className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <CardTitle className="text-xl font-bold text-gray-900">
-                        Thông tin cơ bản
-                      </CardTitle>
-                      <CardDescription className="text-gray-600">
-                        Thiết lập thông tin và giao diện cho bộ flashcard
-                      </CardDescription>
-                    </div>
+        <div className="space-y-5">
+          {/* Basic Info Card với spacing tối ưu */}
+          <Card className="border border-gray-200/80 shadow-lg bg-white/95 backdrop-blur-sm rounded-2xl overflow-hidden">
+            <CardHeader className="pb-4 border-b border-gray-100/80 bg-gradient-to-r from-gray-50/50 to-white/50">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg flex items-center justify-center shadow">
+                    <Sparkles className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg font-bold text-gray-900">
+                      Thông tin cơ bản
+                    </CardTitle>
+                    <CardDescription className="text-gray-600/90 text-sm">
+                      Thiết lập thông tin và giao diện cho bộ flashcard
+                    </CardDescription>
                   </div>
                 </div>
-              </CardHeader>
-              <CardContent className="pt-6 space-y-8">
-                {/* Icon and Color Selection Section */}
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
+              </div>
+            </CardHeader>
+            <CardContent className="pt-5 space-y-6">
+              {/* Icon and Color Selection - Tối ưu spacing */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                      <Palette className="w-4 h-4 text-blue-600" />
+                      Biểu tượng và màu sắc
+                    </Label>
+                    <p className="text-sm text-gray-600/90 mt-1">
+                      Tùy chỉnh icon và màu sắc
+                    </p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowIconPicker(!showIconPicker)}
+                    className="text-blue-600 hover:text-blue-700 hover:bg-blue-50/50 h-8"
+                  >
+                    {showIconPicker ? (
+                      <>
+                        <ChevronDown className="w-4 h-4 mr-1.5 rotate-180" />
+                        Thu gọn
+                      </>
+                    ) : (
+                      <>
+                        <LayoutGrid className="w-4 h-4 mr-1.5" />
+                        Chọn biểu tượng
+                      </>
+                    )}
+                  </Button>
+                </div>
+
+                {/* Current Selection Preview */}
+                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50/40 to-indigo-50/40 rounded-xl border border-blue-100/60">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className="w-14 h-14 rounded-xl flex items-center justify-center shadow"
+                      style={{ background: formData.iconColor }}
+                    >
+                      <SelectedIcon className="w-7 h-7 text-white" />
+                    </div>
                     <div>
-                      <Label className="text-base font-semibold text-gray-900 flex items-center gap-2">
-                        <Palette className="w-5 h-5 text-blue-600" />
-                        Biểu tượng và màu sắc
-                      </Label>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Tùy chỉnh icon và màu sắc cho bộ flashcard của bạn
+                      <p className="font-semibold text-gray-900 text-sm">
+                        Biểu tượng đã chọn
+                      </p>
+                      <p className="text-sm text-gray-600/90 mt-0.5">
+                        Icon sẽ xuất hiện trên thẻ
                       </p>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setShowIconPicker(!showIconPicker)}
-                      className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                    >
-                      {showIconPicker ? (
-                        <>
-                          <ChevronDown className="w-4 h-4 mr-2 rotate-180" />
-                          Thu gọn
-                        </>
-                      ) : (
-                        <>
-                          <LayoutGrid className="w-4 h-4 mr-2" />
-                          Chọn biểu tượng
-                        </>
-                      )}
-                    </Button>
                   </div>
+                  <Badge className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-2.5 py-1 text-xs">
+                    {
+                      iconOptions.find((opt) => opt.value === formData.icon)
+                        ?.label
+                    }
+                  </Badge>
+                </div>
 
-                  {/* Current Selection Preview */}
-                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-blue-50/50 to-indigo-50/50 rounded-xl border border-blue-100">
-                    <div className="flex items-center gap-4">
-                      <div
-                        className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-lg"
-                        style={{ background: formData.iconColor }}
-                      >
-                        <SelectedIcon className="w-8 h-8 text-white" />
-                      </div>
-                      <div>
-                        <p className="font-semibold text-gray-900">
-                          Biểu tượng đã chọn
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          Icon sẽ xuất hiện trên thẻ và trong thư viện
-                        </p>
+                {/* Icon Picker */}
+                {showIconPicker && (
+                  <div className="space-y-4 animate-in fade-in duration-300">
+                    {/* Icon Categories */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium text-gray-700">
+                        Danh mục biểu tượng
+                      </Label>
+                      <div className="flex flex-wrap gap-2">
+                        {iconCategories.map((category) => (
+                          <button
+                            key={category}
+                            type="button"
+                            onClick={() => setSelectedIconCategory(category)}
+                            className={`px-3 py-1.5 rounded-lg transition-all duration-200 text-sm font-medium ${
+                              selectedIconCategory === category
+                                ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow"
+                                : "bg-gray-100/80 text-gray-700 hover:bg-gray-200/80 shadow-sm"
+                            }`}
+                          >
+                            {category}
+                          </button>
+                        ))}
                       </div>
                     </div>
-                    <Badge className="bg-gradient-to-r from-blue-600 to-blue-700 text-white px-3 py-1">
-                      {
-                        iconOptions.find((opt) => opt.value === formData.icon)
-                          ?.label
-                      }
-                    </Badge>
-                  </div>
 
-                  {/* Icon Picker */}
-                  {showIconPicker && (
-                    <div className="space-y-4 animate-in fade-in duration-300">
-                      {/* Icon Categories */}
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium text-gray-700">
-                          Danh mục biểu tượng
-                        </Label>
-                        <div className="flex flex-wrap gap-2">
-                          {iconCategories.map((category) => (
+                    {/* Icon Grid - Tối ưu grid spacing */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium text-gray-700">
+                        Chọn biểu tượng
+                      </Label>
+                      <div className="grid grid-cols-5 sm:grid-cols-6 gap-2 p-3 bg-gray-50/50 rounded-xl">
+                        {filteredIcons.map((option) => {
+                          const Icon = option.icon;
+                          const isSelected = formData.icon === option.value;
+                          return (
                             <button
-                              key={category}
+                              key={option.value}
                               type="button"
-                              onClick={() => setSelectedIconCategory(category)}
-                              className={`px-4 py-2 rounded-lg transition-all duration-200 ${
-                                selectedIconCategory === category
-                                  ? "bg-gradient-to-r from-blue-500 to-blue-600 text-white shadow-md"
-                                  : "bg-gray-100 text-gray-700 hover:bg-gray-200 shadow-sm"
+                              onClick={() =>
+                                handleInputChange("icon", option.value)
+                              }
+                              className={`relative p-2 rounded-lg border transition-all duration-200 group ${
+                                isSelected
+                                  ? "border-blue-500 bg-gradient-to-br from-blue-50/80 to-blue-100/80 shadow scale-105"
+                                  : "border-gray-200/80 bg-white/80 hover:border-blue-300/80 hover:shadow-sm"
                               }`}
+                              title={option.label}
                             >
-                              <span className="text-sm font-medium">
-                                {category}
+                              <div
+                                className="w-9 h-9 rounded-lg flex items-center justify-center mx-auto mb-1.5 transition-all group-hover:scale-105"
+                                style={{ background: formData.iconColor }}
+                              >
+                                <Icon className="w-4 h-4 text-white" />
+                              </div>
+                              <span className="text-xs text-gray-600 truncate block text-center leading-tight">
+                                {option.label}
                               </span>
+                              {isSelected && (
+                                <div className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow">
+                                  <Check className="w-2.5 h-2.5 text-white" />
+                                </div>
+                              )}
                             </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Icon Grid */}
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium text-gray-700">
-                          Chọn biểu tượng
-                        </Label>
-                        <div className="grid grid-cols-5 sm:grid-cols-6 gap-3 p-3 bg-gray-50 rounded-xl">
-                          {filteredIcons.map((option) => {
-                            const Icon = option.icon;
-                            const isSelected = formData.icon === option.value;
-                            return (
-                              <button
-                                key={option.value}
-                                type="button"
-                                onClick={() =>
-                                  handleInputChange("icon", option.value)
-                                }
-                                className={`relative p-3 rounded-xl border transition-all duration-200 group ${
-                                  isSelected
-                                    ? "border-blue-500 bg-gradient-to-br from-blue-50 to-blue-100 shadow-md scale-105"
-                                    : "border-gray-200 bg-white hover:border-blue-300 hover:shadow-sm"
-                                }`}
-                                title={option.label}
-                              >
-                                <div
-                                  className="w-10 h-10 rounded-lg flex items-center justify-center mx-auto mb-2 transition-all group-hover:scale-110"
-                                  style={{ background: formData.iconColor }}
-                                >
-                                  <Icon className="w-5 h-5 text-white" />
-                                </div>
-                                <span className="text-xs text-gray-600 truncate block text-center">
-                                  {option.label}
-                                </span>
-                                {isSelected && (
-                                  <div className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full flex items-center justify-center shadow-lg">
-                                    <Check className="w-3 h-3 text-white" />
-                                  </div>
-                                )}
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-
-                      {/* Gradient Color Selection */}
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium text-gray-700">
-                          Màu gradient cho icon
-                        </Label>
-                        <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3">
-                          {gradientOptions.map((gradient) => {
-                            const isSelected =
-                              formData.iconColor === gradient.value;
-                            return (
-                              <button
-                                key={gradient.value}
-                                type="button"
-                                onClick={() =>
-                                  handleInputChange("iconColor", gradient.value)
-                                }
-                                className={`relative aspect-square rounded-xl border-2 transition-all duration-200 hover:scale-105 group ${
-                                  isSelected
-                                    ? "border-gray-900 shadow-xl scale-105"
-                                    : "border-white hover:border-gray-300 shadow-sm hover:shadow-md"
-                                }`}
-                                style={{ background: gradient.value }}
-                                title={gradient.label}
-                              >
-                                {isSelected && (
-                                  <div className="absolute inset-0 bg-black/10 rounded-xl" />
-                                )}
-                                {isSelected && (
-                                  <Check className="absolute inset-0 m-auto w-5 h-5 text-white drop-shadow-lg" />
-                                )}
-                                <div
-                                  className={`absolute bottom-0 left-0 right-0 text-[10px] py-1 px-1 rounded-b-xl truncate transition-all ${
-                                    isSelected
-                                      ? "bg-black/80 text-white"
-                                      : "bg-white/90 backdrop-blur-sm text-gray-800 opacity-0 group-hover:opacity-100"
-                                  }`}
-                                >
-                                  {gradient.label}
-                                </div>
-                              </button>
-                            );
-                          })}
-                        </div>
+                          );
+                        })}
                       </div>
                     </div>
+
+                    {/* Gradient Color Selection */}
+                    <div className="space-y-3">
+                      <Label className="text-sm font-medium text-gray-700">
+                        Màu gradient cho icon
+                      </Label>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-2">
+                        {gradientOptions.map((gradient) => {
+                          const isSelected =
+                            formData.iconColor === gradient.value;
+                          return (
+                            <button
+                              key={gradient.value}
+                              type="button"
+                              onClick={() =>
+                                handleInputChange("iconColor", gradient.value)
+                              }
+                              className={`relative aspect-square rounded-lg border-2 transition-all duration-200 hover:scale-105 group ${
+                                isSelected
+                                  ? "border-gray-900 shadow-lg scale-105"
+                                  : "border-white/80 hover:border-gray-300/80 shadow-sm hover:shadow"
+                              }`}
+                              style={{ background: gradient.value }}
+                              title={gradient.label}
+                            >
+                              {isSelected && (
+                                <div className="absolute inset-0 bg-black/10 rounded-lg" />
+                              )}
+                              {isSelected && (
+                                <Check className="absolute inset-0 m-auto w-4 h-4 text-white drop-shadow" />
+                              )}
+                              <div
+                                className={`absolute bottom-0 left-0 right-0 text-[10px] py-1 px-1 rounded-b-lg truncate transition-all ${
+                                  isSelected
+                                    ? "bg-black/80 text-white"
+                                    : "bg-white/90 backdrop-blur-sm text-gray-800 opacity-0 group-hover:opacity-100"
+                                }`}
+                              >
+                                {gradient.label}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Title and Description */}
+              <div className="space-y-5">
+                {/* Title */}
+                <div className="space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-blue-600" />
+                      Tiêu đề bộ flashcard
+                      <span className="text-red-500">*</span>
+                    </Label>
+                    <span
+                      className={`text-xs px-2 py-1 rounded-full ${
+                        formData.title.length > 90
+                          ? "bg-amber-100/80 text-amber-800"
+                          : "bg-gray-100/80 text-gray-600"
+                      }`}
+                    >
+                      {formData.title.length}/100
+                    </span>
+                  </div>
+                  <Input
+                    placeholder="Ví dụ: Từ vựng TOEIC cơ bản, Hóa học lớp 12, ..."
+                    value={formData.title}
+                    onChange={(e) => handleInputChange("title", e.target.value)}
+                    maxLength={100}
+                    className="h-11 border-gray-300/80 focus:border-blue-500 focus:ring-blue-500/20 text-base placeholder:text-gray-400/90 rounded-xl"
+                  />
+                  {formData.title.length > 90 && (
+                    <p className="text-xs text-amber-600 flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3" />
+                      Tiêu đề sắp đạt giới hạn
+                    </p>
                   )}
                 </div>
 
-                {/* Title and Description */}
-                <div className="space-y-6">
-                  {/* Title */}
-                  <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                        <FileText className="w-4 h-4 text-blue-600" />
-                        Tiêu đề bộ flashcard
-                        <span className="text-red-500">*</span>
-                      </Label>
-                      <span
-                        className={`text-xs px-2 py-1 rounded-full ${
-                          formData.title.length > 90
-                            ? "bg-amber-100 text-amber-800"
-                            : "bg-gray-100 text-gray-600"
-                        }`}
-                      >
-                        {formData.title.length}/100
-                      </span>
-                    </div>
-                    <Input
-                      placeholder="Ví dụ: Từ vựng TOEIC cơ bản, Hóa học lớp 12, ..."
-                      value={formData.title}
-                      onChange={(e) =>
-                        handleInputChange("title", e.target.value)
-                      }
-                      maxLength={100}
-                      className="h-12 border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 text-lg placeholder:text-gray-400"
-                    />
-                    {formData.title.length > 90 && (
-                      <p className="text-xs text-amber-600 flex items-center gap-1 animate-pulse">
-                        <AlertCircle className="w-3 h-3" />
-                        Tiêu đề sắp đạt giới hạn
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Description */}
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-blue-600" />
-                      Mô tả (Tùy chọn)
-                    </Label>
-                    <Textarea
-                      placeholder="Mô tả nội dung, mục tiêu học tập hoặc lưu ý đặc biệt về bộ flashcard này..."
-                      value={formData.description}
-                      onChange={(e) =>
-                        handleInputChange("description", e.target.value)
-                      }
-                      className="min-h-[120px] resize-none border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 placeholder:text-gray-400"
-                    />
-                    <p className="text-xs text-gray-500">
-                      Mô tả chi tiết giúp người học hiểu rõ hơn về nội dung bộ
-                      flashcard
-                    </p>
-                  </div>
-                </div>
-
-                {/* Topic and Folder Selection */}
-                <div className="grid md:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                      <Tag className="w-4 h-4 text-blue-600" />
-                      Chủ đề
-                    </Label>
-                    <div className="relative">
-                      <select
-                        value={formData.topicId}
-                        onChange={(e) =>
-                          handleInputChange("topicId", e.target.value)
-                        }
-                        className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 appearance-none bg-white text-gray-900 hover:border-gray-400 transition-colors"
-                      >
-                        <option value="">Chọn chủ đề phù hợp</option>
-                        {topics.map((topic) => (
-                          <option key={topic.id} value={topic.id}>
-                            {topic.name}
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                    </div>
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                      <FolderOpen className="w-4 h-4 text-blue-600" />
-                      Thư mục
-                    </Label>
-                    <div className="relative">
-                      <select
-                        value={formData.folderSetId}
-                        onChange={(e) =>
-                          handleInputChange("folderSetId", e.target.value)
-                        }
-                        className="w-full h-12 px-4 pr-10 border border-gray-300 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 appearance-none bg-white text-gray-900 hover:border-gray-400 transition-colors"
-                      >
-                        <option value="">Chọn thư mục lưu trữ</option>
-                        {folders.map((folder) => (
-                          <option key={folder.id} value={folder.id}>
-                            {folder.name} ({folder.count} sets)
-                          </option>
-                        ))}
-                      </select>
-                      <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Privacy Settings */}
-                <div className="pt-6 border-t border-gray-100">
-                  <div className="flex items-center justify-between p-5 bg-gradient-to-r from-gray-50 to-gray-100/50 rounded-xl border border-gray-200">
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-100 to-blue-50 flex items-center justify-center">
-                          {formData.isPublic ? (
-                            <Globe className="w-5 h-5 text-blue-600" />
-                          ) : (
-                            <Lock className="w-5 h-5 text-gray-600" />
-                          )}
-                        </div>
-                        <div>
-                          <Label className="text-base font-semibold text-gray-900">
-                            Quyền riêng tư
-                          </Label>
-                          <div className="flex items-center gap-2 mt-1">
-                            {formData.isPublic ? (
-                              <Badge className="bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 border border-blue-200">
-                                <Globe className="w-3 h-3 mr-1" />
-                                Công khai
-                              </Badge>
-                            ) : (
-                              <Badge className="bg-gradient-to-r from-gray-100 to-gray-50 text-gray-700 border border-gray-300">
-                                <Lock className="w-3 h-3 mr-1" />
-                                Riêng tư
-                              </Badge>
-                            )}
-                            <span className="text-xs text-gray-500">
-                              {formData.isPublic
-                                ? "Ai cũng có thể xem và học"
-                                : "Chỉ bạn mới có thể xem"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                      <p className="text-sm text-gray-600 max-w-lg">
-                        {formData.isPublic
-                          ? "Mọi người có thể tìm thấy, xem và học bộ flashcard này. Các hình ảnh trong bộ cũng được chia sẻ công khai và có thể được người khác sử dụng. Bạn có thể kiếm được điểm kinh nghiệm khi chia sẻ kiến thức!"
-                          : "Chỉ bạn mới có thể xem và học bộ flashcard này. Hoàn toàn riêng tư và an toàn."}
-                      </p>
-                    </div>
-                    <Switch
-                      checked={formData.isPublic}
-                      onCheckedChange={(checked) =>
-                        handleInputChange("isPublic", checked)
-                      }
-                      className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-600 data-[state=checked]:to-blue-700 h-6 w-12"
-                    />
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Flashcards Section */}
-            <div className="space-y-6">
-              {/* Section Header */}
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
-                    Danh sách flashcard ({totalCards})
-                  </h2>
-                  <p className="text-gray-600 mt-1">
-                    Thêm và chỉnh sửa các thẻ học tập. Kéo thả để sắp xếp thứ
-                    tự.
-                  </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-3">
-                  <BulkActions
-                    onImportCSV={handleBulkImport}
-                    onDuplicateCards={handleBulkDuplicate}
-                    onDeleteCards={handleBulkDelete}
-                    onSelectAll={handleSelectAll}
-                    onClearSelection={handleClearSelection}
-                    selectedCards={selectedCards}
-                    totalCards={totalCards}
+                {/* Description */}
+                <div className="space-y-2.5">
+                  <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-blue-600" />
+                    Mô tả (Tùy chọn)
+                  </Label>
+                  <Textarea
+                    placeholder="Mô tả nội dung, mục tiêu học tập hoặc lưu ý đặc biệt..."
+                    value={formData.description}
+                    onChange={(e) =>
+                      handleInputChange("description", e.target.value)
+                    }
+                    className="min-h-[100px] resize-none border-gray-300/80 focus:border-blue-500 focus:ring-blue-500/20 placeholder:text-gray-400/90 rounded-xl text-sm"
                   />
-                  <Button
-                    onClick={() => setShowImportModal(true)}
-                    variant="outline"
-                    size="lg"
-                    className="border-purple-300 hover:border-purple-400 hover:bg-purple-50 text-purple-700 shadow-sm"
-                  >
-                    <Import className="w-5 h-5 mr-2" />
-                    Import Quizlet
-                  </Button>
-                  <Button
-                    onClick={addFlashcard}
-                    size="lg"
-                    className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 shadow-lg"
-                  >
-                    <Plus className="w-5 h-5 mr-2" />
-                    Thêm thẻ mới
-                  </Button>
+                  <p className="text-xs text-gray-500/90">
+                    Mô tả chi tiết giúp người học hiểu rõ hơn về nội dung
+                  </p>
                 </div>
               </div>
 
-              {/* Flashcards List */}
-              <div className="space-y-4">
-                {formData.flashcards.map((card, index) => (
-                  <div
-                    key={card.id}
-                    draggable
-                    onDragStart={() => handleDragStart(index)}
-                    onDragOver={(e) => handleDragOver(e, index)}
-                    onDrop={(e) => handleDrop(e, index)}
-                    onDragEnd={handleDragEnd}
-                    className={`relative transition-all duration-300 ${
-                      draggedIndex === index
-                        ? "opacity-40 scale-[0.98] blur-sm"
-                        : ""
-                    } ${
+              {/* Topic and Folder Selection */}
+              <div className="grid md:grid-cols-2 gap-5">
+                <div className="space-y-2.5">
+                  <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                    <Tag className="w-4 h-4 text-blue-600" />
+                    Chủ đề
+                  </Label>
+                  <div className="relative">
+                    <select
+                      value={formData.topicId}
+                      onChange={(e) =>
+                        handleInputChange("topicId", e.target.value)
+                      }
+                      className="w-full h-11 px-4 pr-10 border border-gray-300/80 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 appearance-none bg-white/80 text-gray-900 hover:border-gray-400/80 transition-colors text-sm"
+                    >
+                      <option value="">Chọn chủ đề phù hợp</option>
+                      {topics.map((topic) => (
+                        <option key={topic.id} value={topic.id}>
+                          {topic.name}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400/80 pointer-events-none" />
+                  </div>
+                </div>
+
+                <div className="space-y-2.5">
+                  <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
+                    <FolderOpen className="w-4 h-4 text-blue-600" />
+                    Thư mục
+                  </Label>
+                  <div className="relative">
+                    <select
+                      value={formData.folderSetId}
+                      onChange={(e) =>
+                        handleInputChange("folderSetId", e.target.value)
+                      }
+                      className="w-full h-11 px-4 pr-10 border border-gray-300/80 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 appearance-none bg-white/80 text-gray-900 hover:border-gray-400/80 transition-colors text-sm"
+                    >
+                      <option value="">Chọn thư mục lưu trữ</option>
+                      {folders.map((folder) => (
+                        <option key={folder.id} value={folder.id}>
+                          {folder.name} ({folder.count} sets)
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400/80 pointer-events-none" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Privacy Settings */}
+              <div className="pt-5 border-t border-gray-100/80">
+                <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50/50 to-gray-100/30 rounded-xl border border-gray-200/60">
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-blue-100/80 to-blue-50/80 flex items-center justify-center">
+                        {formData.isPublic ? (
+                          <Globe className="w-4 h-4 text-blue-600" />
+                        ) : (
+                          <Lock className="w-4 h-4 text-gray-600" />
+                        )}
+                      </div>
+                      <div>
+                        <Label className="text-sm font-semibold text-gray-900">
+                          Quyền riêng tư
+                        </Label>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          {formData.isPublic ? (
+                            <Badge className="bg-gradient-to-r from-blue-100/80 to-blue-50/80 text-blue-700 border border-blue-200/60 text-xs">
+                              <Globe className="w-3 h-3 mr-1" />
+                              Công khai
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-gradient-to-r from-gray-100/80 to-gray-50/80 text-gray-700 border border-gray-300/60 text-xs">
+                              <Lock className="w-3 h-3 mr-1" />
+                              Riêng tư
+                            </Badge>
+                          )}
+                          <span className="text-xs text-gray-500/90">
+                            {formData.isPublic
+                              ? "Ai cũng có thể xem và học"
+                              : "Chỉ bạn mới có thể xem"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600/90 max-w-lg">
+                      {formData.isPublic
+                        ? "Mọi người có thể tìm thấy, xem và học bộ flashcard này."
+                        : "Chỉ bạn mới có thể xem và học bộ flashcard này."}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={formData.isPublic}
+                    onCheckedChange={(checked) =>
+                      handleInputChange("isPublic", checked)
+                    }
+                    className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-600 data-[state=checked]:to-blue-700 h-5 w-9"
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Flashcards Section */}
+          <div className="space-y-4">
+            {/* Section Header - Compact & Clear */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-lg font-bold text-gray-900">
+                  Flashcards{" "}
+                  <span className="text-gray-500 font-normal">
+                    ({totalCards})
+                  </span>
+                </h2>
+                <p className="text-gray-500 text-xs mt-0.5">
+                  Kéo thả để sắp xếp • Click để mở rộng
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <BulkActions
+                  onImportCSV={handleBulkImport}
+                  onDuplicateCards={handleBulkDuplicate}
+                  onDeleteCards={handleBulkDelete}
+                  onSelectAll={handleSelectAll}
+                  onClearSelection={handleClearSelection}
+                  selectedCards={selectedCards}
+                  totalCards={totalCards}
+                />
+                <Button
+                  onClick={() => setShowImportModal(true)}
+                  variant="outline"
+                  size="sm"
+                  className="border-purple-200 hover:border-purple-300 hover:bg-purple-50 text-purple-700 h-9"
+                >
+                  <Import className="w-3.5 h-3.5 mr-1.5" />
+                  Import
+                </Button>
+                <Button
+                  onClick={addFlashcard}
+                  size="sm"
+                  className="bg-blue-600 hover:bg-blue-700 text-white h-9"
+                >
+                  <Plus className="w-3.5 h-3.5 mr-1.5" />
+                  Thêm thẻ
+                </Button>
+              </div>
+            </div>
+
+            {/* Flashcards List */}
+            <div className="space-y-2">
+              {formData.flashcards.map((card, index) => (
+                <div
+                  key={card.id}
+                  draggable
+                  onDragStart={() => handleDragStart(index)}
+                  onDragOver={(e) => handleDragOver(e, index)}
+                  onDrop={(e) => handleDrop(e, index)}
+                  onDragEnd={handleDragEnd}
+                  className={`transition-all duration-150 ${
+                    draggedIndex === index ? "opacity-30 scale-[0.99]" : ""
+                  } ${
+                    dragOverIndex === index
+                      ? "scale-[1.005] ring-2 ring-blue-400"
+                      : ""
+                  }`}
+                >
+                  <Card
+                    className={`border overflow-hidden transition-all duration-150 ${
                       dragOverIndex === index
-                        ? "scale-[1.02] ring-2 ring-blue-500 ring-offset-2"
+                        ? "border-blue-400 shadow-md"
+                        : card.term && card.definition
+                        ? "border-green-200/60 bg-green-50/10"
+                        : "border-gray-200 hover:border-gray-300"
+                    } ${
+                      selectedCards.includes(index)
+                        ? "ring-2 ring-blue-400"
                         : ""
                     }`}
                   >
-                    <Card
-                      className={`border-2 overflow-hidden cursor-move hover:shadow-xl transition-all duration-300 ${
-                        dragOverIndex === index
-                          ? "border-blue-500 shadow-2xl"
-                          : card.term && card.definition
-                          ? "border-green-200 shadow-lg"
-                          : "border-gray-200 hover:border-gray-300 shadow-md"
-                      } ${
-                        selectedCards.includes(index)
-                          ? "ring-2 ring-blue-400 ring-offset-1"
-                          : ""
-                      }`}
+                    {/* Card Header */}
+                    <div
+                      className="px-3.5 py-2.5 bg-white cursor-pointer hover:bg-gray-50/80 transition-colors border-b border-gray-100"
+                      onClick={(e) => handleCardSelect(index, e)}
                     >
-                      {/* Card Header */}
-                      <div
-                        className="px-6 py-4 bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200 cursor-pointer hover:from-gray-100 hover:to-gray-200 transition-all"
-                        onClick={(e) => handleCardSelect(index, e)}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-center gap-2">
-                              <input
-                                type="checkbox"
-                                checked={selectedCards.includes(index)}
-                                onChange={(e) => {
-                                  e.stopPropagation();
-                                  handleCardSelect(index, e as any);
-                                }}
-                                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
-                              />
-                              <GripVertical className="w-5 h-5 text-gray-400 hover:text-gray-600 transition-colors cursor-move" />
-                            </div>
-                            <Badge
-                              variant="outline"
-                              className={`font-semibold text-sm px-3 py-1.5 ${
-                                card.term && card.definition
-                                  ? "border-green-300 bg-gradient-to-r from-green-50 to-emerald-50 text-green-700"
-                                  : "border-gray-300 bg-gradient-to-r from-gray-50 to-gray-100 text-gray-700"
-                              }`}
-                            >
-                              <div className="w-2 h-2 rounded-full bg-current mr-2 opacity-60" />
-                              Thẻ #{index + 1}
-                            </Badge>
-                            {card.term && (
-                              <span className="text-sm font-medium text-gray-900 truncate max-w-xs">
+                      <div className="flex items-center justify-between gap-3">
+                        {/* Left Section */}
+                        <div className="flex items-center gap-2.5 flex-1 min-w-0">
+                          {/* Controls */}
+                          <div className="flex items-center gap-1.5 flex-shrink-0">
+                            <input
+                              type="checkbox"
+                              checked={selectedCards.includes(index)}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                handleCardSelect(index, e as any);
+                              }}
+                              className="w-3.5 h-3.5 rounded border-gray-300 text-blue-600 focus:ring-1 focus:ring-blue-500/40 cursor-pointer"
+                            />
+                            <GripVertical className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 cursor-move" />
+                          </div>
+
+                          {/* Card Info */}
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <span className="text-xs font-bold text-gray-600 flex-shrink-0">
+                              #{index + 1}
+                            </span>
+                            {card.term ? (
+                              <span className="text-sm text-gray-700 truncate">
                                 {card.term}
+                              </span>
+                            ) : (
+                              <span className="text-sm text-gray-400 italic">
+                                Chưa có thuật ngữ
                               </span>
                             )}
                           </div>
-                          <div className="flex items-center gap-3">
+                        </div>
+
+                        {/* Right Section - Status & Controls */}
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          {/* Status Indicator */}
+                          <div className="flex items-center gap-1">
                             {card.mediaPreview && (
-                              <Badge className="bg-gradient-to-r from-blue-100 to-blue-50 text-blue-700 border border-blue-200 text-xs">
-                                <ImageIcon className="w-3 h-3 mr-1" />
-                                Có ảnh
-                              </Badge>
+                              <div
+                                className="w-1.5 h-1.5 rounded-full bg-blue-500"
+                                title="Có ảnh"
+                              ></div>
                             )}
-                            {card.term && card.definition && (
-                              <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-3 py-1 text-xs shadow-sm">
-                                <Check className="w-3 h-3 mr-1" />
-                                Hoàn thành
-                              </Badge>
+                            {card.term && card.definition ? (
+                              <div
+                                className="w-1.5 h-1.5 rounded-full bg-green-500"
+                                title="Đã hoàn thành"
+                              ></div>
+                            ) : (
+                              <div
+                                className="w-1.5 h-1.5 rounded-full bg-amber-400"
+                                title="Chưa hoàn thành"
+                              ></div>
                             )}
+                          </div>
+
+                          {/* Compact Status Badge */}
+                          {card.term && card.definition ? (
+                            <Badge className="bg-green-50 text-green-700 border-green-200 text-xs px-1.5 py-0 h-5">
+                              <Check className="w-2.5 h-2.5" />
+                            </Badge>
+                          ) : (
+                            <Badge className="bg-amber-50 text-amber-700 border-amber-200 text-xs px-1.5 py-0 h-5">
+                              <AlertCircle className="w-2.5 h-2.5" />
+                            </Badge>
+                          )}
+
+                          {/* Expand Toggle */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              toggleCardExpand(card.id);
+                            }}
+                            className="p-0.5 hover:bg-gray-200/60 rounded transition-colors"
+                          >
                             <ChevronDown
-                              className={`w-5 h-5 text-gray-400 transition-transform duration-300 ${
+                              className={`w-4 h-4 text-gray-500 transition-transform duration-150 ${
                                 expandedCards.has(card.id) ? "rotate-180" : ""
                               }`}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleCardExpand(card.id);
+                            />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Expandable Content */}
+                    {expandedCards.has(card.id) && (
+                      <CardContent className="p-3.5 bg-gray-50/40 border-t border-gray-100">
+                        <div className="grid grid-cols-12 gap-3">
+                          {/* Term */}
+                          <div className="col-span-5 space-y-1.5">
+                            <Label className="text-xs font-semibold text-gray-700 flex items-center gap-1">
+                              Thuật ngữ <span className="text-red-500">*</span>
+                            </Label>
+                            <Textarea
+                              placeholder="Nhập thuật ngữ, từ khóa hoặc câu hỏi..."
+                              value={card.term}
+                              onChange={(e) =>
+                                handleFlashcardChange(
+                                  index,
+                                  "term",
+                                  e.target.value
+                                )
+                              }
+                              className="h-28 resize-none border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-gray-400 text-sm rounded-lg bg-white shadow-sm"
+                            />
+                            {!card.term.trim() && (
+                              <div className="flex items-center gap-1.5 px-2 py-1.5 bg-red-50 rounded border border-red-200">
+                                <AlertCircle className="w-3 h-3 text-red-600 flex-shrink-0" />
+                                <p className="text-xs text-red-700">Bắt buộc</p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Definition */}
+                          <div className="col-span-5 space-y-1.5">
+                            <Label className="text-xs font-semibold text-gray-700 flex items-center gap-1">
+                              Định nghĩa <span className="text-red-500">*</span>
+                            </Label>
+                            <Textarea
+                              placeholder="Nhập định nghĩa, giải thích hoặc câu trả lời..."
+                              value={card.definition}
+                              onChange={(e) =>
+                                handleFlashcardChange(
+                                  index,
+                                  "definition",
+                                  e.target.value
+                                )
+                              }
+                              className="h-28 resize-none border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-gray-400 text-sm rounded-lg bg-white shadow-sm"
+                            />
+                            {!card.definition.trim() && (
+                              <div className="flex items-center gap-1.5 px-2 py-1.5 bg-red-50 rounded border border-red-200">
+                                <AlertCircle className="w-3 h-3 text-red-600 flex-shrink-0" />
+                                <p className="text-xs text-red-700">Bắt buộc</p>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Media Upload */}
+                          <div className="col-span-2 space-y-1.5">
+                            <Label className="text-xs font-semibold text-gray-700 flex items-center gap-1">
+                              <ImageIcon className="w-3 h-3 text-purple-600" />
+                              Ảnh
+                            </Label>
+                            {card.mediaPreview ? (
+                              <div className="relative group">
+                                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                                  <img
+                                    src={card.mediaPreview}
+                                    alt="Preview"
+                                    className="w-full h-28 object-cover"
+                                  />
+                                </div>
+                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-150 rounded-lg flex items-center justify-center gap-1">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="bg-white hover:bg-gray-50 h-6 w-6 p-0 border-gray-300"
+                                    onClick={() =>
+                                      fileInputRefs.current[card.id]?.click()
+                                    }
+                                  >
+                                    <ImageIcon className="w-3 h-3" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="bg-white hover:bg-red-50 hover:text-red-600 h-6 w-6 p-0 border-gray-300"
+                                    onClick={() => {
+                                      handleFlashcardChange(
+                                        index,
+                                        "mediaId",
+                                        null
+                                      );
+                                      handleFlashcardChange(
+                                        index,
+                                        "mediaPreview",
+                                        null
+                                      );
+                                    }}
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div
+                                className="border-2 border-dashed border-gray-300 rounded-lg h-28 hover:border-blue-400 hover:bg-blue-50/50 transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 group"
+                                onClick={() =>
+                                  fileInputRefs.current[card.id]?.click()
+                                }
+                              >
+                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform">
+                                  <Upload className="w-3.5 h-3.5 text-blue-600" />
+                                </div>
+                                <p className="text-xs font-medium text-gray-600">
+                                  Tải ảnh
+                                </p>
+                              </div>
+                            )}
+                            <input
+                              ref={(el) => {
+                                fileInputRefs.current[card.id] = el;
+                              }}
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleImageUpload(index, file);
                               }}
                             />
                           </div>
                         </div>
-                      </div>
-
-                      {/* Expandable Content */}
-                      {expandedCards.has(card.id) && (
-                        <CardContent className="p-6 space-y-6 animate-in fade-in duration-300">
-                          {/* Term and Definition */}
-                          <div className="grid md:grid-cols-3 gap-6">
-                            <div className="space-y-3">
-                              <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                                <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
-                                Thuật ngữ (Term)
-                                <span className="text-red-500">*</span>
-                              </Label>
-                              <Textarea
-                                placeholder="Nhập thuật ngữ, từ khóa hoặc câu hỏi..."
-                                value={card.term}
-                                onChange={(e) =>
-                                  handleFlashcardChange(
-                                    index,
-                                    "term",
-                                    e.target.value
-                                  )
-                                }
-                                className="min-h-[140px] resize-none border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 text-lg placeholder:text-gray-400"
-                                rows={3}
-                              />
-                              {!card.term.trim() && (
-                                <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-red-50 to-red-100 rounded-lg border border-red-200">
-                                  <AlertCircle className="w-4 h-4 text-red-600" />
-                                  <p className="text-sm text-red-700">
-                                    Vui lòng nhập thuật ngữ cho thẻ này
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-
-                            <div className="space-y-3">
-                              <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                                <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-                                Định nghĩa (Definition)
-                                <span className="text-red-500">*</span>
-                              </Label>
-                              <Textarea
-                                placeholder="Nhập định nghĩa, giải thích hoặc câu trả lời..."
-                                value={card.definition}
-                                onChange={(e) =>
-                                  handleFlashcardChange(
-                                    index,
-                                    "definition",
-                                    e.target.value
-                                  )
-                                }
-                                className="min-h-[140px] resize-none border-gray-300 focus:border-blue-500 focus:ring-blue-500/20 text-lg placeholder:text-gray-400"
-                                rows={3}
-                              />
-                              {!card.definition.trim() && (
-                                <div className="flex items-center gap-2 p-3 bg-gradient-to-r from-red-50 to-red-100 rounded-lg border border-red-200">
-                                  <AlertCircle className="w-4 h-4 text-red-600" />
-                                  <p className="text-sm text-red-700">
-                                    Vui lòng nhập định nghĩa cho thẻ này
-                                  </p>
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Media Upload */}
-                            <div className="space-y-3">
-                              <Label className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-                                <ImageIcon className="w-4 h-4 text-purple-600" />
-                                Hình ảnh minh họa
-                                <Badge
-                                  variant="outline"
-                                  className="text-xs text-gray-500 font-normal ml-2"
-                                >
-                                  Tùy chọn
-                                </Badge>
-                              </Label>
-                              {card.mediaPreview ? (
-                                <div className="relative group">
-                                  <div className="border-2 border-gray-200 rounded-xl overflow-hidden shadow-lg transition-all duration-300 group-hover:shadow-2xl">
-                                    <img
-                                      src={card.mediaPreview}
-                                      alt="Preview"
-                                      className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
-                                    />
-                                  </div>
-                                  <div className="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      className="bg-white/90 backdrop-blur-sm hover:bg-white shadow-lg"
-                                      onClick={() =>
-                                        fileInputRefs.current[card.id]?.click()
-                                      }
-                                    >
-                                      <ImageIcon className="w-4 h-4 mr-2" />
-                                      Thay ảnh
-                                    </Button>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      className="bg-white/90 backdrop-blur-sm hover:bg-red-50 hover:text-red-600 shadow-lg"
-                                      onClick={() => {
-                                        handleFlashcardChange(
-                                          index,
-                                          "mediaId",
-                                          null
-                                        );
-                                        handleFlashcardChange(
-                                          index,
-                                          "mediaPreview",
-                                          null
-                                        );
-                                      }}
-                                    >
-                                      <Trash2 className="w-4 h-4 mr-2" />
-                                      Xóa
-                                    </Button>
-                                  </div>
-                                </div>
-                              ) : (
-                                <div
-                                  className="border-3 border-dashed border-gray-300 rounded-2xl p-8 hover:border-blue-400 hover:bg-blue-50/50 transition-all duration-300 cursor-pointer group"
-                                  onClick={() =>
-                                    fileInputRefs.current[card.id]?.click()
-                                  }
-                                >
-                                  <div className="flex flex-col items-center justify-center gap-4">
-                                    <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                      <Upload className="w-8 h-8 text-blue-600" />
-                                    </div>
-                                    <div className="text-center">
-                                      <p className="text-lg font-semibold text-gray-900 mb-1">
-                                        Tải ảnh lên
-                                      </p>
-                                      <p className="text-sm text-gray-600">
-                                        Kéo thả hoặc click để chọn file ảnh
-                                      </p>
-                                      <p className="text-xs text-gray-400 mt-2">
-                                        Hỗ trợ: PNG, JPG, GIF • Tối đa 5MB
-                                      </p>
-                                    </div>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      className="mt-2 border-blue-300 text-blue-600 hover:bg-blue-50"
-                                    >
-                                      <ImageIcon className="w-4 h-4 mr-2" />
-                                      Chọn từ thư viện
-                                    </Button>
-                                  </div>
-                                </div>
-                              )}
-                              <input
-                                ref={(el: HTMLInputElement | null) => {
-                                  fileInputRefs.current[card.id] = el;
-                                }}
-                                type="file"
-                                accept="image/*"
-                                className="hidden"
-                                onChange={(e) => {
-                                  const file = e.target.files?.[0];
-                                  if (file) handleImageUpload(index, file);
-                                }}
-                              />
-                            </div>
-                          </div>
-                        </CardContent>
-                      )}
-                    </Card>
-                  </div>
-                ))}
-              </div>
-
-              {/* Add Card Button */}
-              <Button
-                onClick={addFlashcard}
-                variant="outline"
-                className="w-full h-16 border-3 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50/50 text-gray-700 hover:text-blue-700 transition-all duration-300 rounded-2xl group"
-              >
-                <div className="flex flex-col items-center justify-center gap-2">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-100 to-blue-200 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <Plus className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="font-semibold">Thêm thẻ mới (Ctrl+Enter)</p>
-                    <p className="text-xs text-gray-500 mt-1">
-                      Bấm để thêm thẻ học tập mới
-                    </p>
-                  </div>
+                      </CardContent>
+                    )}
+                  </Card>
                 </div>
-              </Button>
+              ))}
             </div>
+
+            {/* Quick Add Button */}
+            <button
+              onClick={addFlashcard}
+              className="w-full h-12 border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50/50 text-gray-600 hover:text-blue-700 transition-all rounded-lg group flex items-center justify-center gap-2"
+            >
+              <div className="w-7 h-7 bg-blue-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
+                <Plus className="w-4 h-4 text-blue-600" />
+              </div>
+              <span className="text-sm font-semibold">Thêm thẻ mới</span>
+              <span className="text-xs text-gray-500">Ctrl+Enter</span>
+            </button>
           </div>
         </div>
       </div>
@@ -2278,9 +2296,9 @@ export default function CreateFlashcardPage() {
         <Button
           variant="outline"
           size="sm"
-          className="bg-white/90 backdrop-blur-sm shadow-lg border-gray-300 hover:bg-white"
+          className="bg-white/90 backdrop-blur-sm shadow border-gray-300/80 hover:bg-white h-9"
           onClick={() => {
-            toast.info(
+            toast(
               "Phím tắt: Ctrl+S (Lưu), Ctrl+Enter (Thêm thẻ), Ctrl+Z (Hoàn tác)",
               {
                 duration: 5000,
@@ -2290,7 +2308,7 @@ export default function CreateFlashcardPage() {
           }}
           title="Xem phím tắt"
         >
-          <Keyboard className="w-4 h-4 mr-2" />
+          <Keyboard className="w-3.5 h-3.5 mr-1.5" />
           Phím tắt
         </Button>
       </div>
