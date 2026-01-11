@@ -1,30 +1,38 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback } from "react";
 
 export const useHistory = <T>(initialState: T) => {
-  const [history, setHistory] = useState<T[]>([initialState]);
   const historyRef = useRef<T[]>([initialState]);
   const indexRef = useRef(0);
+  const [history, setHistory] = useState<T[]>(historyRef.current);
   const [currentIndex, setCurrentIndex] = useState(0);
   const maxHistory = 50;
 
   const push = useCallback((state: T) => {
-    setHistory(prev => {
-      const truncated = prev.slice(0, indexRef.current + 1);
-      const newHistory = [...truncated, state];
-
-      if (newHistory.length > maxHistory) {
-        const sliced = newHistory.slice(-maxHistory);
-        historyRef.current = sliced;
-        indexRef.current = sliced.length - 1;
-        setCurrentIndex(indexRef.current);
-        return sliced;
+    // Avoid pushing duplicate states (no-op)
+    try {
+      const last = historyRef.current[historyRef.current.length - 1];
+      if (last && JSON.stringify(last) === JSON.stringify(state)) {
+        return;
       }
+    } catch (err) {
+      // If stringify fails for some reason, continue and push
+    }
 
-      historyRef.current = newHistory;
-      indexRef.current = Math.min(indexRef.current + 1, maxHistory - 1);
-      setCurrentIndex(indexRef.current);
-      return newHistory;
-    });
+    // Operate on refs synchronously to avoid race conditions
+    const truncated = historyRef.current.slice(0, indexRef.current + 1);
+    let newHistory = [...truncated, state];
+
+    if (newHistory.length > maxHistory) {
+      newHistory = newHistory.slice(-maxHistory);
+      indexRef.current = newHistory.length - 1;
+    } else {
+      indexRef.current = Math.min(indexRef.current + 1, newHistory.length - 1);
+    }
+
+    historyRef.current = newHistory;
+    // update React state so consumers re-render
+    setHistory(newHistory);
+    setCurrentIndex(indexRef.current);
   }, []);
 
   const undo = useCallback(() => {

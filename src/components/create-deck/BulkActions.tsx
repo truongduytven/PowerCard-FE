@@ -142,16 +142,16 @@ export const BulkActions: React.FC<BulkActionsProps> = ({
         {showBulkMenu && (
           <>
             <div
-              className="fixed inset-0 bg-black/30 z-40 sm:hidden"
+              className="fixed inset-0   z-40 sm:hidden"
               onClick={() => setShowBulkMenu(false)}
             />
 
-            <div className="fixed bottom-0 left-0 right-0 sm:absolute sm:top-full sm:left-auto sm:right-0 mt-0 sm:mt-2 w-full sm:w-80 bg-white dark:bg-gray-900 rounded-t-3xl sm:rounded-2xl shadow-2xl border-t sm:border border-gray-200 dark:border-gray-800 z-50">
+            <div className="fixed  bottom-0 left-0 right-0 sm:absolute sm:top-full sm:left-auto sm:right-0 mt-0 sm:mt-2 w-full sm:w-80 rounded-t-3xl sm:rounded-2xl shadow-2xl border-t sm:border border-gray-200 dark:border-gray-800 z-50">
               <div className="sm:hidden flex justify-center pt-3 pb-2">
                 <div className="w-12 h-1.5 bg-gray-300 dark:bg-gray-700 rounded-full"></div>
               </div>
 
-              <div className="p-4 sm:p-2 space-y-1 max-h-[85vh] sm:max-h-none overflow-y-auto">
+              <div className="p-4 bg-white dark:bg-gray-900 rounded-md sm:p-2 space-y-1 max-h-[85vh] sm:max-h-none overflow-y-auto">
                 <div className="sm:hidden px-2 py-2 mb-2">
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-lg font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">

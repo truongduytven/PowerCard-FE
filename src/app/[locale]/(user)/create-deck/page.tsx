@@ -1,36 +1,36 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Plus, Import, Grid3x3 } from "lucide-react";
 import {
-  folders as mockFolders,
   gradientOptions,
   iconOptions,
+  folders as mockFolders,
   topics as mockTopics,
 } from "@/lib/mock/create-decks";
+import { Import, Plus } from "lucide-react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 
 // Components
-import { Header } from "@/components/create-deck/Header";
-import { SuccessMessage } from "@/components/create-deck/SuccessMessage";
-import { DraftAlertDialog } from "@/components/create-deck/DraftAlertDialog";
 import { BasicInfoCard } from "@/components/create-deck/BasicInfoCard";
-import { FlashcardCard } from "@/components/create-deck/FlashcardCard";
 import { BulkActions } from "@/components/create-deck/BulkActions";
+import { DraftAlertDialog } from "@/components/create-deck/DraftAlertDialog";
+import { FlashcardCard } from "@/components/create-deck/FlashcardCard";
+import { Header } from "@/components/create-deck/Header";
+import { IconPicker } from "@/components/create-deck/IconPicker";
 import { ImportQuizletModal } from "@/components/create-deck/ImportQuizletModal";
 import { KeyboardShortcutsHelper } from "@/components/create-deck/KeyboardShortcutsHelper";
-import { IconPicker } from "@/components/create-deck/IconPicker";
+import { SuccessMessage } from "@/components/create-deck/SuccessMessage";
 
 // Types
+import { useAutoSave } from "@/hooks/create-deck/useAutoSave";
+import { useHistory } from "@/hooks/create-deck/useHistory";
+import { useKeyboardShortcuts } from "@/hooks/create-deck/useKeyboardShortcuts";
 import type {
-  FormData,
   Flashcard,
+  FormData,
   ImportedFlashcard,
 } from "@/types/create-deck";
-import { useHistory } from "@/hooks/create-deck/useHistory";
-import { useAutoSave } from "@/hooks/create-deck/useAutoSave";
-import { useKeyboardShortcuts } from "@/hooks/create-deck/useKeyboardShortcuts";
 
 export default function CreateFlashcardPage() {
   // Initialization
@@ -109,8 +109,9 @@ export default function CreateFlashcardPage() {
   // Update form data with history tracking
   const updateFormData = useCallback(
     (newData: FormData) => {
-      setFormData(newData);
+      // push to history first (keep history refs/state in sync), then update UI state
       history.push(newData);
+      setFormData(newData);
     },
     [history]
   );
@@ -141,9 +142,23 @@ export default function CreateFlashcardPage() {
 
   const handleUndo = () => {
     const previousState = history.undo();
-    if (previousState) {
+
+    // If history provided a previous state and it's different, apply it.
+    if (
+      previousState &&
+      JSON.stringify(previousState) !== JSON.stringify(formData)
+    ) {
       setFormData(previousState);
+      // Clear any cached deleted card because history restored state
+      setDeletedCardCache(null);
       showUndoToast("Đã hoàn tác", () => handleRedo());
+      return;
+    }
+
+    // Fallback: if history couldn't undo (or produced no-op), try restoring last deleted card
+    if (deletedCardCache) {
+      handleUndoDelete();
+      showUndoToast("Đã hoàn tác (khôi phục thẻ)", () => handleRedo());
     }
   };
 
@@ -258,7 +273,7 @@ export default function CreateFlashcardPage() {
     updateFormData({ ...formData, flashcards: updatedCards });
     setExpandedCards((prev) => new Set([...prev, newId]));
     setSelectedCards([...selectedCards, formData.flashcards.length]);
-    toast.success("Đã thêm thẻ mới");
+    // toast.success("Đã thêm thẻ mới");
   };
 
   const handleDeleteCard = (index: number) => {
@@ -296,18 +311,13 @@ export default function CreateFlashcardPage() {
     });
 
     // Hiển thị toast với undo action
-    toast(
+    toast.success(
       <div className="flex items-center justify-between">
         <span>Đã xóa thẻ #{index + 1}</span>
-        <button
-          onClick={() => handleUndoDelete()}
-          className="ml-4 text-blue-600 hover:text-blue-800 font-medium text-sm"
-        >
-          Hoàn tác
-        </button>
       </div>,
+
       {
-        duration: 5000,
+        duration: 1000,
       }
     );
   };
@@ -570,7 +580,7 @@ export default function CreateFlashcardPage() {
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-fuchsia-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-fuchsia-950/20">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-gray-50 to-fuchsia-50/30 dark:from-gray-950 dark:via-gray-900 dark:to-gray-900">
       {/* Header */}
       <Header
         isSaving={isSaving}
@@ -670,6 +680,15 @@ export default function CreateFlashcardPage() {
 
                 {/* Add Card Button - Primary action */}
                 <Button
+                  onClick={() => setShowImportModal(true)}
+                  variant="outline"
+                  size="sm"
+                  className="border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 h-9"
+                >
+                  <Import className="w-3.5 h-3.5 mr-1.5" />
+                  <span className="hidden sm:inline">Import from Quizlet</span>
+                </Button>
+                <Button
                   onClick={addFlashcard}
                   size="sm"
                   className="h-9 flex-1 min-w-[90px] sm:flex-none bg-blue-600 hover:bg-blue-700 text-white"
@@ -720,7 +739,7 @@ export default function CreateFlashcardPage() {
                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-200 transition-colors">
                   <Plus className="w-4 h-4 text-blue-600 group-hover:text-blue-700" />
                 </div>
-                <div className="text-left">
+                <div className="text-left dark:text-gray-200">
                   <p className="text-sm font-semibold">Thêm thẻ mới</p>
                   <p className="text-xs text-gray-500 hidden sm:block">
                     Hoặc nhấn Ctrl + Enter
