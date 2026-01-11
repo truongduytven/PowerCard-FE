@@ -5,11 +5,11 @@ import { BookOpen, CheckCircle, Clock, Play, ChevronRight } from "lucide-react";
 export interface RecentDeck {
   id: number;
   title: string;
-  cards: number;
-  mastered: number;
-  lastStudied: string;
-  progress: number;
-  category: string;
+  cards?: number;
+  mastered?: number;
+  lastStudied?: string;
+  progress?: number;
+  category?: string;
 }
 
 interface RecentDecksProps {

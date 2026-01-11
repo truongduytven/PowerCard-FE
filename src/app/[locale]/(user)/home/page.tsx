@@ -50,9 +50,9 @@ export default function HomePage() {
             <RecentDecks recentDecks={recentDecks} />
             <ExploreCommunity
               exploreDecks={exploreDecks}
-              categories={categories}
-              activeCategory={activeCategory}
-              setActiveCategory={setActiveCategory}
+              // categories={categories}
+              // activeCategory={activeCategory}
+              // setActiveCategory={setActiveCategory}
             />
           </div>
 
