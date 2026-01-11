@@ -1,5 +1,15 @@
 "use client";
 
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -54,7 +64,6 @@ import {
   Globe,
   Grid3x3,
   GripVertical,
-  History,
   Image as ImageIcon,
   Import,
   Keyboard,
@@ -73,16 +82,6 @@ import {
 } from "lucide-react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import {
-  AlertDialog,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogAction,
-  AlertDialogCancel,
-} from "@/components/ui/alert-dialog";
 
 // Types
 interface Flashcard {
@@ -2513,27 +2512,6 @@ export default function CreateFlashcardPage() {
           </div>
         </div>
       </div>
-
-      {/* Draft AlertDialog */}
-      <AlertDialog open={showDraftDialog} onOpenChange={setShowDraftDialog}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Tìm thấy bản nháp chưa lưu</AlertDialogTitle>
-            <AlertDialogDescription>
-              Chúng tôi tìm thấy một bản nháp trước đó. Bạn muốn tiếp tục với
-              bản nháp này hay tạo mới?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel onClick={handleCreateNewFromDialog}>
-              Tạo mới
-            </AlertDialogCancel>
-            <AlertDialogAction onClick={handleRestoreDraft}>
-              Tiếp tục với bản nháp
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       {/* Keyboard Shortcuts Helper */}
       <div className="fixed bottom-4 right-4 z-50">
