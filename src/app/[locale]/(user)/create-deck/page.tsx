@@ -20,6 +20,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -90,46 +97,81 @@ interface FormData {
 
 // Mock data
 
-// 1. Auto-save Hook
-const useAutoSave = (formData: FormData, delay: number = 5000) => {
+// 1. Auto-save Hook — debounce saves when `formData` changes
+const useAutoSave = (formData: FormData, delay: number = 800) => {
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveCount, setSaveCount] = useState(0);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (
-        formData.title ||
-        formData.flashcards.some((card) => card.term || card.definition)
-      ) {
-        setIsSaving(true);
+  const prevSavedSerializedRef = useRef<string | null>(null);
+  const scheduledSerializedRef = useRef<string | null>(null);
+  const scheduledDataRef = useRef<FormData | null>(null);
+  const timerRef = useRef<number | null>(null);
 
-        // Save to localStorage
+  useEffect(() => {
+    const hasContent =
+      formData.title ||
+      formData.flashcards.some((card) => card.term || card.definition);
+
+    if (!hasContent) return;
+
+    const serialized = JSON.stringify(formData);
+
+    // If already saved same content, do nothing
+    if (prevSavedSerializedRef.current === serialized) return;
+
+    // Schedule debounce save for latest formData
+    scheduledSerializedRef.current = serialized;
+    scheduledDataRef.current = formData;
+
+    // Indicate pending save while debounce timer runs
+    setIsSaving(true);
+
+    if (timerRef.current) {
+      clearTimeout(timerRef.current as unknown as number);
+      timerRef.current = null;
+    }
+
+    timerRef.current = window.setTimeout(() => {
+      try {
+        const dataToSave = scheduledDataRef.current;
+        if (!dataToSave) return;
+
         const draft = {
-          data: formData,
+          data: dataToSave,
           timestamp: new Date().toISOString(),
           saveCount: saveCount + 1,
         };
 
         localStorage.setItem("flashcardDraft", JSON.stringify(draft));
 
-        setTimeout(() => {
-          setIsSaving(false);
-          setLastSaved(new Date());
-          setSaveCount((prev) => prev + 1);
+        prevSavedSerializedRef.current = scheduledSerializedRef.current;
 
-          // Show subtle toast on every 3rd save
-          if ((saveCount + 1) % 3 === 0) {
+        setLastSaved(new Date());
+        setSaveCount((prev) => {
+          const next = prev + 1;
+          if (next % 3 === 0) {
             toast.info("Đang tự động lưu nháp...", {
               duration: 2000,
               position: "bottom-right",
             });
           }
-        }, 500);
+          return next;
+        });
+      } catch (error) {
+        console.error("Auto-save error:", error);
+      } finally {
+        setIsSaving(false);
+        timerRef.current = null;
       }
     }, delay);
 
-    return () => clearTimeout(timer);
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current as unknown as number);
+        timerRef.current = null;
+      }
+    };
   }, [formData, delay, saveCount]);
 
   const recoverDraft = useCallback(() => {
@@ -937,6 +979,11 @@ export default function CreateFlashcardPage() {
   const [showIconPicker, setShowIconPicker] = useState(false);
   const [selectedCards, setSelectedCards] = useState<number[]>([]);
   const fileInputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
+  const [deletedCardCache, setDeletedCardCache] = useState<{
+    card: Flashcard;
+    index: number;
+    timestamp: number;
+  } | null>(null);
 
   // Initialize hooks
   const { lastSaved, isSaving, recoverDraft, clearDraft, saveCount } =
@@ -1003,6 +1050,16 @@ export default function CreateFlashcardPage() {
   );
 
   const handleInputChange = (field: keyof FormData, value: any) => {
+    // Enforce max lengths for title and description to guard against
+    // inputs that bypass native `maxLength` (IMEs, programmatic updates, etc.)
+    if (field === "title") {
+      value = String(value).slice(0, 100);
+    }
+
+    if (field === "description") {
+      value = String(value).slice(0, 100);
+    }
+
     const newData = { ...formData, [field]: value };
     updateFormData(newData);
   };
@@ -1036,42 +1093,6 @@ export default function CreateFlashcardPage() {
         position: "bottom-right",
       });
     }
-  };
-
-  // Smart validation auto-fix
-  const handleAutoFix = (
-    index: number,
-    field: "term" | "definition",
-    action: string
-  ) => {
-    const card = formData.flashcards[index];
-    let newValue = "";
-
-    switch (action) {
-      case "empty":
-        newValue =
-          field === "term"
-            ? `Thuật ngữ #${index + 1}`
-            : `Định nghĩa #${index + 1}`;
-        break;
-      case "tooLong":
-        newValue =
-          field === "term"
-            ? card.term.substring(0, 200)
-            : card.definition.substring(0, 500);
-        break;
-      case "duplicate":
-        newValue = `${card.term} (${index + 1})`;
-        break;
-      case "format":
-        newValue = card.term.replace(/\s+/g, " ").trim();
-        break;
-      default:
-        return;
-    }
-
-    handleFlashcardChange(index, field, newValue);
-    toast.success(`Đã sửa thẻ #${index + 1}`);
   };
 
   // Bulk actions handlers
@@ -1181,6 +1202,85 @@ export default function CreateFlashcardPage() {
     toast.success("Đã thêm thẻ mới");
   };
 
+  const handleDeleteCard = (index: number) => {
+    const card = formData.flashcards[index];
+
+    // Cache thẻ bị xóa (phục vụ undo)
+    setDeletedCardCache({
+      card,
+      index,
+      timestamp: Date.now(),
+    });
+
+    // Cập nhật danh sách thẻ
+    const updatedCards = formData.flashcards.filter((_, i) => i !== index);
+
+    // Cập nhật vị trí
+    const reorderedCards = updatedCards.map((card, i) => ({
+      ...card,
+      position: i,
+    }));
+
+    updateFormData({
+      ...formData,
+      flashcards: reorderedCards,
+    });
+
+    // Cập nhật trạng thái
+    setExpandedCards((prev) => {
+      const newSet = new Set(prev);
+      newSet.delete(card.id);
+      return newSet;
+    });
+
+    setSelectedCards((prev) => {
+      const filtered = prev.filter((i) => i !== index);
+      return filtered.map((i) => (i > index ? i - 1 : i));
+    });
+
+    // Hiển thị toast với undo action
+    toast(
+      <div className="flex items-center justify-between">
+        <span>Đã xóa thẻ #{index + 1}</span>
+        <button
+          onClick={() => handleUndoDelete()}
+          className="ml-4 text-blue-600 hover:text-blue-800 font-medium text-sm"
+        >
+          Hoàn tác
+        </button>
+      </div>,
+      {
+        duration: 5000,
+      }
+    );
+  };
+
+  const handleUndoDelete = () => {
+    if (!deletedCardCache) return;
+
+    const { card, index } = deletedCardCache;
+
+    // Khôi phục thẻ
+    const updatedCards = [...formData.flashcards];
+    updatedCards.splice(index, 0, card);
+
+    // Cập nhật vị trí tất cả thẻ
+    const reorderedCards = updatedCards.map((card, i) => ({
+      ...card,
+      position: i,
+    }));
+
+    updateFormData({
+      ...formData,
+      flashcards: reorderedCards,
+    });
+
+    // Reset cache
+    setDeletedCardCache(null);
+
+    // Hiển thị thông báo
+    toast.success(`Đã khôi phục thẻ #${index + 1}`);
+  };
   const handleImportFromQuizlet = (
     importedFlashcards: Omit<Flashcard, "id" | "position">[]
   ) => {
@@ -1414,58 +1514,6 @@ export default function CreateFlashcardPage() {
     (icon) => icon.category === selectedIconCategory
   );
 
-  // Render auto-save status
-  const renderAutoSaveStatus = () => (
-    <div className="flex items-center gap-2 text-sm">
-      {isSaving ? (
-        <div className="flex items-center gap-2 text-amber-600 animate-pulse">
-          <Loader2 className="w-3 h-3 animate-spin" />
-          <span>Đang lưu...</span>
-        </div>
-      ) : lastSaved ? (
-        <div className="flex items-center gap-2 text-green-600">
-          <Check className="w-3 h-3" />
-          <span>
-            Đã lưu
-            {/* {formatDistanceToNow(lastSaved, { addSuffix: true, locale: vi })} */}
-          </span>
-        </div>
-      ) : (
-        <div className="flex items-center gap-2 text-gray-500">
-          <Clock className="w-3 h-3" />
-          <span>Chưa lưu</span>
-        </div>
-      )}
-    </div>
-  );
-
-  // Render history controls
-  const renderHistoryControls = () => (
-    <div className="flex items-center gap-1 border border-gray-200 rounded-lg p-1 bg-white">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleUndo}
-        disabled={!history.canUndo}
-        className="h-8 px-2 hover:bg-gray-100"
-        title="Hoàn tác (Ctrl+Z)"
-      >
-        <Undo className="w-4 h-4" />
-      </Button>
-      <div className="w-px h-4 bg-gray-200" />
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={handleRedo}
-        disabled={!history.canRedo}
-        className="h-8 px-2 hover:bg-gray-100"
-        title="Làm lại (Ctrl+Shift+Z)"
-      >
-        <Redo className="w-4 h-4" />
-      </Button>
-    </div>
-  );
-
   // Handle card selection
   const handleCardSelect = (index: number, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -1501,7 +1549,7 @@ export default function CreateFlashcardPage() {
       {/* Header Section - Tối ưu padding và shadow */}
       <div className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-gray-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-end">
             <div className="flex items-center gap-4">
               <div className="hidden sm:flex items-center gap-4">
                 {/* Auto-save status */}
@@ -1572,6 +1620,9 @@ export default function CreateFlashcardPage() {
                 </div>
               </div>
             </div>
+            <Button variant="outline" onClick={handleSubmit}>
+              Tạo bộ flashcard
+            </Button>
           </div>
         </div>
       </div>
@@ -1858,11 +1909,23 @@ export default function CreateFlashcardPage() {
                     onChange={(e) =>
                       handleInputChange("description", e.target.value)
                     }
+                    maxLength={500}
                     className="min-h-[100px] resize-none border-gray-300/80 focus:border-blue-500 focus:ring-blue-500/20 placeholder:text-gray-400/90 rounded-xl text-sm"
                   />
-                  <p className="text-xs text-gray-500/90">
-                    Mô tả chi tiết giúp người học hiểu rõ hơn về nội dung
-                  </p>
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-gray-500/90">
+                      Mô tả chi tiết giúp người học hiểu rõ hơn về nội dung
+                    </p>
+                    <p
+                      className={`text-xs px-2 py-0.5 rounded-full ${
+                        formData.description.length > 450
+                          ? "bg-amber-100/80 text-amber-800"
+                          : "bg-gray-100/80 text-gray-600"
+                      }`}
+                    >
+                      {formData.description.length}/100
+                    </p>
+                  </div>
                 </div>
               </div>
 
@@ -1873,23 +1936,31 @@ export default function CreateFlashcardPage() {
                     <Tag className="w-4 h-4 text-blue-600" />
                     Chủ đề
                   </Label>
-                  <div className="relative">
-                    <select
-                      value={formData.topicId}
-                      onChange={(e) =>
-                        handleInputChange("topicId", e.target.value)
-                      }
-                      className="w-full h-11 px-4 pr-10 border border-gray-300/80 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 appearance-none bg-white/80 text-gray-900 hover:border-gray-400/80 transition-colors text-sm"
-                    >
-                      <option value="">Chọn chủ đề phù hợp</option>
+
+                  <Select
+                    value={formData.topicId}
+                    onValueChange={(value) =>
+                      handleInputChange("topicId", value)
+                    }
+                  >
+                    <SelectTrigger className="h-11 px-4 border border-gray-300/80 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white/80 text-gray-900 hover:border-gray-400/80 transition-colors text-sm">
+                      <SelectValue placeholder="Chọn chủ đề phù hợp" />
+                    </SelectTrigger>
+
+                    <SelectContent>
                       {topics.map((topic) => (
-                        <option key={topic.id} value={topic.id}>
+                        <SelectItem key={topic.id} value={topic.id}>
                           {topic.name}
-                        </option>
+                        </SelectItem>
                       ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400/80 pointer-events-none" />
-                  </div>
+                    </SelectContent>
+                  </Select>
+
+                  {!formData.topicId && (
+                    <p className="text-sm text-gray-500 italic">
+                      Chưa chọn chủ đề
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2.5">
@@ -1897,23 +1968,45 @@ export default function CreateFlashcardPage() {
                     <FolderOpen className="w-4 h-4 text-blue-600" />
                     Thư mục
                   </Label>
-                  <div className="relative">
-                    <select
-                      value={formData.folderSetId}
-                      onChange={(e) =>
-                        handleInputChange("folderSetId", e.target.value)
-                      }
-                      className="w-full h-11 px-4 pr-10 border border-gray-300/80 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 appearance-none bg-white/80 text-gray-900 hover:border-gray-400/80 transition-colors text-sm"
-                    >
-                      <option value="">Chọn thư mục lưu trữ</option>
+
+                  <Select
+                    value={formData.folderSetId || "none"}
+                    onValueChange={(value) =>
+                      handleInputChange(
+                        "folderSetId",
+                        value === "none" ? "" : value
+                      )
+                    }
+                  >
+                    <SelectTrigger className="h-11 px-4 border border-gray-300/80 rounded-xl focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 bg-white/80 text-gray-900 hover:border-gray-400/80 transition-colors text-sm">
+                      <SelectValue placeholder="Chọn thư mục lưu trữ">
+                        {formData.folderSetId
+                          ? (() => {
+                              const folder = folders.find(
+                                (f) => f.id === formData.folderSetId
+                              );
+                              return folder
+                                ? `${folder.name} (${folder.count} sets)`
+                                : "Chọn thư mục lưu trữ";
+                            })()
+                          : "Chọn thư mục lưu trữ"}
+                      </SelectValue>
+                    </SelectTrigger>
+
+                    <SelectContent>
+                      <SelectItem value="none">Chọn thư mục lưu trữ</SelectItem>
                       {folders.map((folder) => (
-                        <option key={folder.id} value={folder.id}>
-                          {folder.name} ({folder.count} sets)
-                        </option>
+                        <SelectItem key={folder.id} value={folder.id}>
+                          <div className="flex items-center justify-between w-full">
+                            <span>{folder.name}</span>
+                            <span className="text-xs text-gray-500 ml-2">
+                              ({folder.count} sets)
+                            </span>
+                          </div>
+                        </SelectItem>
                       ))}
-                    </select>
-                    <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400/80 pointer-events-none" />
-                  </div>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
@@ -1955,7 +2048,7 @@ export default function CreateFlashcardPage() {
                     </div>
                     <p className="text-sm text-gray-600/90 max-w-lg">
                       {formData.isPublic
-                        ? "Mọi người có thể tìm thấy, xem và học bộ flashcard này."
+                        ? "Mọi người có thể tìm thấy, xem và học bộ flashcard này. Các hình ảnh trong thẻ cũng sẽ hiển thị và sử dụng công khai."
                         : "Chỉ bạn mới có thể xem và học bộ flashcard này."}
                     </p>
                   </div>
@@ -1964,7 +2057,6 @@ export default function CreateFlashcardPage() {
                     onCheckedChange={(checked) =>
                       handleInputChange("isPublic", checked)
                     }
-                    className="data-[state=checked]:bg-gradient-to-r data-[state=checked]:from-blue-600 data-[state=checked]:to-blue-700 h-5 w-9"
                   />
                 </div>
               </div>
@@ -1973,7 +2065,7 @@ export default function CreateFlashcardPage() {
 
           {/* Flashcards Section */}
           <div className="space-y-4">
-            {/* Section Header - Compact & Clear */}
+            {/* Section Header */}
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-lg font-bold text-gray-900">
@@ -1983,7 +2075,7 @@ export default function CreateFlashcardPage() {
                   </span>
                 </h2>
                 <p className="text-gray-500 text-xs mt-0.5">
-                  Kéo thả để sắp xếp • Click để mở rộng
+                  Kéo thả để sắp xếp • Click để chọn • Double click để mở rộng
                 </p>
               </div>
 
@@ -2001,7 +2093,7 @@ export default function CreateFlashcardPage() {
                   onClick={() => setShowImportModal(true)}
                   variant="outline"
                   size="sm"
-                  className="border-purple-200 hover:border-purple-300 hover:bg-purple-50 text-purple-700 h-9"
+                  className="border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 h-9"
                 >
                   <Import className="w-3.5 h-3.5 mr-1.5" />
                   Import
@@ -2036,90 +2128,102 @@ export default function CreateFlashcardPage() {
                   }`}
                 >
                   <Card
-                    className={`border overflow-hidden transition-all duration-150 ${
+                    className={`border overflow-hidden transition-all duration-150 cursor-pointer hover:shadow-sm ${
                       dragOverIndex === index
                         ? "border-blue-400 shadow-md"
                         : card.term && card.definition
-                        ? "border-green-200/60 bg-green-50/10"
+                        ? "border-green-200 bg-green-50/30"
                         : "border-gray-200 hover:border-gray-300"
                     } ${
                       selectedCards.includes(index)
-                        ? "ring-2 ring-blue-400"
+                        ? "ring-2 ring-blue-400 bg-blue-50/30"
                         : ""
                     }`}
                   >
-                    {/* Card Header */}
+                    {/* Card Header - Click để chọn, Double Click để expand */}
                     <div
-                      className="px-3.5 py-2.5 bg-white cursor-pointer hover:bg-gray-50/80 transition-colors border-b border-gray-100"
-                      onClick={(e) => handleCardSelect(index, e)}
+                      className="px-4 py-3 transition-colors border-b border-gray-100 group"
+                      onClick={(e) => handleCardSelect(index, e as any)}
+                      onDoubleClick={() => toggleCardExpand(card.id)}
                     >
                       <div className="flex items-center justify-between gap-3">
                         {/* Left Section */}
-                        <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                          {/* Controls */}
-                          <div className="flex items-center gap-1.5 flex-shrink-0">
-                            <input
-                              type="checkbox"
-                              checked={selectedCards.includes(index)}
-                              onChange={(e) => {
-                                e.stopPropagation();
-                                handleCardSelect(index, e as any);
-                              }}
-                              className="w-3.5 h-3.5 rounded border-gray-300 text-blue-600 focus:ring-1 focus:ring-blue-500/40 cursor-pointer"
-                            />
-                            <GripVertical className="w-3.5 h-3.5 text-gray-400 hover:text-gray-600 cursor-move" />
-                          </div>
+                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                          {/* Drag Handle */}
+                          <GripVertical
+                            className="w-4 h-4 text-gray-400 hover:text-gray-600 cursor-move flex-shrink-0"
+                            onClick={(e) => e.stopPropagation()}
+                            onDoubleClick={(e) => e.stopPropagation()}
+                          />
 
-                          {/* Card Info */}
-                          <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <span className="text-xs font-bold text-gray-600 flex-shrink-0">
-                              #{index + 1}
-                            </span>
-                            {card.term ? (
-                              <span className="text-sm text-gray-700 truncate">
-                                {card.term}
-                              </span>
-                            ) : (
-                              <span className="text-sm text-gray-400 italic">
-                                Chưa có thuật ngữ
-                              </span>
-                            )}
+                          {/* Card Number */}
+                          <span className="text-sm font-bold text-gray-600 flex-shrink-0 w-8">
+                            #{index + 1}
+                          </span>
+
+                          {/* Card Content Preview */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              {card.term ? (
+                                <span className="text-sm font-medium text-gray-800 truncate">
+                                  {card.term}
+                                </span>
+                              ) : (
+                                <span className="text-sm text-gray-400 italic">
+                                  Chưa có thuật ngữ
+                                </span>
+                              )}
+                              {/* Selection Indicator */}
+                              {selectedCards.includes(index) && (
+                                <span className="flex-shrink-0">
+                                  <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
 
                         {/* Right Section - Status & Controls */}
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                          {/* Status Indicator */}
-                          <div className="flex items-center gap-1">
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {/* Delete Button - Hiển thị khi hover */}
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteCard(index);
+                            }}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1.5 hover:bg-red-50 hover:text-red-600 rounded-md text-gray-400"
+                            title="Xóa thẻ này"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+
+                          {/* Status Badges */}
+                          <div className="flex items-center gap-1.5">
                             {card.mediaPreview && (
-                              <div
-                                className="w-1.5 h-1.5 rounded-full bg-blue-500"
-                                title="Có ảnh"
-                              ></div>
+                              <Badge
+                                variant="outline"
+                                className="bg-blue-50 text-blue-700 border-blue-200 text-xs px-2 h-6"
+                              >
+                                <ImageIcon className="w-3 h-3 mr-1" />
+                                Ảnh
+                              </Badge>
                             )}
+
                             {card.term && card.definition ? (
-                              <div
-                                className="w-1.5 h-1.5 rounded-full bg-green-500"
-                                title="Đã hoàn thành"
-                              ></div>
+                              <Badge className="bg-green-100 text-green-700 border-green-200 text-xs px-2 h-6">
+                                <Check className="w-3 h-3 mr-1" />
+                                Hoàn thành
+                              </Badge>
                             ) : (
-                              <div
-                                className="w-1.5 h-1.5 rounded-full bg-amber-400"
-                                title="Chưa hoàn thành"
-                              ></div>
+                              <Badge
+                                variant="outline"
+                                className="bg-amber-50 text-amber-700 border-amber-200 text-xs px-2 h-6"
+                              >
+                                <AlertCircle className="w-3 h-3 mr-1" />
+                                Thiếu thông tin
+                              </Badge>
                             )}
                           </div>
-
-                          {/* Compact Status Badge */}
-                          {card.term && card.definition ? (
-                            <Badge className="bg-green-50 text-green-700 border-green-200 text-xs px-1.5 py-0 h-5">
-                              <Check className="w-2.5 h-2.5" />
-                            </Badge>
-                          ) : (
-                            <Badge className="bg-amber-50 text-amber-700 border-amber-200 text-xs px-1.5 py-0 h-5">
-                              <AlertCircle className="w-2.5 h-2.5" />
-                            </Badge>
-                          )}
 
                           {/* Expand Toggle */}
                           <button
@@ -2127,10 +2231,18 @@ export default function CreateFlashcardPage() {
                               e.stopPropagation();
                               toggleCardExpand(card.id);
                             }}
-                            className="p-0.5 hover:bg-gray-200/60 rounded transition-colors"
+                            className="p-1.5 hover:bg-gray-200/60 rounded-md transition-colors flex items-center gap-1.5"
+                            title={
+                              expandedCards.has(card.id) ? "Thu gọn" : "Mở rộng"
+                            }
                           >
+                            <span className="text-xs text-gray-500">
+                              {expandedCards.has(card.id)
+                                ? "Thu gọn"
+                                : "Mở rộng"}
+                            </span>
                             <ChevronDown
-                              className={`w-4 h-4 text-gray-500 transition-transform duration-150 ${
+                              className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${
                                 expandedCards.has(card.id) ? "rotate-180" : ""
                               }`}
                             />
@@ -2141,13 +2253,23 @@ export default function CreateFlashcardPage() {
 
                     {/* Expandable Content */}
                     {expandedCards.has(card.id) && (
-                      <CardContent className="p-3.5 bg-gray-50/40 border-t border-gray-100">
-                        <div className="grid grid-cols-12 gap-3">
-                          {/* Term */}
-                          <div className="col-span-5 space-y-1.5">
-                            <Label className="text-xs font-semibold text-gray-700 flex items-center gap-1">
-                              Thuật ngữ <span className="text-red-500">*</span>
-                            </Label>
+                      <CardContent className="p-4 bg-gray-50/30 border-t border-gray-100">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                          {/* Term Section */}
+                          <div className="lg:col-span-5 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-sm font-semibold text-gray-700">
+                                Thuật ngữ
+                              </Label>
+                              <div className="flex items-center gap-2">
+                                {!card.term.trim() && (
+                                  <span className="text-xs text-red-600 flex items-center gap-1">
+                                    <AlertCircle className="w-3 h-3" />
+                                    Bắt buộc
+                                  </span>
+                                )}
+                              </div>
+                            </div>
                             <Textarea
                               placeholder="Nhập thuật ngữ, từ khóa hoặc câu hỏi..."
                               value={card.term}
@@ -2158,21 +2280,28 @@ export default function CreateFlashcardPage() {
                                   e.target.value
                                 )
                               }
-                              className="h-28 resize-none border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-gray-400 text-sm rounded-lg bg-white shadow-sm"
+                              className={`min-h-[120px] resize-none text-sm rounded-lg ${
+                                !card.term.trim()
+                                  ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
+                              }`}
+                              autoFocus={expandedCards.has(card.id)}
                             />
-                            {!card.term.trim() && (
-                              <div className="flex items-center gap-1.5 px-2 py-1.5 bg-red-50 rounded border border-red-200">
-                                <AlertCircle className="w-3 h-3 text-red-600 flex-shrink-0" />
-                                <p className="text-xs text-red-700">Bắt buộc</p>
-                              </div>
-                            )}
                           </div>
 
-                          {/* Definition */}
-                          <div className="col-span-5 space-y-1.5">
-                            <Label className="text-xs font-semibold text-gray-700 flex items-center gap-1">
-                              Định nghĩa <span className="text-red-500">*</span>
-                            </Label>
+                          {/* Definition Section */}
+                          <div className="lg:col-span-5 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-sm font-semibold text-gray-700">
+                                Định nghĩa
+                              </Label>
+                              {!card.definition.trim() && (
+                                <span className="text-xs text-red-600 flex items-center gap-1">
+                                  <AlertCircle className="w-3 h-3" />
+                                  Bắt buộc
+                                </span>
+                              )}
+                            </div>
                             <Textarea
                               placeholder="Nhập định nghĩa, giải thích hoặc câu trả lời..."
                               value={card.definition}
@@ -2183,46 +2312,48 @@ export default function CreateFlashcardPage() {
                                   e.target.value
                                 )
                               }
-                              className="h-28 resize-none border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 placeholder:text-gray-400 text-sm rounded-lg bg-white shadow-sm"
+                              className={`min-h-[120px] resize-none text-sm rounded-lg ${
+                                !card.definition.trim()
+                                  ? "border-red-300 focus:border-red-500 focus:ring-red-500/20"
+                                  : "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20"
+                              }`}
                             />
-                            {!card.definition.trim() && (
-                              <div className="flex items-center gap-1.5 px-2 py-1.5 bg-red-50 rounded border border-red-200">
-                                <AlertCircle className="w-3 h-3 text-red-600 flex-shrink-0" />
-                                <p className="text-xs text-red-700">Bắt buộc</p>
-                              </div>
-                            )}
                           </div>
 
-                          {/* Media Upload */}
-                          <div className="col-span-2 space-y-1.5">
-                            <Label className="text-xs font-semibold text-gray-700 flex items-center gap-1">
-                              <ImageIcon className="w-3 h-3 text-purple-600" />
-                              Ảnh
-                            </Label>
+                          {/* Media Section */}
+                          <div className="lg:col-span-2 space-y-2">
+                            <div className="flex items-center justify-between">
+                              <Label className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
+                                <ImageIcon className="w-4 h-4 text-purple-600" />
+                                Hình ảnh
+                              </Label>
+                            </div>
+
                             {card.mediaPreview ? (
-                              <div className="relative group">
-                                <div className="border border-gray-200 rounded-lg overflow-hidden">
+                              <div className="relative">
+                                <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
                                   <img
                                     src={card.mediaPreview}
                                     alt="Preview"
-                                    className="w-full h-28 object-cover"
+                                    className="w-full h-32 object-cover"
                                   />
                                 </div>
-                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-150 rounded-lg flex items-center justify-center gap-1">
+                                <div className="flex gap-2 mt-2">
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    className="bg-white hover:bg-gray-50 h-6 w-6 p-0 border-gray-300"
+                                    className="flex-1 text-xs"
                                     onClick={() =>
                                       fileInputRefs.current[card.id]?.click()
                                     }
                                   >
-                                    <ImageIcon className="w-3 h-3" />
+                                    <ImageIcon className="w-3 h-3 mr-1" />
+                                    Thay đổi
                                   </Button>
                                   <Button
                                     variant="outline"
                                     size="sm"
-                                    className="bg-white hover:bg-red-50 hover:text-red-600 h-6 w-6 p-0 border-gray-300"
+                                    className="text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
                                     onClick={() => {
                                       handleFlashcardChange(
                                         index,
@@ -2241,30 +2372,38 @@ export default function CreateFlashcardPage() {
                                 </div>
                               </div>
                             ) : (
-                              <div
-                                className="border-2 border-dashed border-gray-300 rounded-lg h-28 hover:border-blue-400 hover:bg-blue-50/50 transition-all cursor-pointer flex flex-col items-center justify-center gap-1.5 group"
-                                onClick={() =>
-                                  fileInputRefs.current[card.id]?.click()
-                                }
-                              >
-                                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center group-hover:scale-105 transition-transform">
-                                  <Upload className="w-3.5 h-3.5 text-blue-600" />
+                              <div className="space-y-2">
+                                <div
+                                  className="border-2 border-dashed border-gray-300 rounded-lg p-4 hover:border-blue-400 hover:bg-blue-50/30 transition-all cursor-pointer flex flex-col items-center justify-center gap-2 h-32"
+                                  onClick={() =>
+                                    fileInputRefs.current[card.id]?.click()
+                                  }
+                                >
+                                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                                    <Upload className="w-5 h-5 text-blue-600" />
+                                  </div>
+                                  <p className="text-sm font-medium text-gray-600 text-center">
+                                    Tải ảnh lên
+                                  </p>
+                                  <p className="text-xs text-gray-500 text-center">
+                                    PNG, JPG, JPEG, WEBP, SVG • Tối đa 5MB
+                                  </p>
                                 </div>
-                                <p className="text-xs font-medium text-gray-600">
-                                  Tải ảnh
-                                </p>
                               </div>
                             )}
+
                             <input
                               ref={(el) => {
                                 fileInputRefs.current[card.id] = el;
                               }}
                               type="file"
-                              accept="image/*"
+                              accept="image/png, image/jpeg, image/jpg, image/webp, image/svg+xml"
                               className="hidden"
                               onChange={(e) => {
                                 const file = e.target.files?.[0];
                                 if (file) handleImageUpload(index, file);
+                                // Reset input để có thể chọn lại cùng file nếu cần
+                                e.target.value = "";
                               }}
                             />
                           </div>
@@ -2276,17 +2415,23 @@ export default function CreateFlashcardPage() {
               ))}
             </div>
 
-            {/* Quick Add Button */}
-            <button
-              onClick={addFlashcard}
-              className="w-full h-12 border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50/50 text-gray-600 hover:text-blue-700 transition-all rounded-lg group flex items-center justify-center gap-2"
-            >
-              <div className="w-7 h-7 bg-blue-100 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                <Plus className="w-4 h-4 text-blue-600" />
-              </div>
-              <span className="text-sm font-semibold">Thêm thẻ mới</span>
-              <span className="text-xs text-gray-500">Ctrl+Enter</span>
-            </button>
+            {/* Add Card Button */}
+            <div className="pt-2">
+              <button
+                onClick={addFlashcard}
+                className="w-full py-3.5 border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50/30 text-gray-600 hover:text-blue-700 transition-all rounded-lg group flex items-center justify-center gap-2.5"
+              >
+                <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+                  <Plus className="w-4 h-4 text-blue-600 group-hover:text-blue-700" />
+                </div>
+                <div className="text-left">
+                  <p className="text-sm font-semibold">Thêm thẻ mới</p>
+                  <p className="text-xs text-gray-500">
+                    Hoặc nhấn Ctrl + Enter
+                  </p>
+                </div>
+              </button>
+            </div>
           </div>
         </div>
       </div>
