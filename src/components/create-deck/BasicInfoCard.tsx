@@ -156,6 +156,7 @@ export const BasicInfoCard: React.FC<BasicInfoCardProps> = ({
               </span>
             </div>
             <Input
+              id="deck-title"
               placeholder="Ví dụ: Từ vựng tiếng Anh cơ bản"
               value={formData.title}
               onChange={(e) => onChange("title", e.target.value)}
@@ -193,6 +194,7 @@ export const BasicInfoCard: React.FC<BasicInfoCardProps> = ({
               </p>
             </div>
             <Textarea
+              id="deck-description"
               placeholder="Mô tả nội dung, mục đích và đối tượng học tập..."
               value={formData.description}
               onChange={(e) => onChange("description", e.target.value)}
@@ -218,7 +220,7 @@ export const BasicInfoCard: React.FC<BasicInfoCardProps> = ({
               value={formData.topicId}
               onValueChange={(value) => onChange("topicId", value)}
             >
-              <SelectTrigger className="h-11 sm:h-12 px-4 border border-gray-300/80 dark:border-gray-700/80 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 hover:border-gray-400/80 dark:hover:border-gray-600/80 transition-colors text-sm w-full">
+              <SelectTrigger id="deck-topic" className="h-11 sm:h-12 px-4 border border-gray-300/80 dark:border-gray-700/80 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 hover:border-gray-400/80 dark:hover:border-gray-600/80 transition-colors text-sm w-full">
                 <SelectValue placeholder="Chọn chủ đề phù hợp" />
               </SelectTrigger>
               <SelectContent className="max-h-[200px] sm:max-h-[300px] bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700">
@@ -251,7 +253,7 @@ export const BasicInfoCard: React.FC<BasicInfoCardProps> = ({
                 onChange("folderSetId", value === "none" ? "" : value)
               }
             >
-              <SelectTrigger className="h-11 sm:h-12 px-4 border border-gray-300/80 dark:border-gray-700/80 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 hover:border-gray-400/80 dark:hover:border-gray-600/80 transition-colors text-sm w-full">
+              <SelectTrigger id="deck-folder" className="h-11 sm:h-12 px-4 border border-gray-300/80 dark:border-gray-700/80 rounded-xl focus:border-blue-500 dark:focus:border-blue-400 focus:ring-2 focus:ring-blue-500/20 dark:focus:ring-blue-400/20 bg-white/80 dark:bg-gray-800/80 text-gray-900 dark:text-gray-100 hover:border-gray-400/80 dark:hover:border-gray-600/80 transition-colors text-sm w-full">
                 <SelectValue placeholder="Chọn thư mục lưu trữ">
                   {formData.folderSetId
                     ? (() => {

@@ -84,6 +84,56 @@ export default function CreateFlashcardPage() {
       definition?: HTMLTextAreaElement | null;
     };
   }>({});
+
+  // Scroll helper: attempt to scroll to a card's field when available
+  const scrollToCard = (cardId?: string) => {
+    if (!cardId) return;
+    // Special targets for top-level fields
+    if (
+      cardId === "title" ||
+      cardId === "description" ||
+      cardId === "topic" ||
+      cardId === "folder"
+    ) {
+      const id =
+        cardId === "title"
+          ? "deck-title"
+          : cardId === "description"
+          ? "deck-description"
+          : cardId === "topic"
+          ? "deck-topic"
+          : "deck-folder";
+      const el = document.getElementById(id);
+      if (el) {
+        try {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          (el as HTMLElement).focus?.();
+        } catch (e) {}
+      } else {
+        setTimeout(() => scrollToCard(cardId), 50);
+      }
+      return;
+    }
+
+    const tryScroll = () => {
+      const refs = flashcardFieldRefs.current[cardId];
+      const el = refs?.term || refs?.definition;
+      if (el) {
+        try {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+          // focus if possible
+          (el as HTMLElement).focus?.();
+        } catch (e) {
+          // ignore
+        }
+      } else {
+        // retry once after a short delay (component may not have rendered yet)
+        setTimeout(tryScroll, 50);
+      }
+    };
+
+    tryScroll();
+  };
   const [deletedCardCache, setDeletedCardCache] = useState<{
     card: Flashcard;
     index: number;
@@ -141,23 +191,98 @@ export default function CreateFlashcardPage() {
   };
 
   const handleUndo = () => {
+    const before = formData;
     const previousState = history.undo();
 
     // If history provided a previous state and it's different, apply it.
     if (
       previousState &&
-      JSON.stringify(previousState) !== JSON.stringify(formData)
+      JSON.stringify(previousState) !== JSON.stringify(before)
     ) {
       setFormData(previousState);
       // Clear any cached deleted card because history restored state
       setDeletedCardCache(null);
+
+      // determine which card changed/was restored
+      let targetId: string | undefined;
+
+      try {
+        const beforeIds = new Set(before.flashcards.map((f) => f.id));
+        const afterIds = new Set(previousState.flashcards.map((f) => f.id));
+
+        if (previousState.flashcards.length > before.flashcards.length) {
+          // a card was restored/inserted — find the new id
+          const restored = previousState.flashcards.find(
+            (f) => !beforeIds.has(f.id)
+          );
+          targetId = restored?.id;
+        } else if (previousState.flashcards.length < before.flashcards.length) {
+          // a card was removed by undo (less common) — pick nearest index
+          const removed = before.flashcards.find((f) => !afterIds.has(f.id));
+          targetId = removed?.id;
+        } else {
+          // same length — find first differing card
+          for (let i = 0; i < previousState.flashcards.length; i++) {
+            const a = previousState.flashcards[i];
+            const b = before.flashcards[i];
+            if (
+              !b ||
+              a.id !== b.id ||
+              a.term !== b.term ||
+              a.definition !== b.definition ||
+              a.mediaPreview !== b.mediaPreview
+            ) {
+              targetId = a.id;
+              break;
+            }
+          }
+        }
+      } catch (e) {
+        // fallback: undefined
+      }
+
+      // If no flashcard target detected, check top-level fields (title/description/topic/folder)
+      if (!targetId) {
+        try {
+          if (previousState.title !== before.title) {
+            targetId = "title";
+          } else if (previousState.description !== before.description) {
+            targetId = "description";
+          } else if (previousState.topicId !== before.topicId) {
+            targetId = "topic";
+          } else if (previousState.folderSetId !== before.folderSetId) {
+            targetId = "folder";
+          }
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      // scroll to the affected card
+      if (targetId) {
+        // wait a tick to ensure rendering
+        requestAnimationFrame(() => scrollToCard(targetId));
+      }
+
       showUndoToast("Đã hoàn tác", () => handleRedo());
       return;
     }
 
     // Fallback: if history couldn't undo (or produced no-op), try restoring last deleted card
     if (deletedCardCache) {
+      const target = deletedCardCache.card?.id;
+      const targetIndex = deletedCardCache.index;
       handleUndoDelete();
+      // after restoring, scroll to restored card
+      if (target) {
+        requestAnimationFrame(() => scrollToCard(target));
+      } else if (typeof targetIndex === "number") {
+        // if id unknown, try scroll to position by grabbing id from formData after update
+        setTimeout(() => {
+          const id = formData.flashcards[targetIndex]?.id;
+          if (id) scrollToCard(id);
+        }, 50);
+      }
       showUndoToast("Đã hoàn tác (khôi phục thẻ)", () => handleRedo());
     }
   };
@@ -166,7 +291,7 @@ export default function CreateFlashcardPage() {
     const nextState = history.redo();
     if (nextState) {
       setFormData(nextState);
-      toast("Đã làm lại", {
+      toast.success("Đã làm lại", {
         duration: 3000,
         position: "bottom-right",
       });
@@ -493,17 +618,51 @@ export default function CreateFlashcardPage() {
   const showUndoToast = (message: string, undoAction: () => void) => {
     toast.custom(
       (t) => (
-        <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-xl animate-in slide-in-from-right">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-5 h-5 text-green-600">✓</div>
+        <div
+          className="
+          rounded-xl p-4 shadow-xl animate-in slide-in-from-right
+          bg-white border border-gray-200
+          dark:bg-gray-900 dark:border-gray-800
+        "
+        >
+          <div className="flex items-center justify-between gap-4">
+            {/* Left content */}
+            <div className="flex items-start gap-3">
+              {/* Icon */}
+              <div
+                className="
+                w-5 h-5 flex items-center justify-center
+                text-green-600
+                dark:text-green-500
+              "
+              >
+                ✓
+              </div>
+
+              {/* Text */}
               <div>
-                <p className="font-medium text-gray-900">{message}</p>
-                <p className="text-xs text-gray-500">
+                <p
+                  className="
+                  font-medium
+                  text-gray-900
+                  dark:text-gray-100
+                "
+                >
+                  {message}
+                </p>
+                <p
+                  className="
+                  text-xs mt-0.5
+                  text-gray-500
+                  dark:text-gray-400
+                "
+                >
                   Hành động có thể hoàn tác
                 </p>
               </div>
             </div>
+
+            {/* Undo button */}
             <Button
               size="sm"
               variant="outline"
@@ -511,6 +670,12 @@ export default function CreateFlashcardPage() {
                 undoAction();
                 toast.dismiss(t);
               }}
+              className="
+              border-gray-300 text-gray-700
+              hover:bg-gray-50 hover:border-gray-400
+              dark:border-gray-700 dark:text-gray-200
+              dark:hover:bg-gray-800 dark:hover:border-gray-600
+            "
             >
               Hoàn tác
             </Button>
