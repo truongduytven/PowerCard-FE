@@ -168,7 +168,7 @@ export default function StudyPage() {
                         <DropdownMenuContent className="w-56">
                             <DropdownMenuLabel>Feature</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => router.push(`/test`)}>Test</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => router.push(`/quiz`)}>Quiz</DropdownMenuItem>
                             <DropdownMenuItem>Match</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>

@@ -3,16 +3,16 @@ import GlobalProvider from "@/contexts/globalState";
 import React from "react";
 import { Toaster } from "sonner";
 import ProtectedRoute from "@/components/protectedRoute";
-import Navbar from "@/components/Navbar";
+import Navbar from "@/components/navbar_new";
 
 export default function LayoutUser(props: { children: React.ReactNode }) {
   return (
     <GlobalProvider>
       <Toaster position="top-right" richColors />
-      <ProtectedRoute>
+      {/* <ProtectedRoute> */}
       <Navbar />
       {props.children}
-      </ProtectedRoute>
+      {/* </ProtectedRoute> */}
     </GlobalProvider>
   );
 }

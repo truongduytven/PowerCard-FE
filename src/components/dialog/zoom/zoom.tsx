@@ -142,7 +142,7 @@ export default function Zoom({ showDialogZoom, setShowDialogZoom, setShowSetting
                                         <DropdownMenuLabel>Feature</DropdownMenuLabel>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem>Learn</DropdownMenuItem>
-                                        <DropdownMenuItem onClick={() => router.push("/test")}>Test</DropdownMenuItem>
+                                        <DropdownMenuItem onClick={() => router.push("/quiz")}>Quiz</DropdownMenuItem>
                                         <DropdownMenuItem>Match</DropdownMenuItem>
                                     </DropdownMenuContent>
                                 </DropdownMenu>

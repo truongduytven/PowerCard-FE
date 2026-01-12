@@ -54,7 +54,7 @@ export default function SettingTest({ showSettingsDialog,
                     <DialogHeader className="px-6 pt-6 pb-4 border-b">
                         <DialogTitle className="text-lg font-semibold flex items-center gap-x-2">
                             <GiSettingsKnobs className='text-[#E3399E]' />
-                            Cài đặt Bài Test Flashcard
+                            Cài đặt Bài Quiz Flashcard
                         </DialogTitle>
                     </DialogHeader>
 
@@ -150,7 +150,7 @@ export default function SettingTest({ showSettingsDialog,
                         <DialogClose asChild>
                             <Button variant="outline">Cancel</Button>
                         </DialogClose>
-                        <Button type="submit">Start Test</Button>
+                        <Button type="submit">Start Quiz</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

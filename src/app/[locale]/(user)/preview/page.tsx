@@ -88,10 +88,10 @@ export default function Preview() {
     },
     { name: "Duplicate", tooltip: "Add to review", image: "/flashcard.gif" },
     {
-      name: "Test", tooltip: "Mark as difficult",
+      name: "Quiz", tooltip: "Mark as difficult",
       image: "/test.gif",
       action: () => {
-        router.push("/test");
+        router.push("/quiz");
       },
     },
     { name: "Match", tooltip: "Delete card", image: "/match.gif" },
