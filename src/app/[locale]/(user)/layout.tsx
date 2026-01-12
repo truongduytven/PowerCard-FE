@@ -9,10 +9,10 @@ export default function LayoutUser(props: { children: React.ReactNode }) {
   return (
     <GlobalProvider>
       <Toaster position="top-right" richColors />
-      {/* <ProtectedRoute> */}
+      <ProtectedRoute>
       <Navbar />
       {props.children}
-      {/* </ProtectedRoute> */}
+      </ProtectedRoute>
     </GlobalProvider>
   );
 }

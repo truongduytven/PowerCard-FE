@@ -27,6 +27,7 @@ import TextFormattingToolbar from '@/components/ui/toolbar'
 import { IoCloseOutline } from "react-icons/io5";
 import ActionButton from '@/components/study/action-button/action-button'
 import ActionCard from '@/components/study/action-card/action-card'
+import { useRouter } from 'next/navigation'
 
 type Flashcard = {
   id: number;
@@ -35,44 +36,90 @@ type Flashcard = {
   imageUrl: string;
 };
 
-export default function Study() {
+export default function Preview() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [showSettingsDialog, setShowSettingsDialog] = useState(false)
   const [value, setValue] = useState("")
   const [activeStar, setActiveStar] = useState<{ [id: string]: boolean }>({});
   const [editingId, setEditingId] = useState<number | null>(null);
   const [focusedId, setFocusedId] = useState<number | null>(null);
+  const router = useRouter();
+
+  // Audio speech
+  const speakEnglishUS = (text: string): void => {
+    const synth = window.speechSynthesis;
+
+    const speak = () => {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = "en-US";
+
+      const voices = synth.getVoices();
+
+      const femaleUS = voices.find(v =>
+        v.lang === "en-US" &&
+        /female|zira|samantha|google us english/i.test(v.name)
+      );
+
+      if (femaleUS) {
+        utterance.voice = femaleUS;
+      }
+
+      synth.speak(utterance);
+    };
+
+    if (synth.getVoices().length === 0) {
+      synth.onvoiceschanged = speak;
+    } else {
+      speak();
+    }
+  };
 
   const buttons = [
-    { name: "Learn", tooltip: "Add to library", image: "/book.gif" },
-    { name: "Flashcards", tooltip: "Add to review", image: "/flashcard.gif" },
-    { name: "Test", tooltip: "Mark as difficult", image: "/test.gif" },
+    {
+      name: "Learn",
+      tooltip: "Start learning mode",
+      image: "/book.gif",
+      action: () => {
+        // Lưu flashcards vào localStorage để Learn page sử dụng
+        localStorage.setItem('learn-flashcards', JSON.stringify(flashcards));
+        // TODO: Thay '1' bằng ID thực tế của studyset
+        router.push("/learn/1");
+      },
+    },
+    { name: "Duplicate", tooltip: "Add to review", image: "/flashcard.gif" },
+    {
+      name: "Test", tooltip: "Mark as difficult",
+      image: "/test.gif",
+      action: () => {
+        router.push("/test");
+      },
+    },
     { name: "Match", tooltip: "Delete card", image: "/match.gif" },
   ]
 
   const [flashcards, setFlashcards] = useState<Flashcard[]>([
     {
       id: 1,
-      definition: "Quá trình một sinh vật tạo ra năng lượng từ thức ăn.",
-      term: "Hô hấp tế bào",
+      term: "Cellular respiration",
+      definition: "Quá trình sinh vật tạo ra năng lượng từ thức ăn.",
       imageUrl: "",
     },
     {
       id: 2,
-      definition: "Lực hút giữa hai vật có khối lượng.",
-      term: "Trọng lực",
+      term: "Gravity",
+      definition: "Lực hút giữa các vật có khối lượng.",
       imageUrl: "https://i.pinimg.com/736x/61/62/2e/61622ec8899cffaa687a8342a84ea525.jpg",
     },
     {
       id: 3,
+      term: "Cell",
       definition: "Đơn vị cấu tạo cơ bản của mọi sinh vật.",
-      term: "Tế bào",
       imageUrl: "",
     },
     {
       id: 4,
-      definition: "Phản ứng tạo ra năng lượng trong tế bào thực vật.",
-      term: "Quang hợp",
+      term: "Photosynthesis",
+      definition: "Quá trình thực vật tạo ra năng lượng từ ánh sáng mặt trời.",
       imageUrl: "https://upload.wikimedia.org/wikipedia/commons/6/6e/Golde33443.jpg",
     },
   ]);
@@ -114,14 +161,15 @@ export default function Study() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 p-4 md:grid-cols-[1fr_3fr_1fr]">
+      <div className="grid grid-cols-1 p-4 xl:grid-cols-[1fr_3fr_1fr]">
         <div className="py-4 text-center">
-          <div className="col-span-12 rounded-lg md:col-span-2 flex flex-wrap justify-center gap-4 md:flex-col md:items-center md:space-y-4 md:space-x-0 md:justify-start">
+          <div className="col-span-12 rounded-lg xl:col-span-2 flex flex-wrap justify-center gap-4 xl:flex-col xl:items-center xl:space-y-4 xl:space-x-0 xl:justify-start">
             {buttons.map((button, index) => (
               <Tooltip key={index}>
                 <TooltipTrigger asChild>
                   <MovingBorderButton
                     className="bg-white dark:bg-slate-900 text-black dark:text-white border-neutral-200 dark:border-slate-800 flex gap-x-4 cursor-pointer"
+                    onClick={button.action}
                   >
                     <img src={button.image} alt={`${button.name} icon`} className="w-6 h-6 dark:invert dark:saturate-0" />
                     <span className="w-20 truncate text-center">{button.name}</span>
@@ -142,11 +190,12 @@ export default function Study() {
             flashcards={flashcards}
             activeStar={activeStar}
             handelStarClick={handelStarClick}
+            speakEnglishUS={speakEnglishUS}
           />
         </div>
 
         <div className="p-4 text-center">
-          <div className="col-span-12 md:col-span-2 flex flex-wrap items-center justify-center gap-4 md:flex md:flex-col md:items-center md:justify-start md:gap-y-8">
+          <div className="col-span-12 xl:col-span-2 flex flex-wrap items-center justify-center gap-4 xl:flex xl:flex-col xl:items-center xl:justify-start xl:gap-y-8">
             {[
               { icon: "/shuffle.gif", label: "Shuffle", tooltip: "Shuffle cards order" },
               { icon: "/play.gif", label: "Auto play", tooltip: "Auto play cards" },
@@ -164,6 +213,7 @@ export default function Study() {
           onOpenChange={setShowSettingsDialog}
           value={value}
           setValue={setValue}
+          showCommentOption={false}
         />
       </div>
 
@@ -184,13 +234,13 @@ export default function Study() {
           <div>
             <Select>
               <SelectTrigger className="w-[250px]">
-                <SelectValue placeholder="Select a fruit" />
+                <SelectValue placeholder="Select option default" />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  <SelectLabel>Fruits</SelectLabel>
-                  <SelectItem value="apple">Apple</SelectItem>
-                  <SelectItem value="banana">Banana</SelectItem>
+                  <SelectLabel>Select option</SelectLabel>
+                  <SelectItem value="apple">Original</SelectItem>
+                  <SelectItem value="banana">Anphabetical</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
@@ -204,7 +254,6 @@ export default function Study() {
               <div className="md:px-18" key={flashcard.id}>
                 <AnimatedBorderCard className="my-4 w-full">
                   <div className="flex flex-col md:flex-row w-full py-4 md:items-center gap-4">
-
                     {/* Icons */}
                     <div className="order-1 md:order-5 flex items-center gap-3 px-6 justify-between shrink-0">
                       <Pencil
@@ -214,8 +263,11 @@ export default function Study() {
                         }
                       />
                       <div className="flex gap-2">
-                        <Volume2 className="w-4 h-4" />
-                        <span onClick={() => handelStarClick(flashcard.id)}>
+                        <span onClick={(e) => {
+                          e.stopPropagation();
+                          speakEnglishUS(flashcard.term);
+                        }}><Volume2 className="w-4 h-4 cursor-pointer" /></span>
+                        <span onClick={() => handelStarClick(flashcard.id)} className='cursor-pointer'>
                           {activeStar[flashcard.id] ? (
                             <FaStar className="text-yellow-400" />
                           ) : (

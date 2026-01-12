@@ -62,7 +62,7 @@
   --primary-foreground: oklch(0.98 0 0);
 
   /* PRIMARY RADIANT (gradient set) */
-  --primary-radiant-start: oklch(0.5679 0.2849 308.33); /* hồng sáng */
+  --primary-radiant-start: oklch(56.785% 0.28504 308.329); /* hồng sáng */
   --primary-radiant-mid: oklch(0.76 0.24 320); /* tím-hồng neon */
   --primary-radiant-end: oklch(0.6086 0.2348 350.85); /* tím đậm lạnh */
 
@@ -206,10 +206,28 @@
     }
   }
 
+  @keyframes gradientMove {
+    0% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
+
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+
   .animate-slide-infinite {
     display: flex;
     gap: 2.5rem;
     animation: slide-infinite 30s linear infinite;
+  }
+
+  .animate-gradient {
+    animation: gradientMove 6s linear infinite;
   }
 
   /* Custom radiant shadows */
@@ -296,6 +314,26 @@
       var(--primary-dark-mid),
       var(--primary-dark-end)
     );
+  }
+
+  .bg-radiant {
+    background: linear-gradient(
+      135deg,
+      var(--primary-radiant-start),
+      var(--primary-radiant-mid),
+      var(--primary-radiant-end)
+    );
+  }
+
+  .radiant-text {
+    background: linear-gradient(
+      to right,
+      oklch(56.785% 0.28504 308.329),
+      oklch(0.76 0.24 320),
+      oklch(0.6086 0.2348 350.85)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   /* CUSTOM SCROLLBAR */

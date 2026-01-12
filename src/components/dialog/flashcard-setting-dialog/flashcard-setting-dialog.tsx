@@ -28,9 +28,9 @@ import { Button } from '../../ui/button'
 interface FlashcardSettingsDialogProps {
     showSettingsDialog: boolean;
     onOpenChange: (open: boolean) => void;
-
     value: string;
     setValue: (v: string) => void;
+    showCommentOption?: boolean;
 }
 
 export default function FlashcardSettingDialog({
@@ -38,6 +38,7 @@ export default function FlashcardSettingDialog({
     onOpenChange,
     value,
     setValue,
+    showCommentOption = false
 }: FlashcardSettingsDialogProps) {
     return (
         <>
@@ -58,67 +59,69 @@ export default function FlashcardSettingDialog({
                             <DialogTitle className='flex gap-x-2'><GiSettingsKnobs className='text-[#E3399E]' />Flashcard Settings</DialogTitle>
                         </DialogHeader>
                         <div>
-                            <div className='space-y-2 mb-6'>
-                                <h1 className='font-bold'>Cài đặt phiên học</h1>
-                                <hr />
-                                <h1 className='w-1/2 font-medium'>Khoảng thời gian lặp lại</h1>
+                            {showCommentOption && (
+                                <div className='space-y-2 mb-6'>
+                                    <h1 className='font-bold'>Cài đặt phiên học</h1>
+                                    <hr />
+                                    <h1 className='w-1/2 font-medium'>Khoảng thời gian lặp lại</h1>
 
-                                <div className='flex justify-between items-center'>
-                                    <div className='space-y-1.5'>
-                                        <div className='flex gap-x-0.5'>
-                                            <Label htmlFor="easy">Easy</Label>
-                                            <span>(minutes)</span>
+                                    <div className='flex justify-between items-center'>
+                                        <div className='space-y-1.5'>
+                                            <div className='flex gap-x-0.5'>
+                                                <Label htmlFor="easy">Easy</Label>
+                                                <span>(minutes)</span>
+                                            </div>
+                                            <Input type="number" id="easy" placeholder="Easy" />
                                         </div>
-                                        <Input type="number" id="easy" placeholder="Easy" />
-                                    </div>
-                                    <div className='space-y-1.5'>
-                                        <div className='flex gap-x-0.5'>
-                                            <Label htmlFor="medium">Medium</Label>
-                                            <span>(minutes)</span>
+                                        <div className='space-y-1.5'>
+                                            <div className='flex gap-x-0.5'>
+                                                <Label htmlFor="medium">Medium</Label>
+                                                <span>(minutes)</span>
+                                            </div>
+                                            <Input type="number" id="medium" placeholder="Medium" />
                                         </div>
-                                        <Input type="number" id="medium" placeholder="Medium" />
-                                    </div>
-                                    <div className='space-y-1.5'>
-                                        <div className='flex gap-x-0.5'>
-                                            <Label htmlFor="hard">Hard</Label>
-                                            <span>(minutes)</span>
+                                        <div className='space-y-1.5'>
+                                            <div className='flex gap-x-0.5'>
+                                                <Label htmlFor="hard">Hard</Label>
+                                                <span>(minutes)</span>
+                                            </div>
+                                            <Input type="number" id="hard" placeholder="Hard" />
                                         </div>
-                                        <Input type="number" id="hard" placeholder="Hard" />
-                                    </div>
-                                    <div className='space-y-1.5'>
-                                        <div className='flex gap-x-0.5'>
-                                            <Label htmlFor="hard">Very Hard</Label>
-                                            <span>(minutes)</span>
+                                        <div className='space-y-1.5'>
+                                            <div className='flex gap-x-0.5'>
+                                                <Label htmlFor="hard">Very Hard</Label>
+                                                <span>(minutes)</span>
+                                            </div>
+                                            <Input type="number" id="hard" placeholder="Hard" />
                                         </div>
-                                        <Input type="number" id="hard" placeholder="Hard" />
                                     </div>
-                                </div>
-                                <div className='flex justify-between items-center'>
-                                    <h1 className='font-medium'>Font</h1>
-                                    <div className='relative'>
-                                        <label
-                                            className={`
+                                    <div className='flex justify-between items-center'>
+                                        <h1 className='font-medium'>Font</h1>
+                                        <div className='relative'>
+                                            <label
+                                                className={`
           absolute left-3 pointer-events-none text-gray-500 transition-all
           ${value ? "top-1 text-xs" : "top-2 text-sm"}
         `}
-                                        >
-                                            Select a front
-                                        </label>
-                                        <Select onValueChange={setValue}>
-                                            <SelectTrigger className={`w-[184px] transition-all ${value ? "pt-7 pb-4" : "pt-3 pb-3"}`}>
-                                                <SelectValue />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                    <SelectItem value="apple">Term</SelectItem>
-                                                    <SelectItem value="banana">Definition</SelectItem>
+                                            >
+                                                Select a front
+                                            </label>
+                                            <Select onValueChange={setValue}>
+                                                <SelectTrigger className={`w-[184px] transition-all ${value ? "pt-7 pb-4" : "pt-3 pb-3"}`}>
+                                                    <SelectValue />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                        <SelectItem value="apple">Term</SelectItem>
+                                                        <SelectItem value="banana">Definition</SelectItem>
 
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+                            )}
 
                             <div className='space-y-2'>
                                 <h1 className="font-bold">Tùy chọn bổ sung</h1>
