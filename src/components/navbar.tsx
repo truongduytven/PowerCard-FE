@@ -1,6 +1,5 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import {
   Bell,
   BookOpen,
@@ -15,14 +14,28 @@ import {
   User,
   X,
 } from "lucide-react";
+import Link from "next/link";
 import { useTheme } from "next-themes";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import logo from "../../public/Logo.png";
 import { locales } from "../../i18n";
 import { useLocale } from "@/hooks/useLocale";
-
+import enFlag from "../../public/flags/enFlag.webp";
+import viFlag from "../../public/flags/viFlag.webp";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { Button } from "./ui/button";
+// import zhFlag from "../../public/flags/zh.png";
+// import jpFlag from "../../public/flags/jp.png";
+// import krFlag from "../../public/flags/kr.png";
+// import frFlag from "../../public/flags/fr.png";
 export default function Navbar() {
   const { theme, setTheme } = useTheme();
   const [open, setOpen] = useState(false);
@@ -46,7 +59,7 @@ export default function Navbar() {
   }, []);
 
   const links = [
-    { id: 1, href: "/", label: "Home", icon: <Home className="h-4 w-4" /> },
+    { id: 1, href: "/home", label: "Home", icon: <Home className="h-4 w-4" /> },
     {
       id: 2,
       href: "/decks",
@@ -55,24 +68,12 @@ export default function Navbar() {
     },
     {
       id: 3,
-      href: "/create",
-      label: "Create",
-      icon: <PlusCircle className="h-4 w-4" />,
-    },
-    {
-      id: 4,
-      href: "/study",
-      label: "Study",
-      icon: <BookOpen className="h-4 w-4" />,
-    },
-    {
-      id: 5,
       href: "/explore",
       label: "Explore",
       icon: <Compass className="h-4 w-4" />,
     },
     {
-      id: 6,
+      id: 4,
       href: "/overview",
       label: "Overview",
       icon: <GraduationCap className="h-4 w-4" />,
@@ -106,6 +107,14 @@ export default function Navbar() {
     activeOverlay:
       "from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30",
   };
+  const FLAGS: Record<string, StaticImageData> = {
+    en: enFlag,
+    vi: viFlag,
+    // zh: zhFlag,
+    // jp: jpFlag,
+    // kr: krFlag,
+    // fr: frFlag,
+  };
 
   return (
     <nav
@@ -117,9 +126,26 @@ export default function Navbar() {
     >
       <div className="max-w-8xl mx-auto flex h-16 items-center justify-between px-4 md:px-8 lg:px-20">
         <div className="flex items-center gap-8 lg:gap-12">
-          <a
+          <Link
             href={`/${currentLocale}`}
             className="flex items-center gap-3 group h-16"
+            onClick={(e) => {
+              try {
+                const has =
+                  localStorage.getItem("powercard:hasUnsavedChanges") === "1";
+                const auto = JSON.parse(
+                  localStorage.getItem("folderAutoSave") ?? "true"
+                );
+                if (has && !auto) {
+                  e.preventDefault();
+                  window.dispatchEvent(
+                    new CustomEvent("powercard:pendingNavigation", {
+                      detail: { href: `/${currentLocale}` },
+                    })
+                  );
+                }
+              } catch (err) {}
+            }}
           >
             <div className="h-full flex items-center justify-center px-2">
               <div className="relative h-full flex items-center justify-center min-w-[60px]">
@@ -151,7 +177,7 @@ export default function Navbar() {
                 Smart Learning
               </p>
             </div>
-          </a>
+          </Link>
 
           <div className="hidden lg:flex items-center gap-1">
             {links.map((link) => {
@@ -160,7 +186,7 @@ export default function Navbar() {
                 link.href === "/" ? "" : link.href
               }`;
               return (
-                <a
+                <Link
                   key={link.id}
                   href={linkHref}
                   className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 relative group
@@ -169,6 +195,24 @@ export default function Navbar() {
                         ? `text-purple-600 dark:text-pink-400 bg-gradient-to-r ${gradientColors.activeOverlay} shadow-sm`
                         : "text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-pink-400"
                     }`}
+                  onClick={(e) => {
+                    try {
+                      const has =
+                        localStorage.getItem("powercard:hasUnsavedChanges") ===
+                        "1";
+                      const auto = JSON.parse(
+                        localStorage.getItem("folderAutoSave") ?? "true"
+                      );
+                      if (has && !auto) {
+                        e.preventDefault();
+                        window.dispatchEvent(
+                          new CustomEvent("powercard:pendingNavigation", {
+                            detail: { href: linkHref },
+                          })
+                        );
+                      }
+                    } catch (err) {}
+                  }}
                 >
                   <span
                     className={`transition-transform duration-300 ${
@@ -191,7 +235,7 @@ export default function Navbar() {
                     className={`absolute inset-0 rounded-lg bg-gradient-to-r from-pink-500/0 to-purple-500/0 
                     group-hover:from-pink-500/5 group-hover:to-purple-500/5 transition-all duration-300`}
                   />
-                </a>
+                </Link>
               );
             })}
           </div>
@@ -218,23 +262,40 @@ export default function Navbar() {
             <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
           </Button>
           {/* Locale select */}
-          <div className="hidden sm:flex items-center">
-            <label htmlFor="locale-select" className="sr-only">
-              Choose language
-            </label>
-            <select
+          <Select value={currentLocale} onValueChange={(v) => changeLocale(v)}>
+            <SelectTrigger
               id="locale-select"
-              value={currentLocale}
-              onChange={(e) => changeLocale(e.target.value)}
-              className="h-9 pl-2 pr-6 rounded-md border border-gray-200 dark:border-gray-700 bg-white/0 text-sm text-gray-700 dark:text-gray-200"
+              className="
+                w-fit h-9 px-3 rounded-full text-sm font-medium
+                bg-white/5 dark:bg-white/0
+                 dark:border-gray-700/50
+                hover:bg-gray-100/40 dark:hover:bg-gray-800/40
+                backdrop-blur-sm transition-all flex items-center gap-2
+              "
             >
+              <div className="flex items-center gap-2">
+                <SelectValue placeholder="Language" />
+              </div>
+            </SelectTrigger>
+
+            <SelectContent className="w-fit">
               {locales.map((loc) => (
-                <option key={loc} value={loc}>
-                  {loc.toUpperCase()}
-                </option>
+                <SelectItem key={loc} value={loc}>
+                  <div className="flex items-center gap-2">
+                    <Image
+                      src={FLAGS[loc]}
+                      alt={`${loc} flag`}
+                      width={20}
+                      height={20}
+                      className="rounded-sm object-cover"
+                    />
+                    <span>{loc.toUpperCase()}</span>
+                  </div>
+                </SelectItem>
               ))}
-            </select>
-          </div>
+            </SelectContent>
+          </Select>
+
           <div className="hidden md:flex items-center gap-3">
             <div className="h-9 w-px bg-gray-200 dark:bg-gray-700" />
             <Button
@@ -278,10 +339,29 @@ export default function Navbar() {
                   link.href === "/" ? "" : link.href
                 }`;
                 return (
-                  <a
+                  <Link
                     key={link.id}
                     href={linkHref}
-                    onClick={() => setOpen(false)}
+                    onClick={(e) => {
+                      setOpen(false);
+                      try {
+                        const has =
+                          localStorage.getItem(
+                            "powercard:hasUnsavedChanges"
+                          ) === "1";
+                        const auto = JSON.parse(
+                          localStorage.getItem("folderAutoSave") ?? "true"
+                        );
+                        if (has && !auto) {
+                          e.preventDefault();
+                          window.dispatchEvent(
+                            new CustomEvent("powercard:pendingNavigation", {
+                              detail: { href: linkHref },
+                            })
+                          );
+                        }
+                      } catch (err) {}
+                    }}
                     className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all duration-300 group
                       ${
                         isActive
@@ -308,12 +388,30 @@ export default function Navbar() {
                           : "bg-gray-300 dark:bg-gray-600 group-hover:bg-purple-400 dark:group-hover:bg-pink-400"
                       }`}
                     />
-                  </a>
+                  </Link>
                 );
               })}
-              <a
+              <Link
                 href="/profile"
-                onClick={() => setOpen(false)}
+                onClick={(e) => {
+                  setOpen(false);
+                  try {
+                    const has =
+                      localStorage.getItem("powercard:hasUnsavedChanges") ===
+                      "1";
+                    const auto = JSON.parse(
+                      localStorage.getItem("folderAutoSave") ?? "true"
+                    );
+                    if (has && !auto) {
+                      e.preventDefault();
+                      window.dispatchEvent(
+                        new CustomEvent("powercard:pendingNavigation", {
+                          detail: { href: "/profile" },
+                        })
+                      );
+                    }
+                  } catch (err) {}
+                }}
                 className={`flex items-center justify-between px-4 py-3 rounded-xl text-sm transition-all duration-300 group
                   ${
                     pathname === "/profile"
@@ -332,7 +430,7 @@ export default function Navbar() {
                       : "bg-gray-300 dark:bg-gray-600 group-hover:bg-purple-400 dark:group-hover:bg-pink-400"
                   }`}
                 />
-              </a>
+              </Link>
             </div>
           </div>
         </div>
