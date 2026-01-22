@@ -121,7 +121,7 @@ export const BulkActions: React.FC<BulkActionsProps> = ({
         <Button
           variant="outline"
           onClick={() => setShowBulkMenu(!showBulkMenu)}
-          className="gap-2 relative h-9 sm:h-10 px-3 sm:px-4 border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
+          className="cursor-pointer gap-2 relative h-9 sm:h-10 px-3 sm:px-4 border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
           disabled={totalCards === 0}
         >
           <Grid3x3 className="w-4 h-4" />
@@ -179,7 +179,7 @@ export const BulkActions: React.FC<BulkActionsProps> = ({
                       size="sm"
                       variant="outline"
                       onClick={onSelectAll}
-                      className="h-9 flex-1 text-xs"
+                      className="cursor-pointer h-9 flex-1 text-xs"
                     >
                       Chọn tất cả
                     </Button>
@@ -187,7 +187,7 @@ export const BulkActions: React.FC<BulkActionsProps> = ({
                       size="sm"
                       variant="outline"
                       onClick={onClearSelection}
-                      className="h-9 flex-1 text-xs"
+                      className="cursor-pointer h-9 flex-1 text-xs"
                     >
                       Bỏ chọn
                     </Button>
@@ -196,7 +196,7 @@ export const BulkActions: React.FC<BulkActionsProps> = ({
 
                 <div className="space-y-2 px-2 sm:px-0">
                   <button
-                    className="w-full flex items-center gap-3 p-3.5 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl group"
+                    className="cursor-pointer w-full flex items-center gap-3 p-3.5 hover:bg-blue-50 dark:hover:bg-blue-900/30 rounded-xl group"
                     onClick={() => {
                       setShowImportDialog(true);
                       setShowBulkMenu(false);
@@ -219,7 +219,7 @@ export const BulkActions: React.FC<BulkActionsProps> = ({
                   </button>
 
                   <button
-                    className="w-full flex items-center gap-3 p-3.5 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-xl group disabled:opacity-50"
+                    className="cursor-pointer w-full flex items-center gap-3 p-3.5 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-xl group disabled:opacity-50"
                     onClick={() => {
                       onDuplicateCards(selectedCards);
                       setShowBulkMenu(false);
@@ -240,7 +240,7 @@ export const BulkActions: React.FC<BulkActionsProps> = ({
                   </button>
 
                   <button
-                    className="w-full flex items-center gap-3 p-3.5 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-xl"
+                    className="cursor-pointer w-full flex items-center gap-3 p-3.5 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded-xl"
                     onClick={() => setShowBulkMenu(false)}
                   >
                     <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-100 to-violet-50 dark:from-purple-900/40 dark:to-violet-800/30 flex items-center justify-center">
@@ -253,7 +253,7 @@ export const BulkActions: React.FC<BulkActionsProps> = ({
                   </button>
 
                   <button
-                    className="w-full flex items-center gap-3 p-3.5 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl disabled:opacity-50"
+                    className="cursor-pointer w-full flex items-center gap-3 p-3.5 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-xl disabled:opacity-50"
                     onClick={() => {
                       if (selectedCards.length > 0) {
                         onDeleteCards(selectedCards);

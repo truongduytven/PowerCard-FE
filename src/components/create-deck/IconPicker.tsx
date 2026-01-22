@@ -53,7 +53,7 @@ export const IconPicker: React.FC<IconPickerProps> = ({
                 key={category}
                 type="button"
                 onClick={() => onCategoryChange(category)}
-                className={`px-4 py-2 rounded-xl transition-all duration-200 text-sm font-medium whitespace-nowrap flex-shrink-0 shadow-sm ${
+                className={`cursor-pointer px-4 py-2 rounded-xl transition-all duration-200 text-sm font-medium whitespace-nowrap flex-shrink-0 shadow-sm ${
                   selectedIconCategory === category
                     ? "bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-500 dark:to-blue-400 text-white shadow-md shadow-blue-500/30 dark:shadow-blue-400/20 scale-105"
                     : "bg-gray-100/90 dark:bg-gray-800/90 text-gray-700 dark:text-gray-300 hover:bg-gray-200/90 dark:hover:bg-gray-700/90 hover:scale-105"
@@ -97,7 +97,7 @@ export const IconPicker: React.FC<IconPickerProps> = ({
 
       {/* Icon Grid - Responsive */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="cursor-pointer flex items-center justify-between">
           <Label className="text-sm font-semibold text-gray-900 dark:text-gray-200 flex items-center gap-2">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
             Chọn biểu tượng
@@ -127,7 +127,7 @@ export const IconPicker: React.FC<IconPickerProps> = ({
                   key={option.value}
                   type="button"
                   onClick={() => onIconChange(option.value)}
-                  className={`relative p-2 sm:p-2.5 rounded-xl border-2 transition-all duration-200 group hover:z-10 ${
+                  className={`cursor-pointer relative p-2 sm:p-2.5 rounded-xl border-2 transition-all duration-200 group hover:z-10 ${
                     isSelected
                       ? "border-blue-500 dark:border-blue-400 bg-gradient-to-br from-blue-50/90 to-blue-100/90 dark:from-blue-900/40 dark:to-blue-800/40 shadow-lg shadow-blue-500/20 dark:shadow-blue-400/10 scale-105"
                       : "border-gray-200/80 dark:border-gray-700/60 bg-white/90 dark:bg-gray-800/60 hover:border-blue-300/80 dark:hover:border-blue-500/60 hover:shadow-md hover:scale-105"
@@ -158,13 +158,13 @@ export const IconPicker: React.FC<IconPickerProps> = ({
         )}
       </div>
 
-      {/* Gradient Color Selection - Enhanced */}
+      {/* Gradient Color Selection - Đã chỉnh sửa kích thước */}
       <div className="space-y-3">
         <Label className="text-sm font-semibold text-gray-900 dark:text-gray-200 flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
           Màu gradient cho icon
         </Label>
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-2 sm:gap-3 p-3 sm:p-4 bg-gradient-to-br from-gray-50/80 to-gray-100/50 dark:from-gray-800/40 dark:to-gray-900/40 rounded-xl border border-gray-200/60 dark:border-gray-700/40">
+        <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-2 sm:gap-3 p-3 sm:p-4 bg-gradient-to-br from-gray-50/80 to-gray-100/50 dark:from-gray-800/40 dark:to-gray-900/40 rounded-xl border border-gray-200/60 dark:border-gray-700/40">
           {gradientOptions.map((gradient) => {
             const isSelected = iconColor === gradient.value;
             return (
@@ -172,43 +172,36 @@ export const IconPicker: React.FC<IconPickerProps> = ({
                 key={gradient.value}
                 type="button"
                 onClick={() => onColorChange(gradient.value)}
-                className={`relative aspect-square rounded-xl border-2 transition-all duration-200 hover:scale-110 group overflow-hidden ${
+                className={`cursor-pointer relative p-2 sm:p-2.5 rounded-xl border-2 transition-all duration-200 group hover:z-10 hover:scale-105 ${
                   isSelected
-                    ? "border-gray-900 dark:border-gray-100 shadow-xl shadow-black/20 dark:shadow-black/40 scale-110 ring-2 ring-offset-2 ring-blue-500 dark:ring-blue-400 ring-offset-white dark:ring-offset-gray-900"
-                    : "border-white/90 dark:border-gray-700/90 hover:border-gray-300/90 dark:hover:border-gray-600/90 shadow-md hover:shadow-lg"
+                    ? "border-blue-500 dark:border-blue-400 bg-gradient-to-br from-blue-50/90 to-blue-100/90 dark:from-blue-900/40 dark:to-blue-800/40 shadow-lg shadow-blue-500/20 dark:shadow-blue-400/10 scale-105"
+                    : "border-gray-200/80 dark:border-gray-700/60 bg-white/90 dark:bg-gray-800/60 hover:border-blue-300/80 dark:hover:border-blue-500/60 hover:shadow-md"
                 }`}
-                style={{ background: gradient.value }}
                 title={gradient.label}
               >
+                <div
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg sm:rounded-xl flex items-center justify-center mx-auto mb-1.5 sm:mb-2 transition-all group-hover:scale-110 shadow-sm"
+                  style={{ background: gradient.value }}
+                >
+                  {isSelected && (
+                    <Check className="w-5 h-5 sm:w-6 sm:h-6 text-white drop-shadow-lg" />
+                  )}
+                </div>
+                <span className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-300 truncate block text-center leading-tight font-medium">
+                  {gradient.label}
+                </span>
                 {isSelected && (
-                  <div className="absolute inset-0 bg-black/20 dark:bg-black/30 backdrop-blur-[1px]" />
-                )}
-                {isSelected && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 dark:bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center">
-                      <Check
-                        className="w-5 h-5 sm:w-6 sm:h-6 text-white drop-shadow-lg"
-                        strokeWidth={3}
-                      />
-                    </div>
+                  <div className="absolute -top-1.5 -right-1.5 w-6 h-6 bg-gradient-to-r from-blue-600 to-blue-500 dark:from-blue-500 dark:to-blue-400 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/30 dark:shadow-blue-400/20 ring-2 ring-white dark:ring-gray-900">
+                    <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />
                   </div>
                 )}
-                <div
-                  className={`absolute bottom-0 left-0 right-0 text-[9px] sm:text-[10px] py-1 sm:py-1.5 px-1 truncate text-center transition-all font-medium ${
-                    isSelected
-                      ? "bg-black/90 dark:bg-black/95 text-white backdrop-blur-sm"
-                      : "bg-white/95 dark:bg-gray-800/95 backdrop-blur-sm text-gray-800 dark:text-gray-200 opacity-0 group-hover:opacity-100"
-                  }`}
-                >
-                  {gradient.label}
-                </div>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Preview Section - New */}
+      {/* Preview Section */}
       <div className="p-4 sm:p-5 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl border border-blue-200/60 dark:border-blue-800/40">
         <Label className="text-sm font-semibold text-gray-900 dark:text-gray-200 mb-3 block flex items-center gap-2">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400"></span>
@@ -222,7 +215,7 @@ export const IconPicker: React.FC<IconPickerProps> = ({
             >
               {(() => {
                 const SelectedIconComponent = iconOptions.find(
-                  (opt) => opt.value === selectedIcon
+                  (opt) => opt.value === selectedIcon,
                 )?.icon;
                 return SelectedIconComponent ? (
                   <SelectedIconComponent className="w-10 h-10 sm:w-12 sm:h-12 text-white" />

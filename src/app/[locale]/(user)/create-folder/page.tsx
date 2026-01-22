@@ -60,7 +60,7 @@ export default function CreateFolderPage() {
   const [pendingDraft, setPendingDraft] = useState<any | null>(null);
   const router = useRouter();
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(
-    null
+    null,
   );
 
   // Hàm kiểm tra thay đổi
@@ -173,17 +173,17 @@ export default function CreateFolderPage() {
       studySets: pendingDraft.studySets || [],
       tags: pendingDraft.tags || [],
       visibility: ["private", "public", "shared"].includes(
-        pendingDraft.visibility
+        pendingDraft.visibility,
       )
         ? pendingDraft.visibility
         : "private",
       colorTheme: ["blue", "green", "purple", "red", "orange"].includes(
-        pendingDraft.colorTheme
+        pendingDraft.colorTheme,
       )
         ? pendingDraft.colorTheme
         : "blue",
       sortOrder: ["manual", "alphabetical", "date"].includes(
-        pendingDraft.sortOrder
+        pendingDraft.sortOrder,
       )
         ? pendingDraft.sortOrder
         : "manual",
@@ -254,7 +254,7 @@ export default function CreateFolderPage() {
 
     window.addEventListener(
       "powercard:pendingNavigation",
-      handlePendingNav as EventListener
+      handlePendingNav as EventListener,
     );
 
     return () => {
@@ -262,7 +262,7 @@ export default function CreateFolderPage() {
       window.removeEventListener("popstate", handlePopState);
       window.removeEventListener(
         "powercard:pendingNavigation",
-        handlePendingNav as EventListener
+        handlePendingNav as EventListener,
       );
     };
   }, [hasUnsavedChanges, autoSave]); // Thêm autoSave vào dependency
@@ -272,7 +272,7 @@ export default function CreateFolderPage() {
     try {
       localStorage.setItem(
         "powercard:hasUnsavedChanges",
-        hasUnsavedChanges ? "1" : "0"
+        hasUnsavedChanges ? "1" : "0",
       );
     } catch (e) {
       // ignore
@@ -314,7 +314,7 @@ export default function CreateFolderPage() {
 
   const handleInputChange = (
     field: keyof FormData,
-    value: string | string[]
+    value: string | string[],
   ) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
 
@@ -418,7 +418,7 @@ export default function CreateFolderPage() {
       set.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       set.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
       set.tags.some((tag) =>
-        tag.toLowerCase().includes(searchQuery.toLowerCase())
+        tag.toLowerCase().includes(searchQuery.toLowerCase()),
       );
 
     const matchesCategory =
@@ -678,16 +678,15 @@ export default function CreateFolderPage() {
             {/* Right Column - Preview & Actions */}
             <div className="lg:col-span-1">
               <div className="lg:sticky lg:top-16 space-y-6">
-                <PreviewPanel
-                  formData={formData}
-                  selectedStudySets={selectedStudySets}
-                />
-
                 <CustomizationPanel
                   showAdvanced={showAdvanced}
                   setShowAdvanced={setShowAdvanced}
                   formData={formData}
                   handleInputChange={handleInputChange}
+                />
+                <PreviewPanel
+                  formData={formData}
+                  selectedStudySets={selectedStudySets}
                 />
 
                 {/* Action Buttons */}

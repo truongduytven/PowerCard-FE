@@ -507,7 +507,7 @@ export default function StudySetSelector({
             </div>
             <div className="flex-1 min-w-0">
               <CardTitle className="text-lg sm:text-xl text-gray-900 dark:text-white">
-                Chọn Study Sets
+                Chọn decks
               </CardTitle>
               <CardDescription className="text-sm truncate text-gray-600 dark:text-gray-400">
                 Tìm và chọn các bộ flashcard để thêm vào folder
@@ -655,7 +655,7 @@ export default function StudySetSelector({
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <div>
                 <h3 className="font-medium text-gray-900 dark:text-white text-base sm:text-lg">
-                  Study Sets có sẵn
+                  Decks có sẵn
                 </h3>
               </div>
               <div className="flex items-center gap-2 text-sm">
@@ -817,7 +817,7 @@ export default function StudySetSelector({
                     <BookOpen className="w-10 h-10 sm:w-12 sm:h-12 text-gray-400 dark:text-gray-500" />
                   </div>
                   <p className="text-gray-700 dark:text-gray-300 text-base sm:text-lg mb-2 font-medium">
-                    Không tìm thấy study sets phù hợp
+                    Không tìm thấy decks phù hợp
                   </p>
                   <p className="text-gray-500 dark:text-gray-400 text-sm sm:text-base max-w-sm mx-auto">
                     Thử thay đổi từ khóa tìm kiếm hoặc chọn thể loại khác

@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
                     size="sm"
                     onClick={onUndo}
                     disabled={!canUndo}
-                    className="h-8 w-8 p-0"
+                    className="cursor-pointer h-8 w-8 p-0"
                     title="Hoàn tác (Ctrl+Z)"
                   >
                     <Undo className="w-4 h-4" />
@@ -83,7 +83,7 @@ export const Header: React.FC<HeaderProps> = ({
                     size="sm"
                     onClick={onRedo}
                     disabled={!canRedo}
-                    className="h-8 w-8 p-0"
+                    className="cursor-pointerh-8 w-8 p-0"
                     title="Làm lại (Ctrl+Shift+Z)"
                   >
                     <Redo className="w-4 h-4" />
@@ -124,7 +124,7 @@ export const Header: React.FC<HeaderProps> = ({
               </div>
             </div>
 
-            <Button onClick={onSubmit} className="ml-4">
+            <Button onClick={onSubmit} className="cursor-pointer ml-4">
               Tạo bộ flashcard
             </Button>
           </div>

@@ -260,7 +260,7 @@ export default function Profile() {
                         {activeTab === 'decks' && (
                             <div className="space-y-4">
                                 <h2 className="text-xl font-bold">My Decks</h2>
-                                <p className="text-slate-600">Your study sets will appear here.</p>
+                                <p className="text-slate-600">Your decks will appear here.</p>
                                 {/* TODO: Add deck cards here */}
                             </div>
                         )}

@@ -67,7 +67,7 @@ export default function CreateFlashcardPage() {
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [expandedCards, setExpandedCards] = useState<Set<string>>(
-    new Set(["1", "2"])
+    new Set(["1", "2"]),
   );
   const [showImportModal, setShowImportModal] = useState(false);
   const [selectedIconCategory, setSelectedIconCategory] =
@@ -99,10 +99,10 @@ export default function CreateFlashcardPage() {
         cardId === "title"
           ? "deck-title"
           : cardId === "description"
-          ? "deck-description"
-          : cardId === "topic"
-          ? "deck-topic"
-          : "deck-folder";
+            ? "deck-description"
+            : cardId === "topic"
+              ? "deck-topic"
+              : "deck-folder";
       const el = document.getElementById(id);
       if (el) {
         try {
@@ -143,7 +143,7 @@ export default function CreateFlashcardPage() {
   // Hooks
   const { lastSaved, isSaving, recoverDraft, clearDraft } = useAutoSave(
     formData,
-    1000
+    1000,
   );
   const history = useHistory(formData);
 
@@ -163,7 +163,7 @@ export default function CreateFlashcardPage() {
       history.push(newData);
       setFormData(newData);
     },
-    [history]
+    [history],
   );
 
   // Handlers
@@ -182,7 +182,7 @@ export default function CreateFlashcardPage() {
   const handleFlashcardChange = (
     index: number,
     field: keyof Flashcard,
-    value: any
+    value: any,
   ) => {
     const updatedCards = [...formData.flashcards];
     updatedCards[index] = { ...updatedCards[index], [field]: value };
@@ -213,7 +213,7 @@ export default function CreateFlashcardPage() {
         if (previousState.flashcards.length > before.flashcards.length) {
           // a card was restored/inserted — find the new id
           const restored = previousState.flashcards.find(
-            (f) => !beforeIds.has(f.id)
+            (f) => !beforeIds.has(f.id),
           );
           targetId = restored?.id;
         } else if (previousState.flashcards.length < before.flashcards.length) {
@@ -300,7 +300,7 @@ export default function CreateFlashcardPage() {
 
   const handleSelectAll = () => {
     setSelectedCards(
-      Array.from({ length: formData.flashcards.length }, (_, i) => i)
+      Array.from({ length: formData.flashcards.length }, (_, i) => i),
     );
   };
 
@@ -326,8 +326,8 @@ export default function CreateFlashcardPage() {
     setSelectedCards(
       Array.from(
         { length: newFlashcards.length },
-        (_, i) => formData.flashcards.length + i
-      )
+        (_, i) => formData.flashcards.length + i,
+      ),
     );
   };
 
@@ -357,7 +357,7 @@ export default function CreateFlashcardPage() {
     });
 
     const updatedCards = formData.flashcards.filter(
-      (_, i) => !indices.includes(i)
+      (_, i) => !indices.includes(i),
     );
     updatedCards.forEach((card, i) => (card.position = i));
     updateFormData({ ...formData, flashcards: updatedCards });
@@ -443,7 +443,7 @@ export default function CreateFlashcardPage() {
 
       {
         duration: 1000,
-      }
+      },
     );
   };
 
@@ -532,7 +532,7 @@ export default function CreateFlashcardPage() {
             return oldIndex + 1;
         }
         return oldIndex;
-      })
+      }),
     );
 
     toast.success("Đã sắp xếp lại thứ tự thẻ");
@@ -574,7 +574,7 @@ export default function CreateFlashcardPage() {
 
   const handleSubmit = () => {
     const emptyCards = formData.flashcards.filter(
-      (card) => !card.term.trim() || !card.definition.trim()
+      (card) => !card.term.trim() || !card.definition.trim(),
     );
 
     if (!formData.title.trim()) {
@@ -584,7 +584,7 @@ export default function CreateFlashcardPage() {
 
     if (emptyCards.length > 0) {
       toast.error(
-        `Còn ${emptyCards.length} thẻ chưa hoàn thành. Vui lòng kiểm tra lại.`
+        `Còn ${emptyCards.length} thẻ chưa hoàn thành. Vui lòng kiểm tra lại.`,
       );
       return;
     }
@@ -685,7 +685,7 @@ export default function CreateFlashcardPage() {
       {
         duration: 8000,
         position: "bottom-right",
-      }
+      },
     );
   };
 
@@ -696,7 +696,7 @@ export default function CreateFlashcardPage() {
       setSelectedCards((prev) =>
         prev.includes(index)
           ? prev.filter((i) => i !== index)
-          : [...prev, index]
+          : [...prev, index],
       );
     } else if (e.shiftKey) {
       // Shift click: select range
@@ -706,7 +706,7 @@ export default function CreateFlashcardPage() {
         const end = Math.max(lastSelected, index);
         const range = Array.from(
           { length: end - start + 1 },
-          (_, i) => start + i
+          (_, i) => start + i,
         );
         setSelectedCards(Array.from(new Set([...selectedCards, ...range])));
       } else {
@@ -733,7 +733,7 @@ export default function CreateFlashcardPage() {
 
   // Calculate stats
   const completedCards = formData.flashcards.filter(
-    (c) => c.term.trim() && c.definition.trim()
+    (c) => c.term.trim() && c.definition.trim(),
   ).length;
   const totalCards = formData.flashcards.length;
   const incompleteCards = totalCards - completedCards;
@@ -741,7 +741,7 @@ export default function CreateFlashcardPage() {
 
   // Get unique categories from icon options
   const iconCategories = Array.from(
-    new Set(iconOptions.map((icon) => icon.category))
+    new Set(iconOptions.map((icon) => icon.category)),
   );
 
   return (
@@ -848,7 +848,7 @@ export default function CreateFlashcardPage() {
                   onClick={() => setShowImportModal(true)}
                   variant="outline"
                   size="sm"
-                  className="border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 h-9"
+                  className="cursor-pointer border-gray-300 hover:border-gray-400 hover:bg-gray-50 text-gray-700 h-9"
                 >
                   <Import className="w-3.5 h-3.5 mr-1.5" />
                   <span className="hidden sm:inline">Import from Quizlet</span>
@@ -856,7 +856,7 @@ export default function CreateFlashcardPage() {
                 <Button
                   onClick={addFlashcard}
                   size="sm"
-                  className="h-9 flex-1 min-w-[90px] sm:flex-none bg-blue-600 hover:bg-blue-700 text-white"
+                  className="cursor-pointer h-9 flex-1 min-w-[90px] sm:flex-none bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   <Plus className="w-4 h-4 sm:mr-1.5" />
                   <span className="hidden xs:inline sm:inline">Thêm thẻ</span>
@@ -899,7 +899,7 @@ export default function CreateFlashcardPage() {
             <div className="pt-2">
               <button
                 onClick={addFlashcard}
-                className="w-full py-3.5 border-2 border-dashed border-gray-300 hover:border-blue-400 hover:bg-blue-50/30 text-gray-600 hover:text-blue-700 transition-all rounded-lg group flex items-center justify-center gap-2.5"
+                className="cursor-pointer w-full py-3.5 border-2 border-dashed border-gray-300 hover:border-blue-400  text-gray-600 hover:text-blue-700 transition-all rounded-lg group flex items-center justify-center gap-2.5"
               >
                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center group-hover:bg-blue-200 transition-colors">
                   <Plus className="w-4 h-4 text-blue-600 group-hover:text-blue-700" />

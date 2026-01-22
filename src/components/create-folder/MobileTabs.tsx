@@ -79,7 +79,7 @@ export default function MobileTabs({
       <Tabs defaultValue="basic" className="w-full ">
         <TabsList className="grid grid-cols-3 w-full bg-white/70 dark:bg-gray-900/60 border border-gray-200/60 dark:border-gray-800/60">
           <TabsTrigger value="basic">Thông tin</TabsTrigger>
-          <TabsTrigger value="sets">Study Sets</TabsTrigger>
+          <TabsTrigger value="sets">Decks</TabsTrigger>
           <TabsTrigger value="selected">
             Đã chọn ({selectedStudySets.length})
           </TabsTrigger>
@@ -136,7 +136,7 @@ export default function MobileTabs({
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
                     <Input
-                      placeholder="Tìm study sets..."
+                      placeholder="Tìm decks..."
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
                       className="pl-9 h-10 text-sm"
@@ -232,7 +232,7 @@ export default function MobileTabs({
                   </div>
                 </div>
 
-                {/* Study Sets List */}
+                {/* decks List */}
                 <div className="space-y-3 max-h-[400px] overflow-y-auto">
                   {filteredStudySets.length > 0 ? (
                     filteredStudySets.map((set) => {
@@ -303,7 +303,7 @@ export default function MobileTabs({
                     <div className="py-8 text-center">
                       <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                       <p className="text-gray-700 text-sm font-medium mb-1">
-                        Không tìm thấy study sets phù hợp
+                        Không tìm thấy decks phù hợp
                       </p>
                       <p className="text-gray-500 text-xs">
                         Thử thay đổi từ khóa tìm kiếm hoặc chọn thể loại khác
@@ -323,7 +323,7 @@ export default function MobileTabs({
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="font-medium">Study Sets đã chọn</h3>
+                      <h3 className="font-medium">Decks đã chọn</h3>
                       <p className="text-xs text-gray-500 mt-1">
                         Kéo thả để sắp xếp thứ tự
                       </p>
@@ -439,10 +439,10 @@ export default function MobileTabs({
               <CardContent className="p-8 text-center">
                 <BookOpen className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                 <p className="text-gray-500 mb-2">
-                  Chưa có study sets nào được chọn
+                  Chưa có decks nào được chọn
                 </p>
                 <p className="text-gray-400 text-sm">
-                  Chọn study sets từ tab "Study Sets"
+                  Chọn decks từ tab "decks"
                 </p>
               </CardContent>
             </Card>

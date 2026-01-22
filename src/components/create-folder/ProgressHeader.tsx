@@ -312,7 +312,7 @@ export default function ProgressHeader({
                       icon: "D",
                     },
                     {
-                      label: "Study Sets",
+                      label: "Decks",
                       completed: studySetsCount > 0,
                       icon: "S",
                       count: studySetsCount,
@@ -340,7 +340,7 @@ export default function ProgressHeader({
                           <span>{item.icon}</span>
                         )}
 
-                        {item.label === "Study Sets" && studySetsCount > 0 && (
+                        {item.label === "Decks" && studySetsCount > 0 && (
                           <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}

@@ -54,7 +54,7 @@ export default function SelectedStudySets({
               </div>
               <div>
                 <CardTitle className="text-xl text-gray-900 dark:text-white">
-                  Study Sets Đã Chọn
+                  Decks Đã Chọn
                 </CardTitle>
                 <CardDescription className="text-pink-700 dark:text-pink-300">
                   Kéo thả để sắp xếp thứ tự hiển thị
@@ -200,10 +200,10 @@ export default function SelectedStudySets({
                 <BookOpen className="w-8 h-8 text-purple-500 dark:text-purple-400" />
               </div>
               <p className="text-gray-700 dark:text-gray-300 text-lg font-medium mb-2">
-                Chưa có study sets nào được chọn
+                Chưa có decks nào được chọn
               </p>
               <p className="text-gray-500 dark:text-gray-400 text-sm max-w-md mx-auto">
-                Hãy chọn các study sets từ danh sách bên trên để thêm vào folder
+                Hãy chọn các decks từ danh sách bên trên để thêm vào folder
                 của bạn
               </p>
             </div>
@@ -218,7 +218,7 @@ export default function SelectedStudySets({
                   <span className="font-medium text-gray-700 dark:text-gray-300">
                     Mẹo:
                   </span>{" "}
-                  Kéo và thả các study sets để sắp xếp thứ tự hiển thị trong
+                  Kéo và thả các decks để sắp xếp thứ tự hiển thị trong
                   folder
                 </p>
                 <Badge

@@ -248,7 +248,6 @@ export const topics = [
   { id: "17", name: "Thể thao" },
   { id: "18", name: "Công nghệ" },
   { id: "19", name: "Môi trường" },
-  { id: "20", name: "Khác" },
 ];
 
 export const folders = [
@@ -438,51 +437,117 @@ export const iconOptions = [
 
 export const gradientOptions = [
   {
-    label: "Xanh tím",
-    value: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    value: "linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%)",
+    label: "Tím Neon",
+    preview: "from-violet-600 to-indigo-800",
+    category: "Đậm",
   },
   {
-    label: "Hồng cam",
     value: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
+    label: "Hồng",
+    preview: "from-pink-500 to-rose-600",
+    category: "Chính",
   },
   {
-    label: "Xanh lá",
     value: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
+    label: "Xanh Dương",
+    preview: "from-blue-500 to-cyan-500",
+    category: "Chính",
   },
   {
-    label: "Cam đỏ",
-    value: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-  },
-  {
-    label: "Tím xanh",
-    value: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)",
-  },
-  {
-    label: "Vàng cam",
-    value: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)",
-  },
-  {
-    label: "Xanh dương",
-    value: "linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)",
-  },
-  {
-    label: "Hồng tím",
-    value: "linear-gradient(135deg, #fbc2eb 0%, #a6c1ee 100%)",
-  },
-  {
-    label: "Xanh ngọc",
-    value: "linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%)",
-  },
-  {
-    label: "Cam hồng",
-    value: "linear-gradient(135deg, #ff9a9e 0%, #fad0c4 100%)",
-  },
-  {
-    label: "Tím hồng",
-    value: "linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)",
-  },
-  {
-    label: "Xanh lá đậm",
     value: "linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)",
+    label: "Xanh Lá",
+    preview: "from-green-500 to-teal-500",
+    category: "Chính",
+  },
+  {
+    value: "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
+    label: "Cam Hồng",
+    preview: "from-rose-500 to-yellow-500",
+    category: "Chính",
+  },
+  {
+    value: "linear-gradient(135deg, #30cfd0 0%, #330867 100%)",
+    label: "Xanh Đậm",
+    preview: "from-cyan-500 to-indigo-800",
+    category: "Chính",
+  },
+
+  // ===== ĐẬM / NỔI (Saturated) =====
+  {
+    value: "linear-gradient(135deg, #ff512f 0%, #dd2476 100%)",
+    label: "Đỏ Hồng Đậm",
+    preview: "from-red-600 to-pink-600",
+    category: "Đậm",
+  },
+  {
+    value: "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)",
+    label: "Xanh Ngọc",
+    preview: "from-emerald-600 to-green-500",
+    category: "Đậm",
+  },
+  {
+    value: "linear-gradient(135deg, #396afc 0%, #2948ff 100%)",
+    label: "Xanh Hoàng Gia",
+    preview: "from-blue-700 to-indigo-700",
+    category: "Đậm",
+  },
+  {
+    value: "linear-gradient(135deg, #fc4a1a 0%, #f7b733 100%)",
+    label: "Cam Năng Lượng",
+    preview: "from-orange-600 to-yellow-500",
+    category: "Đậm",
+  },
+
+  // ===== SIÊU ĐẬM / HIGH CONTRAST =====
+  {
+    value: "linear-gradient(135deg, #ee0979 0%, #ff6a00 100%)",
+    label: "Hồng Cam Đậm",
+    preview: "from-fuchsia-600 to-orange-600",
+    category: "Đậm",
+  },
+  {
+    value: "linear-gradient(135deg, #41295a 0%, #2f0743 100%)",
+    label: "Tím Than",
+    preview: "from-purple-800 to-violet-900",
+    category: "Đậm",
+  },
+  {
+    value: "linear-gradient(135deg, #141e30 0%, #243b55 100%)",
+    label: "Xanh Đêm",
+    preview: "from-slate-800 to-blue-900",
+    category: "Đậm",
+  },
+  {
+    value: "linear-gradient(135deg, #000000 0%, #434343 100%)",
+    label: "Đen Đậm",
+    preview: "from-black to-gray-700",
+    category: "Đậm",
+  },
+
+  // ===== PHÁ CÁCH / MODERN =====
+  {
+    value: "linear-gradient(135deg, #f12711 0%, #f5af19 100%)",
+    label: "Đỏ Cam",
+    preview: "from-red-600 to-amber-500",
+    category: "Đậm",
+  },
+  {
+    value: "linear-gradient(135deg, #00b09b 0%, #96c93d 100%)",
+    label: "Xanh Neon",
+    preview: "from-teal-600 to-lime-500",
+    category: "Đậm",
+  },
+  {
+    value: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+    label: "Tím",
+    preview: "from-purple-600 to-indigo-600",
+    category: "Chính",
+  },
+  {
+    value: "linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%)",
+    label: "Hồng Đỏ",
+    preview: "from-pink-600 to-red-600",
+    category: "Đậm",
   },
 ];
