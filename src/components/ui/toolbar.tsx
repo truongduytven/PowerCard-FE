@@ -13,31 +13,31 @@ export default function TextFormattingToolbar() {
     ];
 
     return (
-        <div className="bg-surface-light dark:bg-surface-dark rounded-full border border-border-light dark:border-border-dark w-[80%]">
-            <div className="flex items-center justify-center py-1 gap-1">
+        <div className="bg-surface-light dark:bg-surface-dark rounded-full border border-border-light dark:border-border-dark w-full">
+            <div className="flex items-center justify-center py-1 px-2 gap-1">
 
                 {/* Bold */}
                 <button
                     className={button}
                 >
-                    <span className="font-bold text-lg">B</span>
+                    <span className="font-bold text-sm">B</span>
                 </button>
 
                 {/* Italic */}
                 <button
                     className={button}
                 >
-                    <span className="font-serif italic text-lg">I</span>
+                    <span className="font-serif italic text-sm">I</span>
                 </button>
 
                 {/* Underline */}
                 <button className={button}>
-                    <span className="underline text-lg font-medium">U</span>
+                    <span className="underline text-sm font-medium">U</span>
                 </button>
 
                 {/* Strike */}
                 <button className={button}>
-                    <span className="line-through text-lg font-medium">S</span>
+                    <span className="line-through text-sm font-medium">S</span>
                 </button>
 
                 <Popover>
@@ -47,7 +47,7 @@ export default function TextFormattingToolbar() {
               focus:outline-none focus:ring-primary focus:ring-opacity-50 focus:bg-slate-100
               transition-colors">
                             <div
-                                className="w-6 h-6 rounded-full p-0 shadow-sm border border-gray-300"
+                                className="w-4 h-4 rounded-full p-0 shadow-sm border border-gray-300"
                                 style={{
                                     background: `linear-gradient(135deg, #FACC15, #EF4444, #A855F7)`,
                                 }}
