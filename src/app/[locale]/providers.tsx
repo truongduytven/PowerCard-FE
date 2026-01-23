@@ -1,9 +1,8 @@
 "use client";
 
-import { ThemeProvider } from "@/components/theme-provider";
-import Navbar from "@/components/Navbar";
-import { NextIntlClientProvider } from "next-intl";
 import { LocaleSync } from "@/components/LocaleSync";
+import { ThemeProvider } from "@/components/theme-provider";
+import { NextIntlClientProvider } from "next-intl";
 
 export default function Providers({
   children,
