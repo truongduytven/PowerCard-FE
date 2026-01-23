@@ -227,7 +227,7 @@ export const folders: ContentItem[] = [
 //     icon: "🧬",
 //     lastModified: "3 days ago",
 //     cards: 67,
-//     mastered: 23,  
+//     mastered: 23,
 //     progress: 34,
 //     category: "Science",
 //     isPublic: false,
